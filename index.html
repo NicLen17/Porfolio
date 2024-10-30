@@ -1,13 +1,54 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
+    <link rel="stylesheet" href="./index.css" />
+    <title>Fabio Ramos - Portfolio</title>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <div id="container">
+      <div class="tile"></div>
+    </div>
+
+    <div id="links">
+      <div class="meta-link">
+        <span class="label">Fabio Ramos</span>
+        <span class="label"
+          ><span style="color: rgb(49, 49, 230)">Front-End</span>
+          Developer</span
+        >
+        <button class="resume">
+          <a
+            download
+            href="./assets/Fabio_Ramos_FrontEnd_Developer_CV_2024.pdf"
+          >
+            Descargar cv
+          </a>
+        </button>
+        <div class="meta-link-social">
+          <a
+            target="blank"
+            href="https://www.linkedin.com/in/fabio-ramos-78939a236/"
+            ><img
+              src="https://icongr.am/fontawesome/linkedin-square.svg?size=128&color=ffffff"
+              alt="linkedin-icon"
+          /></a>
+          <a target="blank" href="https://github.com/NicLen17"
+            ><img
+              src="https://icongr.am/fontawesome/github.svg?size=128&color=ffffff"
+              alt="github-icon"
+          /></a>
+          <a
+            target="blank"
+            href="mailto:fabioramosnic@gmail.com?subject='Hola!'&body='Me comunico desde el portfolio!'"
+            ><img
+              src="https://icongr.am/entypo/mail.svg?size=128&color=ffffff"
+              alt="github-icon"
+          /></a>
+        </div>
+      </div>
+    </div>
   </body>
+  <script src="./index.js"></script>
 </html>
