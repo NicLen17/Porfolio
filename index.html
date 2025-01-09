@@ -3,52 +3,324 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="./assets/Icon.png" />
     <link rel="stylesheet" href="./index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet" />
     <title>Fabio Ramos - Portfolio</title>
+    <script defer src="./index.js"></script>
   </head>
-  <body>
-    <div id="container">
+  <body id="body">
+    <!-- <div id="follower"></div> -->
+    <div id="container" class="container hidden">
       <div class="tile"></div>
     </div>
-
-    <div id="links">
-      <div class="meta-link">
+    <nav class="nav">
+      <a href="/">
+        <img src="./assets/Icon.png" alt="Fabio Ramos - Logo" />
+      </a>
+      <div class="nav-items-container">
+        <button class="nav-item">Experience</button>
+        <button class="nav-item">Proyects</button>
+        <button class="nav-item">About</button>
+      </div>
+    </nav>
+    <div class="content hidden" id="content">
+      <div class="meta-link hidden">
         <span class="label">Fabio Ramos</span>
-        <span class="label"
-          ><span style="color: rgb(49, 49, 230)">Front-End</span>
-          Developer</span
-        >
-        <button class="resume">
+        <span class="label">Front-End Developer</span>
+        <div class="button-group">
+          <a> View Work </a>
           <a
             download
-            href="./assets/Fabio_Ramos_FrontEnd_Developer_CV_2024.pdf"
-          >
-            Descargar cv
+            href="./assets/Fabio_Ramos_FrontEnd_Developer_CV_2024.pdf">
+            Resume
+            <img
+              src="https://icongr.am/feather/download.svg?size=20&color=ffffff"
+              alt="" />
           </a>
-        </button>
+        </div>
         <div class="meta-link-social">
           <a
+            rel="noreferrer"
             target="blank"
             href="https://www.linkedin.com/in/fabio-ramos-78939a236/"
             ><img
+              class="social-img"
               src="https://icongr.am/fontawesome/linkedin-square.svg?size=128&color=ffffff"
               alt="linkedin-icon"
           /></a>
-          <a target="blank" href="https://github.com/NicLen17"
+          <a rel="noreferrer" target="blank" href="https://github.com/NicLen17"
             ><img
+              class="social-img"
               src="https://icongr.am/fontawesome/github.svg?size=128&color=ffffff"
               alt="github-icon"
           /></a>
           <a
+            rel="noreferrer"
             target="blank"
             href="mailto:fabioramosnic@gmail.com?subject='Hola!'&body='Me comunico desde el portfolio!'"
             ><img
+              class="social-img"
               src="https://icongr.am/entypo/mail.svg?size=128&color=ffffff"
               alt="github-icon"
           /></a>
         </div>
       </div>
     </div>
+    <div class="about hidden">
+      <h2>About me<span>...</span></h2>
+      <hr />
+      <div class="about-body">
+        <div class="about-body-left">
+          <p>
+            FrontEnd developer with solid knowledge in
+            <span> React, Javascript, Typescript, ECS6+, HTML5 and CSS3. </span>
+          </p>
+          <p>
+            As a software developer I focus on creating dynamic, user-friendly
+            applications with great attention to detail, focusing on good
+            development practices and clean code<span>.</span>
+          </p>
+          <ul>
+            <li>
+              <img
+                src="https://icongr.am/clarity/map-marker.svg?size=128&color=00adde"
+                alt="" />
+              Argentinian Developer
+            </li>
+            <li>
+              <img
+                src="https://icongr.am/clarity/design.svg?size=128&color=00adde"
+                alt="" />
+              Systems Engineering Student
+            </li>
+            <li>
+              <img
+                src="https://icongr.am/clarity/cluster.svg?size=128&color=00adde"
+                alt="" />
+              Hardware geek
+            </li>
+          </ul>
+        </div>
+        <div class="about-body-right">
+          <h3>Key Skills<span>.</span></h3>
+          <div class="about-skills">
+            <p class="skills-item">React</p>
+            <p class="skills-item">Typescript</p>
+            <p class="skills-item">Javascript</p>
+            <p class="skills-item">Node</p>
+            <p class="skills-item">Express</p>
+            <p class="skills-item">Next</p>
+            <p class="skills-item">SQL</p>
+            <p class="skills-item">MongoDB</p>
+            <p class="skills-item">Git</p>
+            <p class="skills-item">Github</p>
+            <p class="skills-item">PowerBuilder</p>
+            <p class="skills-item">Postman</p>
+            <p class="skills-item">Jira</p>
+            <p class="skills-item">Trello</p>
+            <p class="skills-item">Versatile</p>
+            <p class="skills-item">Fast learner</p>
+            <p class="skills-item">Canva</p>
+          </div>
+        </div>
+      </div>
+      <div class="about-footer">
+        <h2>More in depth<span>.</span></h2>
+        <div class="about-items-container">
+          <div class="about-item">
+            <h3>4+</h3>
+            <p>Years of experience</p>
+            <ul class="about-item-data">
+              <li>Software Developer</li>
+              <li>Full-Stack Developer</li>
+              <li>Front-End Developer</li>
+            </ul>
+          </div>
+          <div class="about-item">
+            <h3>15+</h3>
+            <p>Apps developed</p>
+            <ul class="about-item-data">
+              <li>E-commerce</li>
+              <li>Blogs</li>
+              <li>SPA</li>
+            </ul>
+          </div>
+          <div class="about-item">
+            <h3>10+</h3>
+            <p>Clients satisficed</p>
+            <ul class="about-item-data">
+              <li>Institutions</li>
+              <li>Entrepreneurs</li>
+              <li>Individuals</li>
+            </ul>
+          </div>
+          <div class="about-item">
+            <h3>15+</h3>
+            <p>Certifications</p>
+            <ul class="about-item-data">
+              <li>Front-End Certifications</li>
+              <li>Back-End Certifications</li>
+              <li>English Certifications</li>
+            </ul>
+          </div>
+        </div>
+        <h2>Some achievements<span>.</span></h2>
+        <div class="about-achievements">
+          <div class="about-individual-achievement">
+            <img
+              src="https://icongr.am/entypo/trophy.svg?size=25&color=f5a731"
+              alt="trophy-icon" />
+            <p>
+              Selected for an international scholarship by IBS Americas to
+              attend the program "Digital Companies & E-business Revolution" at
+              CSUN<span>.</span>
+            </p>
+          </div>
+          <div class="about-individual-achievement">
+            <img
+              src="https://icongr.am/entypo/trophy.svg?size=25&color=f5a731"
+              alt="trophy-icon" />
+            <p>
+              Selected from more than 500 professional profiles to complete an
+              intensive bootcamp at Globant, one of the largest IT companies in
+              Argentina<span>.</span>
+            </p>
+          </div>
+          <div class="about-individual-achievement">
+            <img
+              src="https://icongr.am/entypo/trophy.svg?size=25&color=f5a731"
+              alt="trophy-icon" />
+            <p>
+              Developed more than 18 impactful requirements that enhanced
+              efficiency and performance for Argentine banking systems<span
+                >.</span
+              >
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="experience hidden">
+      <h2>Experience<span>.</span></h2>
+      <hr />
+      <div class="experience-card">
+        <div class="experience-header">
+          <p>CENSYS S.A</p>
+          <p>Dec. 2023 - Act<span>.</span></p>
+        </div>
+        <div class="experience-body">
+          <a rel="noreferrer" target="blank" href="https://censys.com.ar/">
+            <img src="./assets/Censys logo.jpeg" alt="Portfolio - Censys" />
+          </a>
+          <div class="experience-info">
+            <h3>Software Developer</h3>
+            <p>
+              Creación, implementación y mantenimiento de soluciones
+              tecnológicas, especializado en el desarrollo y mantenimiento de
+              requerimientos para sistemas bancarios, con un enfoque Full Stack,
+              trabajando bajo la metodología Scrum<span>.</span>
+            </p>
+            <div class="experience-skills">
+              <p class="skills-item">PowerBuilder</p>
+              <p class="skills-item">SQL</p>
+              <p class="skills-item">SOAP</p>
+              <p class="skills-item">Jira</p>
+              <p class="skills-item">Scrum</p>
+              <p class="skills-item">Fast learner</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="experience-card">
+        <div class="experience-header">
+          <p>GLOBANT</p>
+          <p>Jul. 2024 - Oct. 2024<span>.</span></p>
+        </div>
+        <div class="experience-body">
+          <a rel="noreferrer" target="blank" href="https://www.globant.com/es">
+            <img src="./assets/logo-globant.jpg" alt="Portfolio - Censys" />
+          </a>
+          <div class="experience-info">
+            <h3>Front-End Web UI Developer Intern</h3>
+            <p>
+              Creación, implementación y mantenimiento de soluciones
+              tecnológicas, especializado en el desarrollo y mantenimiento de
+              requerimientos para sistemas bancarios, con un enfoque Full Stack,
+              trabajando bajo la metodología Scrum<span>.</span>
+            </p>
+            <div class="experience-skills">
+              <p class="skills-item">Next</p>
+              <p class="skills-item">React</p>
+              <p class="skills-item">Javascript</p>
+              <p class="skills-item">Typescript</p>
+              <p class="skills-item">ECMAS6</p>
+              <p class="skills-item">SSR</p>
+              <p class="skills-item">SEO</p>
+              <p class="skills-item">Accessibility</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="experience-card">
+        <div class="experience-header">
+          <p>FREELANCE</p>
+          <p>Jun. 2021 - May. 2024<span>.</span></p>
+        </div>
+        <div class="experience-body">
+          <a
+            rel="noreferrer"
+            target="blank"
+            href="https://www.instagram.com/tecnoline_/">
+            <img
+              src="./assets/Logo CAW TECNOLINE.png"
+              alt="Portfolio - Censys" />
+          </a>
+          <div class="experience-info">
+            <h3>Full Stack Developer MERN</h3>
+            <p>
+              Creación, implementación y mantenimiento de soluciones
+              tecnológicas, especializado en el desarrollo y mantenimiento de
+              requerimientos para sistemas bancarios, con un enfoque Full Stack,
+              trabajando bajo la metodología Scrum<span>.</span>
+            </p>
+            <div class="experience-skills">
+              <p class="skills-item">React</p>
+              <p class="skills-item">Node</p>
+              <p class="skills-item">HTML5</p>
+              <p class="skills-item">CSS3</p>
+              <p class="skills-item">Express</p>
+              <p class="skills-item">MongoDB</p>
+              <p class="skills-item">Postman</p>
+              <p class="skills-item">Git</p>
+              <p class="skills-item">Github</p>
+              <p class="skills-item">Versatile</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="proyects hidden">
+      <h2>Proyects<span>.</span></h2>
+      <hr />
+      <div class="proyects-filter">
+        <p>The projects could be a clone of the final product.</p>
+        <select id="filter-dropdown">
+          <option value="none">Seleccionar filtro</option>
+          <option value="alphabetical-asc">Alfabético (A-Z)</option>
+          <option value="alphabetical-desc">Alfabético (Z-A)</option>
+          <option value="release-asc">Fecha de lanzamiento (Asc)</option>
+          <option value="release-desc">Fecha de lanzamiento (Des)</option>
+        </select>
+      </div>
+
+      <div id="proyects-container" class="proyects-body">
+    </div>
   </body>
-  <script src="./index.js"></script>
 </html>
