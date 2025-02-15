@@ -159,6 +159,7 @@ body:hover > #follower {
   transition: 0.2s;
   font-size: 1.25rem;
   margin: 5px;
+  text-decoration: none;
 }
 
 .nav-item:hover {
@@ -395,6 +396,7 @@ body:hover > #follower {
   flex-direction: column;
   width: 1200px;
   text-align: left;
+  scroll-margin-top: 50px;
 }
 
 .about-body {
@@ -446,13 +448,14 @@ body:hover > #follower {
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
+  text-align: right;
   gap: 10px;
   width: 40%;
 }
 
 .about-skills {
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
   align-items: center;
   flex-direction: row;
   flex-wrap: wrap;
@@ -558,6 +561,7 @@ body:hover > #follower {
   flex-direction: column;
   width: 1200px;
   text-align: left;
+  scroll-margin-top: 50px;
 }
 
 .experience-card {
@@ -627,13 +631,14 @@ body:hover > #follower {
 .proyects {
   display: flex;
   position: absolute;
-  margin-top: 7200px;
+  margin-top: 7250px;
   z-index: 999;
   color: white;
   justify-content: center;
   flex-direction: column;
   width: 1200px;
   text-align: left;
+  scroll-margin-top: 50px;
 }
 
 .proyects-link{
@@ -651,7 +656,7 @@ body:hover > #follower {
 
 .proyects-filter select{
   background-color: #000000;
-  color: white;
+  color: rgb(var(--light-gray));
   border: 1px solid var(--primary-blue);
   font-size: 1.2rem;
   font-weight: 100;
@@ -746,6 +751,20 @@ body:hover > #follower {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+.certifications {
+  display: flex;
+  margin-top: 20px;
+  z-index: 999;
+  color: white;
+  justify-content: center;
+  flex-direction: column;
+  width: 1200px;
+  text-align: left;
+  scroll-margin-top: 50px;
+}
+
+/*MEDIA QUERYS*/
 
 @media (max-width: 1440px) {
   .container {

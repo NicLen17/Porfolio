@@ -66,7 +66,7 @@ const proyects = [
     title: "CEBAMATE",
     image: "./assets/CEBAMATE 1.jpeg",
     description:
-      "website for an entrepreneur from Salta dedicated to the sale of personalized mates and accessories. It includes an interactive catalog, responsive design and a contact form for orders and queries. The project improved their online presence, increasing the reach and sales of their business.",
+      "Website for an entrepreneur from Salta dedicated to the sale of personalized mates and accessories. It includes an interactive catalog, responsive design and a contact.",
     link: "https://ceba-mate.vercel.app",
     release: 2023,
   },
@@ -74,7 +74,7 @@ const proyects = [
     title: "CAW",
     image: "./assets/CAW 3.jpeg",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Non, consequatur odit molestias optio natus possimus iste tenetur eveniet, aperiam, cupiditate sunt ab facilis? Corrupti quas a ipsum tempore, aspernatur cupiditate.",
+      "",
     link: "https://cawvehiculos.vercel.app",
     release: 2024,
   },
@@ -82,7 +82,7 @@ const proyects = [
     title: "MOUSTACHE GENTLEMAN",
     image: "./assets/PELUQUERIA 1.jpeg",
     description:
-      "Freelance project for a group specialized in the sale and exchange of vehicles.",
+      "",
     link: "https://moustache-gentlemen.vercel.app",
     release: 2023,
   },
@@ -158,9 +158,6 @@ function renderProyects(proyects) {
     )
     .join("");
 }
-
-console.log(proyects);
-renderProyects(proyects);
 
 const filterDropdown = document.getElementById("filter-dropdown");
 
