@@ -66,7 +66,7 @@ const proyects = [
     title: "CEBAMATE",
     image: "./assets/CEBAMATE 1.jpeg",
     description:
-      "Website for an entrepreneur from Salta dedicated to the sale of personalized mates and accessories. It includes an interactive catalog, responsive design and a contact.",
+      "Website for an entrepreneur from Salta dedicated to the sale of personalized mates and accessories. It includes an interactive catalog, responsive design and a contact section.",
     link: "https://ceba-mate.vercel.app",
     release: 2023,
   },
@@ -74,7 +74,7 @@ const proyects = [
     title: "CAW",
     image: "./assets/CAW 3.jpeg",
     description:
-      "",
+      "Website dedicated to the publication and sale of second-hand cars.",
     link: "https://cawvehiculos.vercel.app",
     release: 2024,
   },
@@ -82,7 +82,7 @@ const proyects = [
     title: "MOUSTACHE GENTLEMAN",
     image: "./assets/PELUQUERIA 1.jpeg",
     description:
-      "",
+      "Mustache gentleman barber shop website where you can consult hairstyles and appointments",
     link: "https://moustache-gentlemen.vercel.app",
     release: 2023,
   },
@@ -90,7 +90,7 @@ const proyects = [
     title: "INDUMENTARIA TAURIE",
     image: "./assets/TAURIE.jpeg",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Non, consequatur odit molestias optio natus possimus iste tenetur eveniet, aperiam, cupiditate sunt ab facilis? Corrupti quas a ipsum tempore, aspernatur cupiditate.",
+      "Website dedicated to the sale of clothing, where users can buy or consult about products",
     link: "https://indumentaria-taurie.vercel.app",
       release: 2023,
   },
@@ -98,7 +98,7 @@ const proyects = [
     title: "KEIS",
     image: "./assets/KEIS.jpeg",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Non, consequatur odit molestias optio natus possimus iste tenetur eveniet, aperiam, cupiditate sunt ab facilis? Corrupti quas a ipsum tempore, aspernatur cupiditate.",
+      "Institutional website made for food technicians who want to share the scope and quality of local dairy production.",
     link: "https://planta-productora-queso.vercel.app",
       release: 2021,
   },
@@ -106,7 +106,7 @@ const proyects = [
     title: "PHONE PIXEL",
     image: "./assets/PHONEPIXEL.jpeg",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Non, consequatur odit molestias optio natus possimus iste tenetur eveniet, aperiam, cupiditate sunt ab facilis? Corrupti quas a ipsum tempore, aspernatur cupiditate.",
+      "Example website of an ecommerce template.",
     link: "https://proyecto-final-rc.vercel.app",
       release: 2021,
   },
@@ -114,7 +114,7 @@ const proyects = [
     title: "BOOTCAMP BACK-END",
     image: "./assets/BOTCAMPBACK.jpeg",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Non, consequatur odit molestias optio natus possimus iste tenetur eveniet, aperiam, cupiditate sunt ab facilis? Corrupti quas a ipsum tempore, aspernatur cupiditate.",
+      "This project aims to develop the backend for a bootcamp management system, using MongoDB as a database, Node.js for the server logic, and Postman for API testing and documentation.",
     link: "https://github.com/NicLen17/Bootcamp---Backend",
       release: 2024,
   },
@@ -122,7 +122,7 @@ const proyects = [
     title: "TARJETA 18 MAURO",
     image: "./assets/18MAURO.jpeg",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Non, consequatur odit molestias optio natus possimus iste tenetur eveniet, aperiam, cupiditate sunt ab facilis? Corrupti quas a ipsum tempore, aspernatur cupiditate.",
+      "Personalized website that works as a digital invitation card where the owner can send the link to whoever they want for registration.",
     link: "https://mateo-github-io.vercel.app",
       release: 2023,
   },
@@ -130,7 +130,7 @@ const proyects = [
     title: "TARJETA 15 CATALINA",
     image: "./assets/15CATA.jpeg",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Non, consequatur odit molestias optio natus possimus iste tenetur eveniet, aperiam, cupiditate sunt ab facilis? Corrupti quas a ipsum tempore, aspernatur cupiditate.",
+      "Personalized website that works as a digital invitation card where the owner can send the link to whoever they want for registration.",
     link: "https://15-catalina.vercel.app",
       release: 2023,
   },

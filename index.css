@@ -333,9 +333,8 @@ body:hover > #follower {
 }
 
 .button-group a img {
-  width: 10px;
+  width: 0.60rem;
   margin: 5px;
-  height: 20px;
 }
 
 .button-group a:hover {
@@ -631,7 +630,7 @@ body:hover > #follower {
 .proyects {
   display: flex;
   position: absolute;
-  margin-top: 7250px;
+  margin-top: 7350px;
   z-index: 999;
   color: white;
   justify-content: center;
