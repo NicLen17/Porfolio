@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="./assets/Icon.png" />
+    <link rel="icon" href="./assets/Images/Icon.png" />
     <link rel="stylesheet" href="./index.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,63 +16,66 @@
     <script defer src="./index.js"></script>
   </head>
   <body id="body">
-    <!-- <div id="follower"></div> -->
-    <div id="container" class="container hidden">
-      <div class="tile"></div>
-    </div>
     <nav class="nav">
       <a href="/">
-        <img src="./assets/Icon.png" alt="Fabio Ramos - Logo" />
+        <img src="./assets/Images/Icon.png" alt="Fabio Ramos - Logo" />
       </a>
       <div class="nav-items-container">
+        <a href="#about" class="nav-item">About</a>
         <a href="#experience" class="nav-item">Experience</a>
         <a href="#proyects" class="nav-item">Proyects</a>
-        <a href="#about" class="nav-item">About</a>
+        <a href="#education" class="nav-item">Education</a>
       </div>
     </nav>
-    <div class="content hidden" id="content">
-      <div class="meta-link hidden">
-        <span class="label">Fabio Ramos</span>
-        <span class="label">Software Developer</span>
-        <div class="button-group">
-          <a> View Work </a>
-          <a
-            download
-            href="./assets/Fabio_Ramos_FrontEnd_Developer_CV_2024.pdf">
-            Resume
-            <img
-              src="https://icongr.am/feather/download.svg?size=20&color=ffffff"
-              alt="" />
-          </a>
+    <div class="main-content">
+        <div id="container" class="container hidden">
+          <div class="tile"></div>
         </div>
-        <div class="meta-link-social">
-          <a
-            rel="noreferrer"
-            target="blank"
-            href="https://www.linkedin.com/in/fabio-ramos-78939a236/"
-            ><img
-              class="social-img"
-              src="https://icongr.am/fontawesome/linkedin-square.svg?size=128&color=ffffff"
-              alt="linkedin-icon"
-          /></a>
-          <a rel="noreferrer" target="blank" href="https://github.com/NicLen17"
-            ><img
-              class="social-img"
-              src="https://icongr.am/fontawesome/github.svg?size=128&color=ffffff"
-              alt="github-icon"
-          /></a>
-          <a
-            rel="noreferrer"
-            target="blank"
-            href="mailto:fabioramosnic@gmail.com?subject='Hola!'&body='Me comunico desde el portfolio!'"
-            ><img
-              class="social-img"
-              src="https://icongr.am/entypo/mail.svg?size=128&color=ffffff"
-              alt="github-icon"
-          /></a>
+        <div class="content hidden" id="content">
+          <div class="meta-link hidden">
+            <span class="label">Fabio Ramos</span>
+            <span class="label">Software Engineer</span>
+            <div class="button-group">
+              <a href="#proyects">View Work</a>
+              <a
+                download
+                href="./assets/Files/Fabio_Ramos_Software_Engineer_Resume.pdf">
+                Resume
+                <img
+                  src="https://icongr.am/feather/download.svg?size=20&color=ffffff"
+                  alt="" />
+              </a>
+            </div>
+            <div class="meta-link-social">
+              <a
+                rel="noreferrer"
+                target="blank"
+                href="https://www.linkedin.com/in/fabioramosnic"
+                ><img
+                  class="social-img"
+                  src="https://icongr.am/fontawesome/linkedin-square.svg?size=128&color=ffffff"
+                  alt="linkedin-icon"
+              /></a>
+              <a rel="noreferrer" target="blank" href="https://github.com/NicLen17"
+                ><img
+                  class="social-img"
+                  src="https://icongr.am/fontawesome/github.svg?size=128&color=ffffff"
+                  alt="github-icon"
+              /></a>
+              <a
+                rel="noreferrer"
+                target="blank"
+                href="mailto:fabioramosnic@gmail.com?subject='Hola!'&body='Me comunico desde el portfolio!'"
+                ><img
+                  class="social-img"
+                  src="https://icongr.am/entypo/mail.svg?size=128&color=ffffff"
+                  alt="github-icon"
+              /></a>
+            </div>
+          </div>
         </div>
-      </div>
     </div>
+    <section id="new-section" class="section hidden">
     <div id="about" class="about hidden">
       <h2>About me<span>...</span></h2>
       <hr />
@@ -80,12 +83,10 @@
         <div class="about-body-left">
           <p>
             Software developer with solid knowledge in
-            <span> React, Javascript, Typescript, ECS6+, HTML5 and CSS3. </span>
+            <span> React, Javascript, Typescript, ECS6+, HTML, CSS and SQL. </span>
           </p>
           <p>
-            As a software developer I focus on creating dynamic, user-friendly
-            applications with great attention to detail, focusing on good
-            development practices, clean code and UX<span>.</span>
+            I stand out for combining technical focus with functional understanding and attention to detail. I have led and collaborated on over 15 projects, achieving significant improvements in performance, user experience, and critical processes.<span>.</span>
           </p>
           <ul>
             <li>
@@ -132,13 +133,13 @@
         </div>
       </div>
       <div class="about-footer">
-        <h2>More in depth<span>.</span></h2>
+        <h3>More in depth<span>.</span></h3>
         <div class="about-items-container">
           <div class="about-item">
-            <h3>4+</h3>
+            <h3>5+</h3>
             <p>Years of experience</p>
             <ul class="about-item-data">
-              <li>Software Developer</li>
+              <li>Software Engineer</li>
               <li>Full-Stack Developer</li>
               <li>Front-End Developer</li>
             </ul>
@@ -156,22 +157,22 @@
             <h3>10+</h3>
             <p>Clients satisficed</p>
             <ul class="about-item-data">
-              <li>Institutions</li>
+              <li>Banks</li>
               <li>Entrepreneurs</li>
-              <li>Individuals</li>
+              <li>Institutions</li>
             </ul>
           </div>
           <div class="about-item">
             <h3>15+</h3>
             <p>Certifications</p>
             <ul class="about-item-data">
-              <li>Front-End Certifications</li>
-              <li>Back-End Certifications</li>
-              <li>English Certifications</li>
+              <li>Software Development</li>
+              <li>Data & Testing</li>
+              <li>Language Proficiency</li>
             </ul>
           </div>
         </div>
-        <h2>Some achievements<span>.</span></h2>
+        <h3>Some achievements<span>.</span></h3>
         <div class="about-achievements">
           <div class="about-individual-achievement">
             <img
@@ -198,106 +199,142 @@
               src="https://icongr.am/entypo/trophy.svg?size=25&color=f5a731"
               alt="trophy-icon" />
             <p>
-              Developed more than 18 impactful requirements that enhanced
+              Developed impactful requirements that enhanced
               efficiency and performance for Argentine banking systems<span
                 >.</span
               >
             </p>
           </div>
-        </div>
-      </div>
-    </div>
-    <div id="experience" class="experience hidden">
-      <h2>Experience<span>.</span></h2>
-      <hr />
-      <div class="experience-card">
-        <div class="experience-header">
-          <p>CENSYS S.A</p>
-          <p>Dec. 2023 - Act<span>.</span></p>
-        </div>
-        <div class="experience-body">
-          <a rel="noreferrer" target="blank" href="https://censys.com.ar/">
-            <img src="./assets/Censys logo.jpeg" alt="Portfolio - Censys" />
-          </a>
-          <div class="experience-info">
-            <h3>Software Developer</h3>
-            <p>
-              Creation, implementation, and maintenance of technological solutions, specializing in the development and maintenance of requirements for banking systems, with a Full Stack focus, working under the Scrum methodology<span>.</span>
-            </p>
-            <div class="experience-skills">
-              <p class="skills-item">PowerBuilder</p>
-              <p class="skills-item">SQL</p>
-              <p class="skills-item">SOAP</p>
-              <p class="skills-item">Jira</p>
-              <p class="skills-item">Scrum</p>
-              <p class="skills-item">Fast learner</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="experience-card">
-        <div class="experience-header">
-          <p>GLOBANT</p>
-          <p>Jul. 2024 - Oct. 2024<span>.</span></p>
-        </div>
-        <div class="experience-body">
-          <a rel="noreferrer" target="blank" href="https://www.globant.com/es">
-            <img src="./assets/logo-globant.jpg" alt="Portfolio - Censys" />
-          </a>
-          <div class="experience-info">
-            <h3>Front-End Web UI Developer - Intern</h3>
-            <p>
-              I built a weather app with React, TypeScript, and Zustand, optimizing UI with reusable components. I managed version control with Git and used GitHub Projects for workflow. I also contributed to React study groups and code reviews.<span>.</span>
-            </p>
-            <div class="experience-skills">
-              <p class="skills-item">Next</p>
-              <p class="skills-item">React</p>
-              <p class="skills-item">Javascript</p>
-              <p class="skills-item">Typescript</p>
-              <p class="skills-item">ECMAS6</p>
-              <p class="skills-item">SSR</p>
-              <p class="skills-item">SEO</p>
-              <p class="skills-item">Accessibility</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="experience-card">
-        <div class="experience-header">
-          <p>FREELANCE</p>
-          <p>Jun. 2021 - May. 2024<span>.</span></p>
-        </div>
-        <div class="experience-body">
-          <a
-            rel="noreferrer"
-            target="blank"
-            href="https://www.instagram.com/tecnoline_/">
+             <div class="about-individual-achievement">
             <img
-              src="./assets/Logo CAW TECNOLINE.png"
-              alt="Portfolio - Censys" />
-          </a>
-          <div class="experience-info">
-            <h3>Full Stack Developer MERN</h3>
+              src="https://icongr.am/entypo/trophy.svg?size=25&color=f5a731"
+              alt="trophy-icon" />
             <p>
-              As a TecnoLine developer, I carried out the development and deployment of more than 12 web applications, using the MERN Stack, with the aim of reaching entrepreneurs, institutions and individuals, 
-              providing quality services such as e-commerce applications, SPAs, blogs, among others<span>.</span>
+              I have implemented scalable and optimized solutions in both frontend and backend, improving performance and user experience.<span>.</span>
             </p>
-            <div class="experience-skills">
-              <p class="skills-item">React</p>
-              <p class="skills-item">Node</p>
-              <p class="skills-item">HTML5</p>
-              <p class="skills-item">CSS3</p>
-              <p class="skills-item">Express</p>
-              <p class="skills-item">MongoDB</p>
-              <p class="skills-item">Postman</p>
-              <p class="skills-item">Git</p>
-              <p class="skills-item">Github</p>
-              <p class="skills-item">Versatile</p>
-            </div>
+          </div>
+          <div class="about-individual-achievement">
+            <img
+              src="https://icongr.am/entypo/trophy.svg?size=25&color=f5a731"
+              alt="trophy-icon" />
+            <p>
+              I have collaborated in multidisciplinary teams applying agile methodologies, successfully delivering projects in remote environments.<span>.</span>
+            </p>
           </div>
         </div>
       </div>
     </div>
+ <section id="experience" class="experience hidden">
+        <h2>Experience<span>.</span></h2>
+        <hr>
+
+         <!-- CENSYS S.A. Experience -->
+        <div class="experience-card">
+          <div class="experience-header">
+            <h3>Software Engineer - CENSYS S.A.</h3>
+            <span class="period">Dic 2023 – Jul 2025</span>
+          </div>
+          
+          <div class="sub-experience-card">
+            <div class="experience-header">
+              <h4>Sucredito Bank | BSR</h4>
+            </div>
+            <div class="experience-body">
+              <div class="experience-details">
+                <p>As a Software Engineer for BSR, I was responsible for developing and maintaining core banking system modules. I focused on enhancing system efficiency and user experience through various technical implementations and optimizations.</p>
+                <ul>
+                  <li>Led the implementation of key banking system modules using PowerBuilder and SQL.</li>
+                  <li>Delivered Front-End and Back-End solutions for tools that improved productivity by ~40%.</li>
+                  <li>Improved system performance by 60% in payments, reporting tools, and data queries.</li>
+                </ul>
+              </div>
+
+            </div>
+          </div>
+          <div class="sub-experience-card">
+            <div class="experience-header">
+              <h4>Santiago del Estero Bank | BSE</h4>
+            </div>
+            <div class="experience-body">
+              <div class="experience-details">
+                <p>In this role at BSE, my primary focus was on improving system performance and providing technical guidance to my team. I played a key role in optimizing various system components and ensuring a smooth workflow for new developers.</p>
+                <ul>
+                  <li>Provided guidance and training to new developers, accelerating team integration by 30%.</li>
+                  <li>Diagnosed and corrected errors, optimizing the user interface to improve usability and accessibility by ~25%.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Globant Experience -->
+        <div class="experience-card">
+          <div class="experience-header">
+            <h3>Front-End Engineer Intern (Web UI)</h3>
+            <span class="period">Jul 2024 – Oct 2024</span>
+          </div>
+          <div class="experience-location">
+          </div>
+          <div class="experience-body">
+                  <div class="sub-experience-card">
+            <div class="experience-header">
+              <h4>Globant</h4>
+            </div>
+            <div class="experience-body">
+              <div class="experience-details">
+             <p>As a Front-End Engineer Intern, I developed responsive web interfaces utilizing React, TypeScript, and Zustand. This experience focused on implementing reusable and accessible components to deliver an optimized and user-friendly interface.</p>
+              <ul>
+                <li>Developed responsive web interfaces using React.js, TypeScript, TailwindCSS, and Zustand.</li>
+                <li>Collaborated on performance and accessibility improvements.</li>
+                <li>Optimized UI components, reducing loading times by ~20%.</li>
+                <li>Used GitHub Projects and Agile workflows to manage tasks and deliver features in sprints.</li>
+              </ul>
+              </div>
+
+            </div>
+          </div>
+          </div>
+        </div>
+
+        <!-- Freelance Experience -->
+        <div class="experience-card">
+          <div class="experience-header">
+            <h3>Full Stack Engineer – MERN</h3>
+            <span class="period">Jun 2021 – May 2024</span>
+          </div>
+          
+          <div class="sub-experience-card">
+            <div class="experience-header">
+              <h4>TecnoLine</h4>
+            </div>
+            <div class="experience-body">
+              <div class="experience-details">
+                <p>During my time at TecnoLine, I was the lead engineer on multiple full-stack projects, from initial concept to final delivery. My work directly contributed to significant improvements in client performance metrics.</p>
+                <ul>
+                  <li>Led over 5 full-stack projects from start to finish and delivered over 10 frontend-focused applications, boosting client performance and KPIs by ~30%.</li>
+                  <li>Partnered directly with clients to gather requirements, design UI/UX layouts, and build scalable web solutions, maintaining a customer satisfaction rate above 90%.</li>
+                </ul>
+              </div>
+
+            </div>
+          </div>
+          <div class="sub-experience-card">
+            <div class="experience-header">
+              <h4>Freelance</h4>
+            </div>
+            <div class="experience-body">
+              <div class="experience-details">
+                <p>As a freelance developer, I provided custom development solutions for various clients. I specialized in integrating modern front-end libraries and building robust back-end APIs to meet specific project needs.</p>
+                <ul>
+                  <li>Developed custom solutions integrating modern front-end libraries and proprietary RESTful APIs, which contributed to a 20% increase in project revenue.</li>
+                  <li>Managed full project lifecycles in agile environments, coordinating with cross-functional teams to ensure on-time delivery and high-quality results.</li>
+                </ul>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
     <div id="proyects" class="proyects hidden">
       <h2>Proyects<span>.</span></h2>
       <hr />
@@ -314,9 +351,203 @@
 
       <div id="proyects-container" class="proyects-body">
     </div>
-    <div class="certifications">
-      <h2>Certifications<span>.</span></h2>
-      <h3>WIP</h3>
-    </div>
+       <section id="education" class="education hidden">
+        <h2>Education<span>.</span></h2>
+        <hr>
+        <div class="education-container">
+          <!-- California State University, Northridge -->
+          <div class="education-card">
+            <div class="education-title-container">
+              <h3>Digital Companies and E-Business Revolution, International Business</h3>
+            </div>
+            <p class="institution">California State University, Northridge</p>
+            <p class="date">July 2025 - August 2025</p>
+            <p class="description">Focused on digital business models, market validation, pricing strategies, and MVP development. Included hands-on project execution, web platform development, and a complementary Business English course. International program at CSUN.</p>
+          </div>
+          
+          <!-- Universidad Nacional de Tucumán -->
+          <div class="education-card">
+            <div class="education-title-container">
+              <h3>Diploma in Organizational Data Science, Data Science</h3>
+            </div>
+            <p class="institution">Universidad Nacional de Tucumán</p>
+            <p class="date">April 2025 - September 2025</p>
+            <p class="description">I'm starting out in the world of data science and looking to reflect what I've learned in my programming foundations to complement my professional profile.</p>
+          </div>
+          
+          <!-- Universidad Tecnológica Nacional -->
+          <div class="education-card">
+            <div class="education-title-container">
+              <h3>Information Systems Engineering, Engineering</h3>
+            </div>
+            <p class="institution">Universidad Tecnológica Nacional</p>
+            <p class="date">March 2022 - Ongoing</p>
+            <p class="description">A career focused on completing my professional profile, currently in the third year of the academic program.</p>
+          </div>
+        </div>
+      </section>
+        <section id="certifications" class="certifications hidden">
+        <h3>Certifications<span>.</span></h3>
+         <div class="certifications-container">
+          <!-- Digital Companion & E-business Revolution -->
+          <div class="certification-card">
+            <div class="certification-title-container">
+              <img src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde" alt="Certificate icon" class="certification-icon" />
+              <h3>Digital Companion & E-business Revolution</h3>
+            </div>
+            <p class="issuer">California State University, Northridge</p>
+            <p class="date">Issued: July 2025</p>
+          </div>
+
+          <!-- Business English -->
+          <div class="certification-card">
+            <div class="certification-title-container">
+              <img src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde" alt="Certificate icon" class="certification-icon" />
+              <h3>Business English</h3>
+            </div>
+            <p class="issuer">California State University, Northridge</p>
+            <p class="date">Issued: June 2025</p>
+          </div>
+          
+          <!-- Herramientas Estadísticas para la Ciencia de Datos -->
+          <div class="certification-card">
+            <div class="certification-title-container">
+              <img src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde" alt="Certificate icon" class="certification-icon" />
+              <h3>Statistical Tools for Data Science</h3>
+            </div>
+            <p class="issuer">Universidad Nacional de Tucumán</p>
+            <p class="date">Issued: June 2025</p>
+          </div>
+          
+          <!-- Cloud Computing -->
+          <div class="certification-card">
+            <div class="certification-title-container">
+              <img src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde" alt="Certificate icon" class="certification-icon" />
+              <h3>Cloud Computing</h3>
+            </div>
+            <p class="issuer">Coderhouse</p>
+            <p class="date">Issued: May 2025</p>
+          </div>
+
+          <!-- B2 English Certification -->
+          <div class="certification-card">
+            <div class="certification-title-container">
+              <img src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde" alt="Certificate icon" class="certification-icon" />
+              <h3>English Studies Certification - B2</h3>
+            </div>
+            <p class="issuer">Instituto Rush</p>
+            <p class="date">Issued: December 2024</p>
+            <p class="note">Certified with a distinguished grade.</p>
+          </div>
+
+          <!-- BackEnd Node.js -->
+          <div class="certification-card">
+            <div class="certification-title-container">
+              <img src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde" alt="Certificate icon" class="certification-icon" />
+              <h3>BackEnd Node.js - Database Integration in Web Apps</h3>
+            </div>
+            <p class="issuer">RollingCode</p>
+            <p class="date">Issued: November 2024</p>
+          </div>
+
+          <!-- B2 English Language Certification -->
+          <div class="certification-card">
+            <div class="certification-title-container">
+              <img src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde" alt="Certificate icon" class="certification-icon" />
+              <h3>Foreign Language Certification - B2 English</h3>
+            </div>
+            <p class="issuer">Instituto Rush</p>
+            <p class="date">Issued: July 2024</p>
+          </div>
+
+          <!-- EF SET C1 -->
+          <div class="certification-card">
+            <div class="certification-title-container">
+              <img src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde" alt="Certificate icon" class="certification-icon" />
+              <h3>EF SET Official Certificate 65/100 (C1 Advanced)</h3>
+            </div>
+            <p class="issuer">EF SET</p>
+            <p class="date">Issued: May 2024</p>
+          </div>
+
+          <!-- Testing QC/QA -->
+          <div class="certification-card">
+            <div class="certification-title-container">
+              <img src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde" alt="Certificate icon" class="certification-icon" />
+              <h3>Testing QC/QA</h3>
+            </div>
+            <p class="issuer">Global Learning</p>
+            <p class="date">Issued: November 2023</p>
+          </div>
+
+          <!-- Potencial Tech 2 - Alkemy -->
+          <div class="certification-card">
+            <div class="certification-title-container">
+              <img src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde" alt="Certificate icon" class="certification-icon" />
+              <h3>Potencial Tech 2</h3>
+            </div>
+            <p class="issuer">Alkemy</p>
+            <p class="date">Issued: October 2023</p>
+          </div>
+
+          <!-- Programador Front-End - Tramo 3 -->
+          <div class="certification-card">
+            <div class="certification-title-container">
+              <img src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde" alt="Certificate icon" class="certification-icon" />
+              <h3>Front-End Programmer - Stage 3</h3>
+            </div>
+            <p class="issuer">ITMaster Academy</p>
+            <p class="date">Issued: October 2023</p>
+          </div>
+
+          <!-- Programador Web Full Stack - Tramo 2 -->
+          <div class="certification-card">
+            <div class="certification-title-container">
+              <img src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde" alt="Certificate icon" class="certification-icon" />
+              <h3>Full Stack Web Programmer - Stage 2</h3>
+            </div>
+            <p class="issuer">ITMaster Academy</p>
+            <p class="date">Issued: September 2023</p>
+          </div>
+
+          <!-- #YoProgramo - Full Stack Web Developer -->
+          <div class="certification-card">
+            <div class="certification-title-container">
+              <img src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde" alt="Certificate icon" class="certification-icon" />
+              <h3>#YoProgramo - Full Stack Web Developer</h3>
+            </div>
+            <p class="issuer">Argentina Programa 4.0</p>
+            <p class="date">Issued: February 2023</p>
+          </div>
+
+          <!-- #SeProgramar -->
+          <div class="certification-card">
+            <div class="certification-title-container">
+              <img src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde" alt="Certificate icon" class="certification-icon" />
+              <h3>#SeProgramar - First Full Stack Certification</h3>
+            </div>
+            <p class="issuer">Argentina Programa</p>
+            <p class="date">Issued: April 2022</p>
+          </div>
+
+          <!-- Full Stack Web Developer - RollingCode -->
+          <div class="certification-card">
+            <div class="certification-title-container">
+              <img src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde" alt="Certificate icon" class="certification-icon" />
+              <h3>Full Stack Web Developer</h3>
+            </div>
+            <p class="issuer">RollingCode</p>
+            <p class="date">Issued: June 2021</p>
+          </div>
+        </div>
+      </section>
+    </section>
+    <!-- Back to top button -->
+      <a href="#body" class="back-to-top" id="back-to-top">
+        <img src="https://icongr.am/clarity/arrow.svg?size=32&color=000000" alt="Back to top" />
+      </a>
+    <footer id="main-footer">
+      <p>&copy; 2025 Ramos Fabio 🇦🇷. All rights reserved.</p>
+    </footer>
   </body>
 </html>

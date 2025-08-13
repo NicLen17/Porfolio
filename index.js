@@ -56,7 +56,7 @@ window.addEventListener("scroll", function () {
 const proyects = [
   {
     title: "ZETAROSS",
-    image: "./assets/ZETAROSS.jpeg",
+    image: "./assets/Images/ZETAROSS.jpeg",
     description:
       "Website created for the publication and consultation on 3D printed figures",
     link: "https://zetaross.vercel.app",
@@ -64,7 +64,7 @@ const proyects = [
   },
   {
     title: "CEBAMATE",
-    image: "./assets/CEBAMATE 1.jpeg",
+    image: "./assets/Images/CEBAMATE 1.jpeg",
     description:
       "Website for an entrepreneur from Salta dedicated to the sale of personalized mates and accessories. It includes an interactive catalog, responsive design and a contact section.",
     link: "https://ceba-mate.vercel.app",
@@ -72,7 +72,7 @@ const proyects = [
   },
   {
     title: "CAW",
-    image: "./assets/CAW 3.jpeg",
+    image: "./assets/Images/CAW 3.jpeg",
     description:
       "Website dedicated to the publication and sale of second-hand cars.",
     link: "https://cawvehiculos.vercel.app",
@@ -80,7 +80,7 @@ const proyects = [
   },
   {
     title: "MOUSTACHE GENTLEMAN",
-    image: "./assets/PELUQUERIA 1.jpeg",
+    image: "./assets/Images/PELUQUERIA 1.jpeg",
     description:
       "Mustache gentleman barber shop website where you can consult hairstyles and appointments",
     link: "https://moustache-gentlemen.vercel.app",
@@ -88,51 +88,50 @@ const proyects = [
   },
   {
     title: "INDUMENTARIA TAURIE",
-    image: "./assets/TAURIE.jpeg",
+    image: "./assets/Images/TAURIE.jpeg",
     description:
       "Website dedicated to the sale of clothing, where users can buy or consult about products",
     link: "https://indumentaria-taurie.vercel.app",
-      release: 2023,
+    release: 2023,
   },
   {
     title: "KEIS",
-    image: "./assets/KEIS.jpeg",
+    image: "./assets/Images/KEIS.jpeg",
     description:
       "Institutional website made for food technicians who want to share the scope and quality of local dairy production.",
     link: "https://planta-productora-queso.vercel.app",
-      release: 2021,
+    release: 2021,
   },
   {
     title: "PHONE PIXEL",
-    image: "./assets/PHONEPIXEL.jpeg",
-    description:
-      "Example website of an ecommerce template.",
+    image: "./assets/Images/PHONEPIXEL.jpeg",
+    description: "Example website of an ecommerce template.",
     link: "https://proyecto-final-rc.vercel.app",
-      release: 2021,
+    release: 2021,
   },
   {
     title: "BOOTCAMP BACK-END",
-    image: "./assets/BOTCAMPBACK.jpeg",
+    image: "./assets/Images/BOTCAMPBACK.jpeg",
     description:
       "This project aims to develop the backend for a bootcamp management system, using MongoDB as a database, Node.js for the server logic, and Postman for API testing and documentation.",
     link: "https://github.com/NicLen17/Bootcamp---Backend",
-      release: 2024,
+    release: 2024,
   },
   {
     title: "TARJETA 18 MAURO",
-    image: "./assets/18MAURO.jpeg",
+    image: "./assets/Images/18MAURO.jpeg",
     description:
       "Personalized website that works as a digital invitation card where the owner can send the link to whoever they want for registration.",
     link: "https://mateo-github-io.vercel.app",
-      release: 2023,
+    release: 2023,
   },
   {
     title: "TARJETA 15 CATALINA",
-    image: "./assets/15CATA.jpeg",
+    image: "./assets/Images/15CATA.jpeg",
     description:
       "Personalized website that works as a digital invitation card where the owner can send the link to whoever they want for registration.",
     link: "https://15-catalina.vercel.app",
-      release: 2023,
+    release: 2023,
   },
 ];
 
@@ -151,7 +150,7 @@ function renderProyects(proyects) {
           <h2>${proyect.title}</h2>
           <p>${proyect.description}</p>
         </div>
-        <h3>Release - ${proyect.release}</h3>
+        <h3><b>Release - ${proyect.release}</b></h3>
       </div>
     </a>
   `
@@ -192,3 +191,36 @@ filterDropdown.addEventListener("change", (e) => {
 
 // Renderizar los proyectos inicialmente
 renderProyects(proyects);
+
+const readMoreButtons = document.querySelectorAll(".read-more-btn");
+
+// Iterate over each button to add a click event listener
+readMoreButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    // Find the closest parent container with the 'experience-details-toggle' class
+    const detailsContainer = button.previousElementSibling;
+
+    // Toggle the 'expanded' class to show/hide the content
+    detailsContainer.classList.toggle("expanded");
+
+    // Change the button text based on its state
+    if (detailsContainer.classList.contains("expanded")) {
+      button.textContent = "See less";
+    } else {
+      button.textContent = "See more";
+    }
+  });
+});
+
+// Manejo del botón "Volver arriba"
+const backToTopBtn = document.getElementById("back-to-top");
+
+// Muestra u oculta el botón basado en el scroll
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 300) {
+    // El botón aparece después de 300px de scroll
+    backToTopBtn.classList.add("show-btn");
+  } else {
+    backToTopBtn.classList.remove("show-btn");
+  }
+});
