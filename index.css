@@ -76,7 +76,7 @@ span {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  position: sticky;
+  position: fixed;
   height: 80px;
   top: 0;
   width: 100%;
@@ -85,7 +85,6 @@ span {
   color: white;
   border-bottom: white 1px solid;
   padding: 20px;
-  margin-top: 0; /* Eliminado el margen negativo para que la barra de navegación sea visible */
   z-index: 1000;
   box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.616);
 }
@@ -1097,6 +1096,7 @@ h3 span {
     flex-direction: column;
     height: auto;
     padding: 10px;
+    background-color: black;
   }
 
   .nav-items-container {
@@ -1171,7 +1171,7 @@ h3 span {
     height: 40px;
   }
 
-  .proyects-filter{
+  .proyects-filter {
     flex-direction: column;
     gap: 15px;
   }
