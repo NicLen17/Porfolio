@@ -16,17 +16,24 @@
     <script defer src="./index.js"></script>
   </head>
   <body id="body">
-    <nav class="nav">
-      <a href="/">
-        <img src="./assets/Images/Icon.png" alt="Fabio Ramos - Logo" />
-      </a>
-      <div class="nav-items-container">
-        <a href="#about" class="nav-item">About</a>
-        <a href="#experience" class="nav-item">Experience</a>
-        <a href="#proyects" class="nav-item">Proyects</a>
-        <a href="#education" class="nav-item">Education</a>
-      </div>
-    </nav>
+<nav class="nav">
+  <a href="/">
+    <img src="./assets/Images/Icon.png" alt="Fabio Ramos - Logo" />
+  </a>
+
+  <!-- Botón hamburguesa -->
+  <button class="nav-toggle" aria-label="Open menu">
+    ☰
+  </button>
+
+  <div class="nav-items-container">
+    <a href="#about" class="nav-item">About</a>
+    <a href="#experience" class="nav-item">Experience</a>
+    <a href="#proyects" class="nav-item">Proyects</a>
+    <a href="#education" class="nav-item">Education</a>
+  </div>
+</nav>
+
     <div class="main-content">
         <div id="container" class="container hidden">
           <div class="tile"></div>
@@ -437,7 +444,6 @@
             </div>
             <p class="issuer">Instituto Rush</p>
             <p class="date">Issued: December 2024</p>
-            <p class="note">Certified with a distinguished grade.</p>
           </div>
 
           <!-- BackEnd Node.js -->

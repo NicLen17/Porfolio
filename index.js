@@ -224,3 +224,11 @@ window.addEventListener("scroll", () => {
     backToTopBtn.classList.remove("show-btn");
   }
 });
+
+
+const navToggle = document.querySelector('.nav-toggle');
+const navItems = document.querySelector('.nav-items-container');
+
+navToggle.addEventListener('click', () => {
+  navItems.classList.toggle('show');
+});
