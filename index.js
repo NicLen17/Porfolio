@@ -55,6 +55,22 @@ window.addEventListener("scroll", function () {
 
 const proyects = [
   {
+    title: "Enduring Education",
+    image: "./assets/Images/EnduringEducation.jpeg",
+    description:
+      "Empowering university teachers with modern tools, digital strategies, and real-world methods to connect with today's students and reduce dropout rates.",
+    link: "https://enduring-education.vercel.app",
+    release: 2025,
+  },
+  {
+    title: "TxtGen",
+    image: "./assets/Images/TxtGen.jpeg",
+    description:
+      "An intuitive web application that allows users to create and download .txt files with a fully customized structure. Users can define the exact format and content, making it ideal for generating structured documents, templates, or formatted notes with ease.",
+    link: "https://txt-gent.vercel.app",
+    release: 2025,
+  },
+  {
     title: "ZETAROSS",
     image: "./assets/Images/ZETAROSS.jpeg",
     description:
@@ -225,10 +241,9 @@ window.addEventListener("scroll", () => {
   }
 });
 
+const navToggle = document.querySelector(".nav-toggle");
+const navItems = document.querySelector(".nav-items-container");
 
-const navToggle = document.querySelector('.nav-toggle');
-const navItems = document.querySelector('.nav-items-container');
-
-navToggle.addEventListener('click', () => {
-  navItems.classList.toggle('show');
+navToggle.addEventListener("click", () => {
+  navItems.classList.toggle("show");
 });
