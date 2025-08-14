@@ -134,7 +134,7 @@ const proyects = [
     release: 2024,
   },
   {
-    title: "TARJETA 18 MAURO",
+    title: "TARJETA 18 MATEO",
     image: "./assets/Images/18MAURO.jpeg",
     description:
       "Personalized website that works as a digital invitation card where the owner can send the link to whoever they want for registration.",
