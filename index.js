@@ -56,7 +56,7 @@ window.addEventListener("scroll", function () {
 const proyects = [
   {
     title: "Enduring Education",
-    image: "./assets/Images/EnduringEducation.jpeg",
+    image: "./assets/Images/EnduringEducation.webp",
     description:
       "Empowering university teachers with modern tools, digital strategies, and real-world methods to connect with today's students and reduce dropout rates.",
     link: "https://enduring-education.vercel.app",
@@ -64,7 +64,7 @@ const proyects = [
   },
   {
     title: "TxtGen",
-    image: "./assets/Images/TxtGen.jpeg",
+    image: "./assets/Images/TxtGen.webp",
     description:
       "An intuitive web application that allows users to create and download .txt files with a fully customized structure. Users can define the exact format and content, making it ideal for generating structured documents, templates, or formatted notes with ease.",
     link: "https://txt-gent.vercel.app",
@@ -72,7 +72,7 @@ const proyects = [
   },
   {
     title: "ZETAROSS",
-    image: "./assets/Images/ZETAROSS.jpeg",
+    image: "./assets/Images/ZETAROSS.webp",
     description:
       "Website created for the publication and consultation on 3D printed figures",
     link: "https://zetaross.vercel.app",
@@ -80,7 +80,7 @@ const proyects = [
   },
   {
     title: "CEBAMATE",
-    image: "./assets/Images/CEBAMATE 1.jpeg",
+    image: "./assets/Images/CEBAMATE 1.webp",
     description:
       "Website for an entrepreneur from Salta dedicated to the sale of personalized mates and accessories. It includes an interactive catalog, responsive design and a contact section.",
     link: "https://ceba-mate.vercel.app",
@@ -88,7 +88,7 @@ const proyects = [
   },
   {
     title: "CAW",
-    image: "./assets/Images/CAW 3.jpeg",
+    image: "./assets/Images/CAW-3.webp",
     description:
       "Website dedicated to the publication and sale of second-hand cars.",
     link: "https://cawvehiculos.vercel.app",
@@ -96,7 +96,7 @@ const proyects = [
   },
   {
     title: "MOUSTACHE GENTLEMAN",
-    image: "./assets/Images/PELUQUERIA 1.jpeg",
+    image: "./assets/Images/PELUQUERIA 1.webp",
     description:
       "Mustache gentleman barber shop website where you can consult hairstyles and appointments",
     link: "https://moustache-gentlemen.vercel.app",
@@ -104,7 +104,7 @@ const proyects = [
   },
   {
     title: "INDUMENTARIA TAURIE",
-    image: "./assets/Images/TAURIE.jpeg",
+    image: "./assets/Images/TAURIE.webp",
     description:
       "Website dedicated to the sale of clothing, where users can buy or consult about products",
     link: "https://indumentaria-taurie.vercel.app",
@@ -112,7 +112,7 @@ const proyects = [
   },
   {
     title: "KEIS",
-    image: "./assets/Images/KEIS.jpeg",
+    image: "./assets/Images/KEIS.webp",
     description:
       "Institutional website made for food technicians who want to share the scope and quality of local dairy production.",
     link: "https://planta-productora-queso.vercel.app",
@@ -120,14 +120,14 @@ const proyects = [
   },
   {
     title: "PHONE PIXEL",
-    image: "./assets/Images/PHONEPIXEL.jpeg",
+    image: "./assets/Images/PHONEPIXEL.webp",
     description: "Example website of an ecommerce template.",
     link: "https://proyecto-final-rc.vercel.app",
     release: 2021,
   },
   {
     title: "BOOTCAMP BACK-END",
-    image: "./assets/Images/BOTCAMPBACK.jpeg",
+    image: "./assets/Images/BOTCAMPBACK.webp",
     description:
       "This project aims to develop the backend for a bootcamp management system, using MongoDB as a database, Node.js for the server logic, and Postman for API testing and documentation.",
     link: "https://github.com/NicLen17/Bootcamp---Backend",
@@ -135,7 +135,7 @@ const proyects = [
   },
   {
     title: "TARJETA 18 MATEO",
-    image: "./assets/Images/18MAURO.jpeg",
+    image: "./assets/Images/18MAURO.webp",
     description:
       "Personalized website that works as a digital invitation card where the owner can send the link to whoever they want for registration.",
     link: "https://mateo-github-io.vercel.app",
@@ -143,7 +143,7 @@ const proyects = [
   },
   {
     title: "TARJETA 15 CATALINA",
-    image: "./assets/Images/15CATA.jpeg",
+    image: "./assets/Images/15CATA.webp",
     description:
       "Personalized website that works as a digital invitation card where the owner can send the link to whoever they want for registration.",
     link: "https://15-catalina.vercel.app",
@@ -160,7 +160,7 @@ function renderProyects(proyects) {
     <a class="proyects-link" rel="noreferrer" href="${proyect.link}" target="_blank" class="proyect-link">
       <div class="proyects-card">
         <div class="proyects-card-img">
-          <img src="${proyect.image}" alt="${proyect.title}" />
+          <img loading="lazy" src="${proyect.image}" alt="Proyecto - Fabio Ramos - ${proyect.title}" />
         </div>
         <div class="proyects-card-body">
           <h2>${proyect.title}</h2>
