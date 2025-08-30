@@ -199,6 +199,7 @@ body {
   position: absolute;
   transform: rotateX(50deg) rotateY(-5deg) rotateZ(20deg) scale(1.25);
   transition: opacity 0.5s ease, transform 0.5s ease;
+  margin-top: 10rem;
 }
 
 .container-flat {
