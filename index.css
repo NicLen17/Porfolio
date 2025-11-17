@@ -532,7 +532,6 @@ h3 span {
   font-size: 0.8rem;
   color: rgb(var(--light-gray));
   transition: background-color 0.2s, color 0.2s;
-  cursor: pointer;
   border-radius: 5px;
 }
 
@@ -571,7 +570,6 @@ h3 span {
   padding: 15px;
   border-radius: 5px;
   transition: 0.2s ease-in-out;
-  cursor: pointer;
 }
 
 .about-item h3 {
