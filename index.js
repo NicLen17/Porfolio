@@ -157,7 +157,6 @@ function renderProyects(proyects) {
   proyectsContainer.innerHTML = proyects
     .map(
       (proyect) => `
-    <a class="proyects-link" rel="noreferrer" href="${proyect.link}" target="_blank" class="proyect-link">
       <div class="proyects-card">
         <div class="proyects-card-img">
           <img loading="lazy" src="${proyect.image}" alt="Proyecto - Fabio Ramos - ${proyect.title}" />
@@ -168,7 +167,6 @@ function renderProyects(proyects) {
         </div>
         <h3><b>Release - ${proyect.release}</b></h3>
       </div>
-    </a>
   `
     )
     .join("");
