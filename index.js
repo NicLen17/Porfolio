@@ -1,21 +1,17 @@
 const container = document.querySelector("#container"),
   tile = document.querySelector(".tile");
 
-// const follower = document.getElementById("follower")
+const follower = document.getElementById("follower");
 
-// window.onmousemove = e => {
-//   const x = e.clientX - follower.offsetWidth / 2,
-//         y = e.clientY - follower.offsetHeight / 2;
+document.addEventListener("mousemove", (e) => {
+  // Obtenemos las coordenadas X e Y del mouse
+  const x = e.clientX;
+  const y = e.clientY;
 
-//     const keyframes = {
-//       transform: `translate(${x}px, ${y}px)`
-//     }
-
-//     follower.animate(keyframes, {
-//       duration: 800,
-//       fill: "forwards"
-//     })
-// }
+  // Actualizamos la posición usando transform (es más rápido que top/left)
+  // Mantenemos el translate(-50%, -50%) para que siga centrado
+  follower.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+});
 
 for (let i = 0; i < 1399; i++) {
   container.appendChild(tile.cloneNode());
@@ -53,13 +49,26 @@ window.addEventListener("scroll", function () {
   }
 });
 
-const proyects = [
+const projects = [
+  {
+    title: "CAW Education",
+    image: "./assets/Images/cawpic.jfif",
+    description:
+      "A system that combines everything known from both worlds so far, software development and data science, with the aim of modernizing school management and turning data into smart decisions.",
+    release: 2025,
+  },
+  {
+    title: "Sublimspace",
+    image: "./assets/Images/Sublimspace.jfif",
+    description:
+      "An online store that handles the complexity of wholesale and retail sales of customized products, without the limitations of traditional platforms, and also allows you to manage products, discount coupons, and have a sales analysis to see the performance of the business.",
+    release: 2025,
+  },
   {
     title: "Enduring Education",
     image: "./assets/Images/EnduringEducation.webp",
     description:
       "Empowering university teachers with modern tools, digital strategies, and real-world methods to connect with today's students and reduce dropout rates.",
-    link: "https://enduring-education.vercel.app",
     release: 2025,
   },
   {
@@ -67,7 +76,6 @@ const proyects = [
     image: "./assets/Images/TxtGen.webp",
     description:
       "An intuitive web application that allows users to create and download .txt files with a fully customized structure. Users can define the exact format and content, making it ideal for generating structured documents, templates, or formatted notes with ease.",
-    link: "https://txt-gent.vercel.app",
     release: 2025,
   },
   {
@@ -75,7 +83,6 @@ const proyects = [
     image: "./assets/Images/ZETAROSS.webp",
     description:
       "Website created for the publication and consultation on 3D printed figures",
-    link: "https://zetaross.vercel.app",
     release: 2022,
   },
   {
@@ -83,7 +90,6 @@ const proyects = [
     image: "./assets/Images/CEBAMATE 1.webp",
     description:
       "Website for an entrepreneur from Salta dedicated to the sale of personalized mates and accessories. It includes an interactive catalog, responsive design and a contact section.",
-    link: "https://ceba-mate.vercel.app",
     release: 2023,
   },
   {
@@ -91,7 +97,6 @@ const proyects = [
     image: "./assets/Images/CAW-3.webp",
     description:
       "Website dedicated to the publication and sale of second-hand cars.",
-    link: "https://cawvehiculos.vercel.app",
     release: 2024,
   },
   {
@@ -99,7 +104,6 @@ const proyects = [
     image: "./assets/Images/PELUQUERIA 1.webp",
     description:
       "Mustache gentleman barber shop website where you can consult hairstyles and appointments",
-    link: "https://moustache-gentlemen.vercel.app",
     release: 2023,
   },
   {
@@ -107,7 +111,6 @@ const proyects = [
     image: "./assets/Images/TAURIE.webp",
     description:
       "Website dedicated to the sale of clothing, where users can buy or consult about products",
-    link: "https://indumentaria-taurie.vercel.app",
     release: 2023,
   },
   {
@@ -115,14 +118,12 @@ const proyects = [
     image: "./assets/Images/KEIS.webp",
     description:
       "Institutional website made for food technicians who want to share the scope and quality of local dairy production.",
-    link: "https://planta-productora-queso.vercel.app",
     release: 2021,
   },
   {
     title: "PHONE PIXEL",
     image: "./assets/Images/PHONEPIXEL.webp",
     description: "Example website of an ecommerce template.",
-    link: "https://proyecto-final-rc.vercel.app",
     release: 2021,
   },
   {
@@ -130,7 +131,6 @@ const proyects = [
     image: "./assets/Images/BOTCAMPBACK.webp",
     description:
       "This project aims to develop the backend for a bootcamp management system, using MongoDB as a database, Node.js for the server logic, and Postman for API testing and documentation.",
-    link: "https://github.com/NicLen17/Bootcamp---Backend",
     release: 2024,
   },
   {
@@ -138,7 +138,6 @@ const proyects = [
     image: "./assets/Images/18MAURO.webp",
     description:
       "Personalized website that works as a digital invitation card where the owner can send the link to whoever they want for registration.",
-    link: "https://mateo-github-io.vercel.app",
     release: 2023,
   },
   {
@@ -146,22 +145,21 @@ const proyects = [
     image: "./assets/Images/15CATA.webp",
     description:
       "Personalized website that works as a digital invitation card where the owner can send the link to whoever they want for registration.",
-    link: "https://15-catalina.vercel.app",
     release: 2023,
   },
 ];
 
-const proyectsContainer = document.getElementById("proyects-container");
+const projectsContainer = document.getElementById("projects-container");
 
-function renderProyects(proyects) {
-  proyectsContainer.innerHTML = proyects
+function renderprojects(projects) {
+  projectsContainer.innerHTML = projects
     .map(
       (proyect) => `
-      <div class="proyects-card">
-        <div class="proyects-card-img">
+      <div class="projects-card">
+        <div class="projects-card-img">
           <img loading="lazy" src="${proyect.image}" alt="Proyecto - Fabio Ramos - ${proyect.title}" />
         </div>
-        <div class="proyects-card-body">
+        <div class="projects-card-body">
           <h2>${proyect.title}</h2>
           <p>${proyect.description}</p>
         </div>
@@ -175,36 +173,36 @@ function renderProyects(proyects) {
 const filterDropdown = document.getElementById("filter-dropdown");
 
 // Función para ordenar los proyectos según la opción seleccionada
-function sortProyects(criteria) {
-  let sortedProyects = [...proyects]; // Clonar el array para no modificar el original
+function sortprojects(criteria) {
+  let sortedprojects = [...projects]; // Clonar el array para no modificar el original
 
   switch (criteria) {
     case "alphabetical-asc":
-      sortedProyects.sort((a, b) => a.title.localeCompare(b.title)); // Orden alfabético A-Z
+      sortedprojects.sort((a, b) => a.title.localeCompare(b.title)); // Orden alfabético A-Z
       break;
     case "alphabetical-desc":
-      sortedProyects.sort((a, b) => b.title.localeCompare(a.title)); // Orden alfabético Z-A
+      sortedprojects.sort((a, b) => b.title.localeCompare(a.title)); // Orden alfabético Z-A
       break;
     case "release-asc":
-      sortedProyects.sort((a, b) => a.release - b.release); // Fecha ascendente
+      sortedprojects.sort((a, b) => a.release - b.release); // Fecha ascendente
       break;
     case "release-desc":
-      sortedProyects.sort((a, b) => b.release - a.release); // Fecha descendente
+      sortedprojects.sort((a, b) => b.release - a.release); // Fecha descendente
       break;
     default:
       break; // No hacer nada si se selecciona "none"
   }
 
-  renderProyects(sortedProyects); // Renderizamos los proyectos ordenados
+  renderprojects(sortedprojects); // Renderizamos los proyectos ordenados
 }
 
 // Evento para manejar el cambio en el dropdown
 filterDropdown.addEventListener("change", (e) => {
-  sortProyects(e.target.value); // Pasamos el valor seleccionado para ordenar
+  sortprojects(e.target.value); // Pasamos el valor seleccionado para ordenar
 });
 
 // Renderizar los proyectos inicialmente
-renderProyects(proyects);
+renderprojects(projects);
 
 const readMoreButtons = document.querySelectorAll(".read-more-btn");
 
