@@ -827,7 +827,6 @@ h3 span {
   height: 400px;
   position: relative;
   text-align: center;
-  cursor: pointer;
   border-radius: 15px;
 }
 
@@ -1101,6 +1100,10 @@ h3 span {
 
 /* Móviles (pantallas pequeñas) */
 @media (max-width: 768px) {
+  .mouse-follower {
+    display: none;
+  }
+
   .container {
     width: 65rem;
     transform: rotateX(20deg) rotateY(-2deg) rotateZ(10deg) scale(1);
