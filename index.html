@@ -8,613 +8,494 @@
   <link rel="stylesheet" href="./index.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
     rel="stylesheet" />
 
   <meta name="description"
-    content="Fabio Ramos's portfolio showcasing his work as a Software Engineer and Full Stack Developer. Discover projects, experience in React, TypeScript, and more." />
+    content="Fabio Ramos — Principal Software Developer and full-stack engineer. Next.js, TypeScript, Supabase. Former CENSYS banking systems and Globant Web UI." />
   <meta name="keywords"
-    content="Fabio Ramos, Software Engineer,Fabio Ramos Full Stack Developer,Fabio Portfolio, Web Development, Argentina Dev" />
+    content="Fabio Ramos, Software Engineer, Full Stack Developer, Fabio Portfolio, Web Development, Argentina Dev" />
   <meta name="author" content="Fabio Ramos" />
 
-  <meta property="og:title" content="Fabio Ramos | Software Engineer">
-  <meta property="og:description" content="Explore my web projects and skills as a Software Engineer.">
+  <meta property="og:title" content="Fabio Ramos · Principal Software Developer">
+  <meta property="og:description" content="Principal developer building data-informed web products — EdTech, commerce, and high-reliability delivery.">
   <meta property="og:image" content="https://i.pinimg.com/736x/56/e3/0b/56e30b257021e5d366457d84e7851437.jpg">
   <meta property="og:url" content="https://www.fabioramos.com.ar">
   <meta property="og:type" content="website">
 
 
-  <title>Fabio Ramos | Software Engineer</title>
+  <title>Fabio Ramos · Principal Software Developer</title>
   <script defer src="./index.js"></script>
 </head>
 
 <body id="body">
   <div id="follower" class="mouse-follower"></div>
-  <nav class="nav">
-    <a href="/">
-      <img src="./assets/Images/Icon.webp" alt="Fabio Ramos - Logo" />
-    </a>
 
-    <button class="nav-toggle" aria-label="Open menu">
-      ☰
-    </button>
-
-    <div class="nav-items-container">
-      <a href="#about" class="nav-item">About</a>
-      <a href="#experience" class="nav-item">Experience</a>
-      <a href="#projects" class="nav-item">Projects</a>
-      <a href="#education" class="nav-item">Education</a>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <button type="button" class="site-header__toggle" id="nav-toggle" aria-expanded="false" aria-controls="mobile-nav"
+        aria-label="Open menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+      </button>
+      <nav class="site-header__nav site-header__nav--desktop" aria-label="Primary">
+        <a href="#about" class="site-header__link">About</a>
+        <a href="#experience" class="site-header__link">Experience</a>
+        <a href="#projects" class="site-header__link">Projects</a>
+        <a href="#testimonials" class="site-header__link">Recommendations</a>
+        <a href="#education" class="site-header__link">Education</a>
+        <a href="#certifications" class="site-header__link">Certifications</a>
+        <a href="#contact" class="site-header__link">Contact</a>
+      </nav>
     </div>
-  </nav>
+    <div class="site-header__mobile" id="mobile-nav" hidden>
+      <a href="#about" class="site-header__mobile-link">About</a>
+      <a href="#experience" class="site-header__mobile-link">Experience</a>
+      <a href="#projects" class="site-header__mobile-link">Projects</a>
+      <a href="#testimonials" class="site-header__mobile-link">Recommendations</a>
+      <a href="#education" class="site-header__mobile-link">Education</a>
+      <a href="#certifications" class="site-header__mobile-link">Certifications</a>
+      <a href="#contact" class="site-header__mobile-link">Contact</a>
+    </div>
+  </header>
 
   <div class="main-content">
     <div id="container" class="container hidden">
       <div class="tile"></div>
     </div>
     <div class="content hidden" id="content">
-      <div class="meta-link hidden">
-        <span style="filter: drop-shadow(0px 0px 4px #fff);" class="label">Fabio Ramos</span>
-        <span class="label">Software Engineer</span>
-        <div class="button-group">
-          <a href="#projects">View Work</a>
-          <a download href="./assets/Files/Fabio_Ramos_Software_Dev_Engineer_Resume.pdf">
-            Resume
-            <img src="https://icongr.am/feather/download.svg?size=20&color=ffffff" alt="download - icon" />
+      <div class="meta-link hero-panel hidden">
+        <p class="hero-location">Based in Argentina AR</p>
+        <h1 class="hero-name">Fabio Ramos</h1>
+        <p class="hero-role">Principal Software Developer · Full Stack Engineer</p>
+        <div class="button-group hero-actions">
+          <a class="hero-btn hero-btn--primary" href="#projects">View selected work</a>
+          <a class="hero-btn hero-btn--secondary" download href="./assets/Files/Fabio_Ramos_Full_Stack_Engineer_Resume.pdf">
+            Download Resume
           </a>
         </div>
         <div class="meta-link-social">
-          <a rel="noreferrer" target="blank" href="https://www.linkedin.com/in/fabioramosnic"><img loading="lazy"
+          <a rel="noreferrer" target="_blank" href="https://www.linkedin.com/in/fabioramosnic"><img loading="lazy"
               class="social-img" src="https://icongr.am/fontawesome/linkedin-square.svg?size=128&color=ffffff"
-              alt="linkedin-icon" /></a>
-          <a rel="noreferrer" target="blank" href="https://github.com/NicLen17"><img loading="lazy" class="social-img"
-              src="https://icongr.am/fontawesome/github.svg?size=128&color=ffffff" alt="github-icon" /></a>
-          <a rel="noreferrer" target="blank"
-            href="mailto:fabioramosnic@gmail.com?subject='Hola!'&body='Me comunico desde el portfolio!'"><img
+              alt="LinkedIn" /></a>
+          <a rel="noreferrer" target="_blank" href="https://github.com/NicLen17"><img loading="lazy" class="social-img"
+              src="https://icongr.am/fontawesome/github.svg?size=128&color=ffffff" alt="GitHub" /></a>
+          <a rel="noreferrer" target="_blank"
+            href="mailto:fabioramosnic@gmail.com?subject=Hello%20Fabio&amp;body=I%E2%80%99m%20reaching%20out%20from%20your%20portfolio."><img
               loading="lazy" class="social-img" src="https://icongr.am/entypo/mail.svg?size=128&color=ffffff"
-              alt="github-icon" /></a>
+              alt="Email" /></a>
         </div>
       </div>
     </div>
   </div>
-  <section id="new-section" class="section hidden">
-    <div id="about" class="about hidden">
-      <h2>About me<span>...</span></h2>
-      <hr />
-      <div class="about-body">
-        <div class="about-body-left">
-          <p>
-            Software Engineer with over <span>5 years of experience</span> designing and building scalable digital
-            solutions
-            across financial, educational, and commercial domains<span>.</span>
-          </p>
-          <p>
-            I specialize in delivering end-to-end web products, combining modern frontend, robust backend solutions, and
-            data
-            analysis to improve performance, user experience, and operational efficiency. I have contributed to
-            <span>15+ real-world projects</span>, including enterprise systems, banking platforms, and scalable web
-            applications<span>.</span>
-          </p>
-          <ul>
-            <li>
-              <img loading="lazy" src="https://icongr.am/clarity/map-marker.svg?size=128&color=00adde"
-                alt="Location icon" />
-              Argentina-based Software Engineer
-            </li>
-            <li>
-              <img loading="lazy" src="https://icongr.am/clarity/design.svg?size=128&color=00adde" alt="Design icon" />
-              Information Systems Engineering student
-            </li>
-            <li>
-              <img loading="lazy" src="https://icongr.am/clarity/cluster.svg?size=128&color=00adde"
-                alt="Hardware icon" />
-              Hardware & Data geek
-            </li>
-          </ul>
-        </div>
-        <div class="about-body-right">
-          <h3>Key Skills<span>.</span></h3>
-          <div class="about-skills">
-            <p class="skills-item">React</p>
-            <p class="skills-item">Next</p>
-            <p class="skills-item">Supabase</p>
-            <p class="skills-item">Typescript</p>
-            <p class="skills-item">TailwindCSS</p>
-            <p class="skills-item">SQL</p>
-            <p class="skills-item">Node</p>
-            <p class="skills-item">Express</p>
-            <p class="skills-item">Javascript</p>
-            <p class="skills-item">MongoDB</p>
-            <p class="skills-item">Bootstrap</p>
-            <p class="skills-item">HTML</p>
-            <p class="skills-item">CSS</p>
-            <p class="skills-item">Python</p>
-            <p class="skills-item">PowerBuilder</p>
-            <p class="skills-item">Git</p>
-            <p class="skills-item">Github</p>
-            <p class="skills-item">Postman</p>
-            <p class="skills-item">Jira</p>
-            <p class="skills-item">Trello</p>
-            <p class="skills-item">Canva</p>
-          </div>
-        </div>
-      </div>
-      <div class="about-footer">
-        <h3>More in depth<span>.</span></h3>
-        <div class="about-items-container">
-          <div class="about-item">
-            <h3>5+</h3>
-            <p>Years of experience</p>
-            <ul class="about-item-data">
-              <li>Software Engineer</li>
-              <li>Full Stack Developer</li>
-              <li>Frontend Specialist</li>
-            </ul>
-          </div>
-          <div class="about-item">
-            <h3>15+</h3>
-            <p>Projects delivered</p>
-            <ul class="about-item-data">
-              <li>Banking systems</li>
-              <li>E-commerce platforms</li>
-              <li>Scalable SPAs</li>
-            </ul>
-          </div>
-          <div class="about-item">
-            <h3>10+</h3>
-            <p>Clients satisficed</p>
-            <ul class="about-item-data">
-              <li>Banks</li>
-              <li>Companies</li>
-              <li>Entrepreneurs</li>
-            </ul>
-          </div>
-          <div class="about-item">
-            <h3>15+</h3>
-            <p>Certifications</p>
-            <ul class="about-item-data">
-              <li>Software Development</li>
-              <li>Data & Analytics</li>
-              <li>Language Proficiency</li>
-            </ul>
-          </div>
-        </div>
-        <h3>Some achievements<span>.</span></h3>
-        <div class="about-achievements">
-          <div class="about-individual-achievement">
-            <img loading="lazy" src="https://icongr.am/entypo/trophy.svg?size=25&color=f5a731" alt="trophy-icon" />
-            <p>
-              Selected for an international scholarship to attend the
-              <strong>“Digital Companies & E-Business Revolution”</strong> program at
-              California State University, Northridge<span>.</span>
-            </p>
-          </div>
-          <div class="about-individual-achievement">
-            <img loading="lazy" src="https://icongr.am/entypo/trophy.svg?size=25&color=f5a731" alt="trophy-icon" />
-            <p>
-              Selected from hundreds of professional profiles to complete an intensive
-              <strong>SSR-level Web UI bootcamp at Globant</strong><span>.</span>
-            </p>
-          </div>
-          <div class="about-individual-achievement">
-            <img loading="lazy" src="https://icongr.am/entypo/trophy.svg?size=25&color=f5a731" alt="trophy-icon" />
-            <p>
-              Contributed to the development and optimization of core modules for
-              <strong>Argentine banking systems</strong>, improving performance and operational
-              reliability<span>.</span>
-            </p>
-          </div>
-          <div class="about-individual-achievement">
-            <img loading="lazy" src="https://icongr.am/entypo/trophy.svg?size=25&color=f5a731" alt="trophy-icon" />
-            <p>
-              Implemented scalable frontend and backend solutions, focusing on performance,
-              maintainability, and user experience<span>.</span>
-            </p>
-          </div>
-          <div class="about-individual-achievement">
-            <img loading="lazy" src="https://icongr.am/entypo/trophy.svg?size=25&color=f5a731" alt="trophy-icon" />
-            <p>
-              Worked in distributed, multidisciplinary teams using Agile methodologies,
-              delivering production-ready solutions in remote environments<span>.</span>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <section id="experience" class="experience hidden">
-      <h2>Experience<span>.</span></h2>
-      <hr>
 
-      <!-- CENSYS S.A. Experience -->
-      <div class="experience-card">
-        <div class="experience-header">
-          <h3>Software Engineer - CENSYS S.A.</h3>
-          <span class="period">Dic 2023 – Jul 2025</span>
-        </div>
-
-        <div class="sub-experience-card">
-          <div class="experience-header">
-            <h4>Sucredito Bank | BSR</h4>
-          </div>
-          <div class="experience-body">
-            <div class="experience-details">
-              <p> Worked on the development, maintenance, and optimization of core banking systems,
-                collaborating closely with QA, business stakeholders, and technical leaders.</p>
-              <ul>
-                <li>Developed and maintained critical banking modules using PowerBuilder, T-SQL, and Sybase.</li>
-                <li>Resolved production incidents, UAT issues, and performance bottlenecks.</li>
-                <li>Improved performance of payment, reporting, and data-processing flows.</li>
-                <li>Collaborated in Agile/Scrum environments with daily client interaction.</li>
-              </ul>
-            </div>
-
-          </div>
-        </div>
-        <div class="sub-experience-card">
-          <div class="experience-header">
-            <h4>Santiago del Estero Bank | BSE</h4>
-          </div>
-          <div class="experience-body">
-            <div class="experience-details">
-              <p> Focused on system maintenance, UI improvements, and onboarding of new developers
-                into legacy banking systems.</p>
-              <ul>
-                <li>Provided guidance and training to new developers, accelerating team integration by 30%.</li>
-                <li>Diagnosed and corrected errors, optimizing the user interface to improve usability and accessibility
-                  by ~25%.</li>
-                <li>Optimized UI components and database queries.</li>
-                <li>Provided technical guidance and onboarding support to junior developers.</li>
+  <main class="site-main">
+    <section id="about" class="site-section site-section--hero-end js-reveal">
+      <div class="site-section__inner">
+        <header class="section-heading">
+          <p class="section-heading__eyebrow">About</p>
+          <h2 class="section-heading__title">Building products with measurable impact</h2>
+          <p class="section-heading__subtitle">Principal developer at CAW Tech; previously banking systems at CENSYS and
+            Web UI delivery at Globant — with a strong bias for clarity, ownership, and calm production releases.</p>
+        </header>
+        <div class="about-grid">
+          <div class="about-grid__left">
+            <p>With 6+ years in production software, I have designed and delivered scalable solutions across financial
+              services, education, and commercial products — from enterprise banking cores and internal platforms to
+              customer-facing web applications.</p>
+            <p>Background spans technical leadership at CAW Tech, banking core systems at CENSYS (Sucrédito Bank and
+              Santiago del Estero Bank), and close collaboration with QA, business stakeholders, and technical leads in Agile
+              delivery. Earlier roles include full-stack MERN projects at TecnoLine and a Web UI internship at Globant
+              centered on React, TypeScript, Tailwind, and accessible UI.</p>
+            <p>Comfortable owning architecture, performance, and production incidents — from legacy PowerBuilder, T-SQL,
+              and Sybase stacks to modern TypeScript, Supabase, and API integrations. I prioritize outcomes teams can
+              measure: faster flows, fewer production incidents, and maintainable codebases.</p>
+            <p>Alongside client work, I am pursuing Information Systems Engineering at UTN and complementary study in
+              organizational data science and international business — including the Digital Companies &amp; E-Business
+              program at California State University, Northridge — so engineering choices stay aligned with product and
+              organizational goals.</p>
+            <div class="about-how">
+              <h3 class="about-how__title">How I work</h3>
+              <ul class="about-how__list">
+                <li><span class="about-how__dot" aria-hidden="true"></span>Own delivery: scope, trade-offs, and clarity
+                  for the rest of the team.</li>
+                <li><span class="about-how__dot" aria-hidden="true"></span>Measure impact: latency, throughput,
+                  conversion, and operational load — not vanity refactors.</li>
+                <li><span class="about-how__dot" aria-hidden="true"></span>Collaborate across QA, product, and infra so
+                  releases stay boring and safe.</li>
               </ul>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Globant Experience -->
-      <div class="experience-card">
-        <div class="experience-header">
-          <h3>Front-End Engineer Intern (Web UI)</h3>
-          <span class="period">Jul 2024 – Oct 2024</span>
-        </div>
-        <div class="experience-location">
-        </div>
-        <div class="experience-body">
-          <div class="sub-experience-card">
-            <div class="experience-header">
-              <h4>Globant</h4>
-            </div>
-            <div class="experience-body">
-              <div class="experience-details">
-                <p>As a Front-End Engineer Intern, I developed responsive web interfaces utilizing React, TypeScript,
-                  and Zustand. This experience focused on implementing reusable and accessible components to deliver an
-                  optimized and user-friendly interface.</p>
-                <ul>
-                  <li>Developed responsive web interfaces using React.js, TypeScript, TailwindCSS, and Zustand.</li>
-                  <li>Collaborated on performance and accessibility improvements.</li>
-                  <li>Focused on reusable components and performance optimization.</li>
-                  <li>Optimized UI components, reducing loading times by ~20%.</li>
-                  <li>Worked with GitHub and Agile workflows.</li>
-                  <li>Used GitHub Projects to manage tasks and deliver features in sprints.</li>
-                </ul>
+          <div class="about-grid__right">
+            <div class="skill-group">
+              <h4 class="skill-group__label">Front end</h4>
+              <div class="skill-group__pills">
+                <span class="accent-pill">React</span><span class="accent-pill">Next.js</span><span
+                  class="accent-pill">TypeScript</span><span class="accent-pill">Tailwind CSS</span><span
+                  class="accent-pill">shadcn/ui</span><span class="accent-pill">Zustand</span>
               </div>
-
+            </div>
+            <div class="skill-group">
+              <h4 class="skill-group__label">Platform &amp; data</h4>
+              <div class="skill-group__pills">
+                <span class="accent-pill">Supabase</span><span class="accent-pill">Node.js</span><span
+                  class="accent-pill">Express</span><span class="accent-pill">PostgreSQL</span><span
+                  class="accent-pill">SQL</span><span class="accent-pill">T-SQL</span><span
+                  class="accent-pill">Sybase</span>
+              </div>
+            </div>
+            <div class="skill-group">
+              <h4 class="skill-group__label">Legacy &amp; integration</h4>
+              <div class="skill-group__pills">
+                <span class="accent-pill">PowerBuilder</span><span class="accent-pill">SOAP APIs</span><span
+                  class="accent-pill">Postman</span><span class="accent-pill">MongoDB</span>
+              </div>
+            </div>
+            <div class="skill-group">
+              <h4 class="skill-group__label">Delivery</h4>
+              <div class="skill-group__pills">
+                <span class="accent-pill">Git</span><span class="accent-pill">GitHub</span><span
+                  class="accent-pill">CI/CD</span><span class="accent-pill">Scrum</span><span class="accent-pill">Code
+                  review</span><span class="accent-pill">Mentoring</span>
+              </div>
+            </div>
+            <div class="lang-block">
+              <h4 class="skill-group__label">Languages</h4>
+              <ul class="lang-block__list">
+                <li><span>Spanish</span><span class="lang-block__level">Native</span></li>
+                <li><span>English</span><span class="lang-block__level">C1 / Full professional</span></li>
+                <li><span>Portuguese</span><span class="lang-block__level">Elementary</span></li>
+                <li><span>Japanese</span><span class="lang-block__level">Elementary</span></li>
+              </ul>
             </div>
           </div>
+        </div>
+        <ul class="about-stats">
+          <li class="about-stats__item">
+            <span class="about-stats__num">6+</span>
+            <span class="about-stats__label">Years shipping production software</span>
+          </li>
+          <li class="about-stats__item">
+            <span class="about-stats__num">20+</span>
+            <span class="about-stats__label">Projects delivered across domains</span>
+          </li>
+          <li class="about-stats__item">
+            <span class="about-stats__num">15+</span>
+            <span class="about-stats__label">Certifications and courses completed</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="experience" class="site-section site-section--alt js-reveal">
+      <div class="site-section__inner">
+        <header class="section-heading">
+          <p class="section-heading__eyebrow">Experience</p>
+          <h2 class="section-heading__title">Roles that shaped how I ship</h2>
+          <p class="section-heading__subtitle">From legacy banking cores to modern Next.js products — same discipline:
+            understand the business, protect production, and leave the codebase better than I found it.</p>
+        </header>
+        <div class="experience-stack">
+          <article class="exp-card">
+            <div class="exp-card__head">
+              <div>
+                <h3 class="exp-card__role">Principal Software Developer</h3>
+                <p class="exp-card__company">CAW Tech <span class="exp-card__muted">· Argentina</span></p>
+              </div>
+              <p class="exp-card__period">September 2025 — Present</p>
+            </div>
+            <p class="exp-card__summary">Co-founder and technical lead — closing the gap between complex software and
+              business strategy with Next.js, TypeScript, Supabase, and data-driven product design.</p>
+            <div class="exp-card__stack">
+              <span>Next.js</span><span>TypeScript</span><span>Supabase</span><span>Architecture</span><span>Data
+                visualization</span>
+            </div>
+            <ul class="exp-card__bullets">
+              <li>Co-founded CAW Tech and lead architecturally demanding products with Next.js, TypeScript, and Supabase —
+                from discovery to release.</li>
+              <li>Design systems for data capture and KPI visualization that drive operational decisions.</li>
+              <li>Volley Manager: optimize real-time data flows and large-scale sports administration.</li>
+              <li>CAW Education: EdTech ecosystem merging software engineering and data science — smarter academic
+                metrics and lighter admin workflows.</li>
+              <li>ExpoLogic: dynamic resource allocation engine for fair management — automated exhibitor logistics and
+                reduced manual operational overhead.</li>
+              <li>High-conversion e-commerce platforms with SEO, performance, and scalability as first-class concerns.</li>
+            </ul>
+          </article>
+          <article class="exp-card">
+            <div class="exp-card__head">
+              <div>
+                <h3 class="exp-card__role">Software Developer · Sucrédito Bank (BSR)</h3>
+                <p class="exp-card__company">CENSYS S.A. <span class="exp-card__muted">· Argentina</span></p>
+              </div>
+              <p class="exp-card__period">March 2024 — July 2025</p>
+            </div>
+            <p class="exp-card__summary">Core banking modules in production — PowerBuilder, Sybase, and tight
+              collaboration with QA and stakeholders.</p>
+            <div class="exp-card__stack">
+              <span>PowerBuilder</span><span>T-SQL</span><span>Sybase</span><span>SOAP</span><span>Postman</span>
+            </div>
+            <ul class="exp-card__bullets">
+              <li>Built and maintained critical banking interfaces and business logic under production pressure.</li>
+              <li>Optimized stored procedures, triggers, and SQL for stability and performance.</li>
+              <li>Integrated and validated SOAP APIs; supported UAT cycles and post-deploy care.</li>
+              <li>Onboarded and coached new teammates — faster ramp-up and safer releases.</li>
+            </ul>
+          </article>
+          <article class="exp-card">
+            <div class="exp-card__head">
+              <div>
+                <h3 class="exp-card__role">Software Developer · Santiago del Estero Bank (BSE)</h3>
+                <p class="exp-card__company">CENSYS S.A. <span class="exp-card__muted">· Argentina</span></p>
+              </div>
+              <p class="exp-card__period">December 2023 — February 2024</p>
+            </div>
+            <div class="exp-card__stack">
+              <span>PowerBuilder</span><span>Sybase</span>
+            </div>
+            <ul class="exp-card__bullets">
+              <li>Front-end and back-end changes on legacy banking stacks.</li>
+              <li>UI adjustments for usability; debugging production and test environments.</li>
+              <li>Mapped banking modules and business flows for reliable fixes.</li>
+            </ul>
+          </article>
+          <article class="exp-card">
+            <div class="exp-card__head">
+              <div>
+                <h3 class="exp-card__role">Front-End Developer Intern · Web UI (SSR)</h3>
+                <p class="exp-card__company">Globant <span class="exp-card__muted">· Yerba Buena, Tucumán, Argentina</span>
+                </p>
+              </div>
+              <p class="exp-card__period">July 2024 — October 2024</p>
+            </div>
+            <div class="exp-card__stack">
+              <span>React</span><span>TypeScript</span><span>Zustand</span><span>Tailwind CSS</span>
+            </div>
+            <ul class="exp-card__bullets">
+              <li>Built responsive UIs with reusable, accessible, performance-oriented components.</li>
+              <li>Collaborated via GitHub with code reviews and frontend architecture discussions.</li>
+              <li>Improved load characteristics and frontend best practices on client engagements.</li>
+            </ul>
+          </article>
+          <article class="exp-card">
+            <div class="exp-card__head">
+              <div>
+                <h3 class="exp-card__role">Full Stack Web Developer</h3>
+                <p class="exp-card__company">TecnoLine <span class="exp-card__muted">· Tucumán, Argentina</span></p>
+              </div>
+              <p class="exp-card__period">January 2023 — May 2024</p>
+            </div>
+            <div class="exp-card__stack">
+              <span>React</span><span>Node.js</span><span>MongoDB</span><span>Vercel</span><span>Render</span>
+            </div>
+            <ul class="exp-card__bullets">
+              <li>Delivered 12+ web apps — e-commerce, SPAs, and admin systems — end to end.</li>
+              <li>Payment gateways, external APIs, SEO, accessibility, and Core Web Vitals.</li>
+              <li>Direct client work: requirements, delivery, hosting, and ongoing support.</li>
+            </ul>
+          </article>
+          <article class="exp-card">
+            <div class="exp-card__head">
+              <div>
+                <h3 class="exp-card__role">Front-End Web Developer</h3>
+                <p class="exp-card__company">Freelance <span class="exp-card__muted">· Argentina</span></p>
+              </div>
+              <p class="exp-card__period">June 2021 — December 2022</p>
+            </div>
+            <ul class="exp-card__bullets">
+              <li>Websites for entrepreneurs and institutions; hosting and lifecycle maintenance.</li>
+              <li>Commercialized reusable templates and iterative improvements after launch.</li>
+            </ul>
+          </article>
+        </div>
+        <div class="cert-actions">
+          <button type="button" class="cert-actions__btn" id="experience-toggle" aria-expanded="false">
+            See all
+          </button>
         </div>
       </div>
+    </section>
 
-      <!-- Freelance Experience -->
-      <div class="experience-card">
-        <div class="experience-header">
-          <h3>Full Stack Engineer – MERN</h3>
-          <span class="period">Jun 2021 – May 2024</span>
+    <section id="projects" class="site-section js-reveal">
+      <div class="site-section__inner">
+        <header class="section-heading">
+          <p class="section-heading__eyebrow">Projects</p>
+          <h2 class="section-heading__title">Selected product &amp; client work</h2>
+          <p class="section-heading__subtitle">Highlights aligned with CAW Tech and freelance delivery. Use the sorter to
+            browse by name or year.</p>
+        </header>
+        <div class="projects-toolbar">
+          <p class="projects-toolbar__hint">Filter project list</p>
+          <select class="projects-toolbar__select" aria-label="Select filter" id="filter-dropdown">
+            <option value="none">Default order</option>
+            <option value="alphabetical-asc">Alphabetical (A-Z)</option>
+            <option value="alphabetical-desc">Alphabetical (Z-A)</option>
+            <option value="release-asc">Year (oldest first)</option>
+            <option value="release-desc">Year (newest first)</option>
+          </select>
         </div>
-
-        <div class="sub-experience-card">
-          <div class="experience-header">
-            <h4>TecnoLine</h4>
-          </div>
-          <div class="experience-body">
-            <div class="experience-details">
-              <p>Delivered end-to-end web solutions for businesses and entrepreneurs, handling
-                everything from requirements gathering to deployment and maintenance.</p>
-              <ul>
-                <li>Led over 5 full-stack projects from start to finish and delivered over 10 frontend-focused
-                  applications, boosting client performance and KPIs by ~30%.</li>
-                <li>Built and deployed scalable web applications using React, Node.js, MongoDB, and SQL.</li>
-                <li>Integrated payment gateways, APIs, and third-party services.</li>
-                <li>Worked directly with clients to define scope, UX, and technical solutions.</li>
-              </ul>
-            </div>
-
-          </div>
+        <div id="projects-container" class="projects-grid"></div>
+        <div class="cert-actions">
+          <button type="button" class="cert-actions__btn" id="projects-toggle" aria-expanded="false">
+            See all
+          </button>
         </div>
-        <div class="sub-experience-card">
-          <div class="experience-header">
-            <h4>Freelance</h4>
-          </div>
-          <div class="experience-body">
-            <div class="experience-details">
-              <p>As a freelance developer, I provided custom development solutions for various clients. I specialized in
-                integrating modern front-end libraries and building robust back-end APIs to meet specific project needs.
-              </p>
-              <ul>
-                <li>Developed custom solutions integrating modern front-end libraries and proprietary RESTful APIs,
-                  which contributed to a 20% increase in project revenue.</li>
-                <li>Managed full project lifecycles in agile environments, coordinating with cross-functional teams to
-                  ensure on-time delivery and high-quality results.</li>
-              </ul>
-            </div>
+      </div>
+    </section>
 
+    <section id="testimonials" class="site-section site-section--alt js-reveal">
+      <div class="site-section__inner">
+        <header class="section-heading">
+          <p class="section-heading__eyebrow">Recommendations</p>
+          <h2 class="section-heading__title">What colleagues say on LinkedIn</h2>
+          <p class="section-heading__subtitle">Translated excerpts from public LinkedIn recommendations — technical depth on
+            CAW Education, collaboration at CENSYS, and ownership under pressure.</p>
+        </header>
+        <div class="testimonials-grid">
+          <figure class="testimonial-card" lang="en">
+            <div class="testimonial-card__content">
+            <blockquote class="testimonial-card__quote" data-testimonial-quote>I had the pleasure of working with Fabio on a
+              demanding data-science initiative for education, CAW Education. He was essential as a full-stack engineer,
+              turning our analysis into a robust, functional platform. His impact was remarkable: he integrated a complex
+              data-capture system and KPI visualizations with multiple management tools for teachers and administrators.</blockquote>
+            <button type="button" class="testimonial-card__toggle" hidden data-testimonial-toggle aria-expanded="false">Read
+              more</button>
+            </div>
+            <figcaption class="testimonial-card__meta">
+              <p class="testimonial-card__author">Mariano Torres</p>
+              <p class="testimonial-card__role">Co-founder &amp; Managing Director · CAW Tech</p>
+              <p class="testimonial-card__relation">Worked on the same team · December 2025</p>
+              <a class="testimonial-card__link" href="https://www.linkedin.com/in/mariano-a-torres/" target="_blank"
+                rel="noopener noreferrer">View on LinkedIn <span aria-hidden="true">↗</span></a>
+            </figcaption>
+          </figure>
+          <figure class="testimonial-card" lang="en">
+            <div class="testimonial-card__content">
+            <blockquote class="testimonial-card__quote" data-testimonial-quote>I worked with Fabio at Censys for two years and
+              can confidently say he is an exceptional professional. He stands out for analytical depth and dedication.
+              His collaborative mindset and problem-solving always made a difference in the hardest moments. Beyond his
+              technical skills, he generously shares knowledge and supports teammates, building a positive, productive environment.</blockquote>
+            <button type="button" class="testimonial-card__toggle" hidden data-testimonial-toggle aria-expanded="false">Read
+              more</button>
+            </div>
+            <figcaption class="testimonial-card__meta">
+              <p class="testimonial-card__author">María Josefina Serrano</p>
+              <p class="testimonial-card__role">BA · QA · Tester</p>
+              <p class="testimonial-card__relation">Senior colleague at CENSYS · December 2024</p>
+              <a class="testimonial-card__link"
+                href="https://www.linkedin.com/in/mar%C3%ADajosefinaserrano/" target="_blank" rel="noopener noreferrer">View
+                on LinkedIn <span aria-hidden="true">↗</span></a>
+            </figcaption>
+          </figure>
+          <figure class="testimonial-card" lang="en">
+            <div class="testimonial-card__content">
+            <blockquote class="testimonial-card__quote" data-testimonial-quote>An outstanding professional and colleague.
+              Fabio is responsible and creative—you can confidently tackle any project alongside him.</blockquote>
+            <button type="button" class="testimonial-card__toggle" hidden data-testimonial-toggle aria-expanded="false">Read
+              more</button>
+            </div>
+            <figcaption class="testimonial-card__meta">
+              <p class="testimonial-card__author">Juan Manuel Albarracín Olmos</p>
+              <p class="testimonial-card__role">T-SQL · ETL · PowerBuilder · Backend</p>
+              <p class="testimonial-card__relation">Same team · CENSYS · December 2024</p>
+              <a class="testimonial-card__link" href="https://www.linkedin.com/in/jmpk/" target="_blank"
+                rel="noopener noreferrer">View on LinkedIn <span aria-hidden="true">↗</span></a>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="education" class="site-section js-reveal">
+      <div class="site-section__inner">
+        <header class="section-heading">
+          <p class="section-heading__eyebrow">Education</p>
+          <h2 class="section-heading__title">Continuous learning</h2>
+          <p class="section-heading__subtitle">Formal training that complements shipping production software — from
+            engineering fundamentals to international business immersion.</p>
+        </header>
+        <div class="education-grid">
+          <article class="edu-card">
+            <h3 class="edu-card__title">Graduate Diploma · Organizational Data Science</h3>
+            <p class="edu-card__school">Universidad Nacional de Tucumán (UNT)</p>
+            <p class="edu-card__period">April 2025 — December 2025</p>
+            <p class="edu-card__detail">Analytics for organizations, dashboards, SQL analysis, Python for
+              decision-oriented reporting.</p>
+          </article>
+          <article class="edu-card">
+            <h3 class="edu-card__title">International Program · Digital Companies &amp; E-Business Revolution</h3>
+            <p class="edu-card__school">California State University, Northridge</p>
+            <p class="edu-card__period">July 2025 — August 2025</p>
+            <p class="edu-card__detail">Digital business models, validation, pricing, MVP execution.</p>
+          </article>
+          <article class="edu-card">
+            <h3 class="edu-card__title">B.S. Information Systems Engineering (in progress)</h3>
+            <p class="edu-card__school">Universidad Tecnológica Nacional (UTN)</p>
+            <p class="edu-card__period">March 2022 — Present</p>
+            <p class="edu-card__detail">Systems analysis, software engineering, databases, CS fundamentals.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="certifications" class="site-section site-section--alt js-reveal">
+      <div class="site-section__inner">
+        <header class="section-heading">
+          <p class="section-heading__eyebrow">Certifications</p>
+          <h2 class="section-heading__title">Credentials</h2>
+          <p class="section-heading__subtitle">Courses and certifications across cloud, data science, full-stack
+            development, and language proficiency — expand the list for the full history.</p>
+        </header>
+        <div id="certifications-root">
+          <div id="certifications-grid" class="cert-grid"></div>
+          <div class="cert-actions">
+            <button type="button" class="cert-actions__btn" id="cert-toggle" aria-expanded="false">See all</button>
           </div>
         </div>
       </div>
     </section>
-    
-    <div id="projects" class="projects hidden">
-      <h2>Projects<span>.</span></h2>
-      <hr />
-      <div class="projects-filter">
-        <p>The projects could be a clone of the final product.</p>
-        <select aria-label="Select filter" id="filter-dropdown">
-          <option value="none">Select filter</option>
-          <option value="alphabetical-asc">Alphabetical (A-Z)</option>
-          <option value="alphabetical-desc">Alphabetical (Z-A)</option>
-          <option value="release-asc">Release date (Asc)</option>
-          <option value="release-desc">Release Date (Des)</option>
-        </select>
-      </div>
+  </main>
 
-      <div id="projects-container" class="projects-body">
-      </div>
-      <section id="education" class="education hidden">
-        <h2>Education<span>.</span></h2>
-        <hr>
-        <div class="education-container">
-          <!-- California State University, Northridge -->
-          <div class="education-card">
-            <div class="education-title-container">
-              <img loading="lazy" src="https://icongr.am/fontawesome/university.svg?size=32&color=ffffff"
-                alt="Education icon">
-              <h3>Digital Companies and E-Business Revolution, International Business</h3>
-            </div>
-            <p class="institution">California State University, Northridge</p>
-            <p class="date">July 2025 - August 2025</p>
-            <p class="description">Focused on digital business models, market validation, pricing strategies, and MVP
-              development. Included hands-on project execution.</p>
-          </div>
-
-          <!-- Universidad Nacional de Tucumán -->
-          <div class="education-card">
-            <div class="education-title-container">
-              <img loading="lazy" src="https://icongr.am/fontawesome/university.svg?size=32&color=ffffff"
-                alt="Education icon">
-              <h3>Diploma in Organizational Data Science, Data Science</h3>
-            </div>
-            <p class="institution">Universidad Nacional de Tucumán</p>
-            <p class="date">April 2025 - September 2025</p>
-            <p class="description"> Diploma focused on organizational data analysis, dashboards, SQL-based analysis,
-              Python for data processing, and decision-oriented reporting.</p>
-          </div>
-
-          <!-- Universidad Tecnológica Nacional -->
-          <div class="education-card">
-            <div class="education-title-container">
-              <img loading="lazy" src="https://icongr.am/fontawesome/university.svg?size=32&color=ffffff"
-                alt="Education icon">
-              <h3>Information Systems Engineering, Engineering</h3>
-            </div>
-            <p class="institution">Universidad Tecnológica Nacional</p>
-            <p class="date">March 2022 - Ongoing</p>
-            <p class="description"> Engineering degree focused on systems analysis, software development,
-              databases, and computer science fundamentals. Currently in progress.</p>
-          </div>
-        </div>
-      </section>
-      <section id="certifications" class="certifications hidden">
-        <h3>Certifications<span>.</span></h3>
-        <div class="certifications-container">
-          <div class="certification-card">
-            <div class="certification-title-container">
-              <img loading="lazy" src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde"
-                alt="Certificate icon" class="certification-icon" />
-              <h3>Management and Processing of Organizational Data </h3>
-            </div>
-            <p class="issuer">Universidad Nacional de Tucumán</p>
-            <p class="date">Issued: October 2025</p>
-          </div>
-          <div class="certification-card">
-            <div class="certification-title-container">
-              <img loading="lazy" src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde"
-                alt="Certificate icon" class="certification-icon" />
-              <h3>Data Science using Python</h3>
-            </div>
-            <p class="issuer">Universidad Nacional de Tucumán</p>
-            <p class="date">Issued: August 2025</p>
-          </div>
-          <div class="certification-card">
-            <div class="certification-title-container">
-              <img loading="lazy" src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde"
-                alt="Certificate icon" class="certification-icon" />
-              <h3>Challenges and Applications of Data Science in Organizations</h3>
-            </div>
-            <p class="issuer">Universidad Nacional de Tucumán</p>
-            <p class="date">Issued: August 2025</p>
-          </div>
-          <!-- Digital Companion & E-business Revolution -->
-          <div class="certification-card">
-            <div class="certification-title-container">
-              <img loading="lazy" src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde"
-                alt="Certificate icon" class="certification-icon" />
-              <h3>Digital Companion & E-business Revolution</h3>
-            </div>
-            <p class="issuer">California State University, Northridge</p>
-            <p class="date">Issued: July 2025</p>
-          </div>
-
-          <!-- Business English -->
-          <div class="certification-card">
-            <div class="certification-title-container">
-              <img loading="lazy" src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde"
-                alt="Certificate icon" class="certification-icon" />
-              <h3>Business English</h3>
-            </div>
-            <p class="issuer">California State University, Northridge</p>
-            <p class="date">Issued: June 2025</p>
-          </div>
-
-          <!-- Herramientas Estadísticas para la Ciencia de Datos -->
-          <div class="certification-card">
-            <div class="certification-title-container">
-              <img loading="lazy" src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde"
-                alt="Certificate icon" class="certification-icon" />
-              <h3>Statistical Tools for Data Science</h3>
-            </div>
-            <p class="issuer">Universidad Nacional de Tucumán</p>
-            <p class="date">Issued: June 2025</p>
-          </div>
-
-          <!-- Cloud Computing -->
-          <div class="certification-card">
-            <div class="certification-title-container">
-              <img loading="lazy" loading="lazy" src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde"
-                alt="Certificate icon" class="certification-icon" />
-              <h3>Cloud Computing AWS</h3>
-            </div>
-            <p class="issuer">Coderhouse</p>
-            <p class="date">Issued: May 2025</p>
-          </div>
-
-          <!-- B2 English Certification -->
-          <div class="certification-card">
-            <div class="certification-title-container">
-              <img loading="lazy" src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde"
-                alt="Certificate icon" class="certification-icon" />
-              <h3>English Studies Certification - B2</h3>
-            </div>
-            <p class="issuer">Instituto Rush</p>
-            <p class="date">Issued: December 2024</p>
-          </div>
-
-          <!-- BackEnd Node.js -->
-          <div class="certification-card">
-            <div class="certification-title-container">
-              <img loading="lazy" src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde"
-                alt="Certificate icon" class="certification-icon" />
-              <h3>BackEnd Node.js - Database Integration in Web Apps</h3>
-            </div>
-            <p class="issuer">RollingCode</p>
-            <p class="date">Issued: November 2024</p>
-          </div>
-
-          <!-- B2 English Language Certification -->
-          <div class="certification-card">
-            <div class="certification-title-container">
-              <img loading="lazy" src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde"
-                alt="Certificate icon" class="certification-icon" />
-              <h3>Foreign Language Certification - B2 English</h3>
-            </div>
-            <p class="issuer">Instituto Rush</p>
-            <p class="date">Issued: July 2024</p>
-          </div>
-
-          <!-- EF SET C1 -->
-          <div class="certification-card">
-            <div class="certification-title-container">
-              <img loading="lazy" src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde"
-                alt="Certificate icon" class="certification-icon" />
-              <h3>EF SET Official Certificate 65/100 (C1 Advanced)</h3>
-            </div>
-            <p class="issuer">EF SET</p>
-            <p class="date">Issued: May 2024</p>
-          </div>
-
-          <!-- Testing QC/QA -->
-          <div class="certification-card">
-            <div class="certification-title-container">
-              <img loading="lazy" src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde"
-                alt="Certificate icon" class="certification-icon" />
-              <h3>Testing QC/QA</h3>
-            </div>
-            <p class="issuer">Global Learning</p>
-            <p class="date">Issued: November 2023</p>
-          </div>
-
-          <!-- Potencial Tech 2 - Alkemy -->
-          <div class="certification-card">
-            <div class="certification-title-container">
-              <img loading="lazy" src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde"
-                alt="Certificate icon" class="certification-icon" />
-              <h3>Potencial Tech 2 (Front-End)</h3>
-            </div>
-            <p class="issuer">Alkemy</p>
-            <p class="date">Issued: October 2023</p>
-          </div>
-
-          <!-- Programador Front-End - Tramo 3 -->
-          <div class="certification-card">
-            <div class="certification-title-container">
-              <img loading="lazy" src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde"
-                alt="Certificate icon" class="certification-icon" />
-              <h3>Front-End Developer - Stage 3</h3>
-            </div>
-            <p class="issuer">ITMaster Academy</p>
-            <p class="date">Issued: October 2023</p>
-          </div>
-
-          <!-- Programador Web Full Stack - Tramo 2 -->
-          <div class="certification-card">
-            <div class="certification-title-container">
-              <img loading="lazy" src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde"
-                alt="Certificate icon" class="certification-icon" />
-              <h3>Full Stack Web Developer - Stage 2</h3>
-            </div>
-            <p class="issuer">ITMaster Academy</p>
-            <p class="date">Issued: September 2023</p>
-          </div>
-
-          <!-- #YoProgramo - Full Stack Web Developer -->
-          <div class="certification-card">
-            <div class="certification-title-container">
-              <img loading="lazy" src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde"
-                alt="Certificate icon" class="certification-icon" />
-              <h3>#YoProgramo - Full Stack Web Developer</h3>
-            </div>
-            <p class="issuer">Argentina Programa 4.0</p>
-            <p class="date">Issued: February 2023</p>
-          </div>
-
-          <!-- #SeProgramar -->
-          <div class="certification-card">
-            <div class="certification-title-container">
-              <img loading="lazy" src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde"
-                alt="Certificate icon" class="certification-icon" />
-              <h3>#SeProgramar - Full Stack Certification</h3>
-            </div>
-            <p class="issuer">Argentina Programa</p>
-            <p class="date">Issued: April 2022</p>
-          </div>
-
-          <!-- Full Stack Web Developer - RollingCode -->
-          <div class="certification-card">
-            <div class="certification-title-container">
-              <img loading="lazy" src="https://icongr.am/clarity/certificate.svg?size=50&color=00adde"
-                alt="Certificate icon" class="certification-icon" />
-              <h3>Full Stack Web Developer</h3>
-            </div>
-            <p class="issuer">RollingCode</p>
-            <p class="date">Issued: June 2021</p>
-          </div>
-        </div>
-      </section>
-  </section>
-  <!-- Back to top button -->
   <a href="#body" class="back-to-top" id="back-to-top">
     <img loading="lazy" src="https://icongr.am/clarity/arrow.svg?size=32&color=000000" alt="Back to top arrow" />
   </a>
-  <footer id="main-footer">
-    <p>&copy; 2025 Ramos Fabio 🇦🇷. All rights reserved.</p>
+
+  <footer id="contact" class="site-footer js-reveal">
+    <div class="site-footer__inner">
+      <div class="site-footer__intro">
+        <h2 class="site-footer__title">Let&apos;s connect</h2>
+        <p class="site-footer__text">Open to principal engineering, tech lead, and senior full-stack roles where product
+          judgment and calm execution matter.</p>
+        <div class="site-footer__actions">
+          <a class="site-footer__btn site-footer__btn--primary" href="mailto:fabioramosnic@gmail.com?subject=Hello%20Fabio">Email me</a>
+          <a class="site-footer__btn site-footer__btn--ghost" href="https://www.linkedin.com/in/fabioramosnic"
+            target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a class="site-footer__btn site-footer__btn--ghost" href="https://github.com/NicLen17" target="_blank"
+            rel="noopener noreferrer">GitHub</a>
+        </div>
+      </div>
+      <dl class="site-footer__details">
+        <div>
+          <dt>Email</dt>
+          <dd><a href="mailto:fabioramosnic@gmail.com">fabioramosnic@gmail.com</a></dd>
+        </div>
+        <div>
+          <dt>Phone</dt>
+          <dd>+54 381 337-9225</dd>
+        </div>
+        <div>
+          <dt>Company</dt>
+          <dd><a href="https://www.caw.com.ar" target="_blank" rel="noopener noreferrer">CAW Tech</a></dd>
+        </div>
+        <div>
+          <dt>Site</dt>
+          <dd><a href="https://www.fabioramos.com.ar">fabioramos.com.ar</a></dd>
+        </div>
+      </dl>
+    </div>
+    <p class="site-footer__legal">© <span id="footer-year"></span> Fabio Ramos. Built with HTML, CSS &amp; JS.</p>
   </footer>
 </body>
 
