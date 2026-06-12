@@ -65,24 +65,87 @@ html {
 html {
   scroll-behavior: smooth;
   overflow-x: clip;
-  cursor: none;
+}
+
+@media (pointer: fine) and (min-width: 769px) {
+  html {
+    cursor: none;
+  }
 }
 
 .mouse-follower {
   position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  display: none;
+}
+
+@media (pointer: fine) and (min-width: 769px) {
+  .mouse-follower {
+    display: block;
+  }
+}
+
+.mouse-follower__orb {
+  position: fixed;
   top: 0;
   left: 0;
-  width: 50px;
-  height: 50px;
-  background-color: var(--primary-blue);
   border-radius: 50%;
   pointer-events: none;
-  transform: translate(-50%, -50%);
-  filter: blur(10px);
-  opacity: 0.5;
   mix-blend-mode: screen;
-  z-index: 9999;
-  transition: transform 0.08s cubic-bezier(0.075, 0.82, 0.165, 1), opacity 0.15s ease, visibility 0.15s ease;
+  will-change: transform, opacity, filter;
+}
+
+.mouse-follower__orb--trail {
+  width: 3.25rem;
+  height: 3.25rem;
+  background: radial-gradient(
+    circle,
+    rgba(0, 173, 222, 0.42) 0%,
+    rgba(0, 120, 180, 0.18) 42%,
+    transparent 72%
+  );
+  filter: blur(14px);
+  animation: follower-pulse-trail 3.6s ease-in-out infinite;
+}
+
+.mouse-follower__orb--lead {
+  width: 1.375rem;
+  height: 1.375rem;
+  background: radial-gradient(
+    circle,
+    rgba(180, 245, 255, 0.95) 0%,
+    rgba(0, 200, 240, 0.55) 38%,
+    transparent 70%
+  );
+  filter: blur(2px);
+  box-shadow: 0 0 18px rgba(0, 173, 222, 0.55), 0 0 36px rgba(0, 173, 222, 0.25);
+  animation: follower-pulse-lead 2.4s ease-in-out infinite 0.55s;
+}
+
+@keyframes follower-pulse-trail {
+  0%,
+  100% {
+    opacity: 0.38;
+    filter: blur(14px);
+  }
+  50% {
+    opacity: 0.62;
+    filter: blur(18px);
+  }
+}
+
+@keyframes follower-pulse-lead {
+  0%,
+  100% {
+    opacity: 0.62;
+    box-shadow: 0 0 16px rgba(0, 173, 222, 0.45), 0 0 28px rgba(0, 173, 222, 0.2);
+  }
+  50% {
+    opacity: 0.92;
+    box-shadow: 0 0 22px rgba(0, 173, 222, 0.75), 0 0 44px rgba(0, 173, 222, 0.35);
+  }
 }
 
 .mouse-follower--hidden,
@@ -90,6 +153,7 @@ html.is-modal-open .mouse-follower,
 body:has(#project-modal[open]) .mouse-follower {
   opacity: 0;
   visibility: hidden;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
 }
 
 html.is-modal-open,
@@ -866,6 +930,7 @@ button {
 @media (min-width: 640px) {
   .exp-card__trigger {
     padding: 2rem;
+    align-items: center;
   }
 }
 
@@ -959,7 +1024,7 @@ button {
 @media (min-width: 640px) {
   .exp-card__head {
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
   }
 }
@@ -1690,9 +1755,6 @@ button {
 }
 
 @media (max-width: 768px) {
-  .mouse-follower {
-    display: none;
-  }
   .container {
     width: 65rem;
     transform: rotateX(20deg) rotateY(-2deg) rotateZ(10deg) scale(1);
@@ -1708,25 +1770,28 @@ button {
     transform: scale(2);
   }
 
+  .content .hero-actions,
   .content-flat .hero-actions {
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: center;
-    align-items: stretch;
+    align-items: center;
     width: 100%;
     max-width: min(100%, 20.5rem);
     padding: 0 0.15rem;
     gap: 0.22rem;
   }
 
+  .content .hero-btn,
   .content-flat .hero-btn {
     flex: 1 1 0;
     min-width: 0;
     width: auto;
     padding: 0.22rem 0.4rem;
     font-size: 0.22rem;
-    line-height: 1.2;
-    white-space: normal;
+    line-height: 1.25;
+    min-height: 0.56rem;
+    white-space: nowrap;
     text-align: center;
   }
 
@@ -1894,7 +1959,13 @@ button {
   color: #71717a;
 }
 
-.project-modal__tags,
+.project-modal__tags {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+}
+
 .project-modal__actions {
   margin-top: 1.75rem;
 }

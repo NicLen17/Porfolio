@@ -30,7 +30,10 @@
 </head>
 
 <body id="body">
-  <div id="follower" class="mouse-follower"></div>
+  <div id="follower" class="mouse-follower" aria-hidden="true">
+    <span class="mouse-follower__orb mouse-follower__orb--trail"></span>
+    <span class="mouse-follower__orb mouse-follower__orb--lead"></span>
+  </div>
 
   <header class="site-header">
     <div class="site-header__inner">
@@ -169,7 +172,7 @@
             <div class="skill-group">
               <h4 class="skill-group__label">Front end</h4>
               <div class="skill-group__pills">
-                <span class="accent-pill">React</span><span class="accent-pill">React Hooks</span><span
+                <span class="accent-pill">React</span><span
                   class="accent-pill">Next.js</span><span class="accent-pill">JavaScript</span><span
                   class="accent-pill">TypeScript</span><span class="accent-pill">HTML</span><span
                   class="accent-pill">CSS</span><span class="accent-pill">Tailwind CSS</span><span
@@ -377,7 +380,7 @@
         <div class="projects-toolbar">
           <p class="projects-toolbar__hint">Filter project list</p>
           <select class="projects-toolbar__select" aria-label="Select filter" id="filter-dropdown">
-            <option value="none">Default order</option>
+            <option value="none">Recently added</option>
             <option value="alphabetical-asc">Alphabetical (A-Z)</option>
             <option value="alphabetical-desc">Alphabetical (Z-A)</option>
             <option value="release-asc">Year (oldest first)</option>

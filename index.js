@@ -1,9 +1,51 @@
 const container = document.querySelector("#container");
 const tile = document.querySelector(".tile");
 const follower = document.getElementById("follower");
+const followerLead = follower?.querySelector(".mouse-follower__orb--lead");
+const followerTrail = follower?.querySelector(".mouse-follower__orb--trail");
+const followerMedia = window.matchMedia("(pointer: fine) and (min-width: 769px)");
 
 let tileHoverRaf = 0;
 let lastHoveredTile = null;
+let followerRaf = 0;
+let pointerX = 0;
+let pointerY = 0;
+let leadX = 0;
+let leadY = 0;
+let trailX = 0;
+let trailY = 0;
+
+function isFollowerActive() {
+  return (
+    followerMedia.matches &&
+    follower &&
+    !follower.classList.contains("mouse-follower--hidden")
+  );
+}
+
+function setFollowerOrbPosition(orb, x, y) {
+  if (!orb) return;
+  orb.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+}
+
+function tickFollower() {
+  followerRaf = requestAnimationFrame(tickFollower);
+  if (!isFollowerActive()) return;
+
+  leadX += (pointerX - leadX) * 0.34;
+  leadY += (pointerY - leadY) * 0.34;
+  trailX += (pointerX - trailX) * 0.13;
+  trailY += (pointerY - trailY) * 0.13;
+
+  setFollowerOrbPosition(followerLead, leadX, leadY);
+  setFollowerOrbPosition(followerTrail, trailX, trailY);
+}
+
+function ensureFollowerLoop() {
+  if (!followerRaf) {
+    followerRaf = requestAnimationFrame(tickFollower);
+  }
+}
 
 function updateTileHoverFromPoint(clientX, clientY) {
   const stack = document.elementsFromPoint(clientX, clientY);
@@ -22,7 +64,13 @@ function clearTileHover() {
 document.addEventListener("mousemove", (e) => {
   const x = e.clientX;
   const y = e.clientY;
-  follower.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+  pointerX = x;
+  pointerY = y;
+
+  if (isFollowerActive()) {
+    ensureFollowerLoop();
+  }
+
   if (tileHoverRaf) cancelAnimationFrame(tileHoverRaf);
   tileHoverRaf = requestAnimationFrame(() => {
     tileHoverRaf = 0;
@@ -96,11 +144,52 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;");
 }
 
+const PROJECT_VERCEL_ADDED_AT = {
+  "bullet-hell-example": 1780945476668,
+  "la-congreso": 1780657175106,
+  "mvp-to-pro-lightning-talk": 1780700000000,
+  "reaction-app": 1777403805339,
+  "cba-volleystar": 1774551561780,
+  "terradeco": 1772062426356,
+  "volley-manager": 1766793459390,
+  "caw-tech": 1765908454103,
+  "sublimspace": 1764598034846,
+  "expologic": 1764114884350,
+  "little-bite-society": 1762882384069,
+  "caw-education": 1758499439618,
+  "enduring-education": 1752118627457,
+  "txtgen": 1750771534132,
+  "bootcamp-backend": 1727912956755,
+  "indumentaria-taurie": 1692133002148,
+  "cebamate": 1698196864848,
+  "moustache-gentleman": 1689158490247,
+  "tarjeta-15-catalina": 1687646879081,
+  "caw-motors": 1683526439698,
+  "tarjeta-18-mateo": 1679121828599,
+  "zetaross": 1650186570595,
+};
+
+function compareProjectsDefault(a, b) {
+  const aAdded = PROJECT_VERCEL_ADDED_AT[a.id];
+  const bAdded = PROJECT_VERCEL_ADDED_AT[b.id];
+
+  if (aAdded != null && bAdded != null) {
+    if (bAdded !== aAdded) return bAdded - aAdded;
+  } else if (aAdded != null) {
+    return -1;
+  } else if (bAdded != null) {
+    return 1;
+  }
+
+  if (b.year !== a.year) return b.year - a.year;
+  return a.title.localeCompare(b.title);
+}
+
 const projects = [
   {
     id: "caw-education",
     title: "CAW Education",
-    year: 2025,
+    year: 2026,
     role: "Principal engineer · CAW Tech",
     description:
       "EdTech platform merging engineering and data science for academic KPIs and lighter admin workflows.",
@@ -117,7 +206,7 @@ const projects = [
   {
     id: "volley-manager",
     title: "Volley Manager",
-    year: 2025,
+    year: 2026,
     role: "Principal engineer · CAW Tech",
     description:
       "Large-scale volleyball administration with optimized real-time data flows for leagues and operations.",
@@ -134,7 +223,7 @@ const projects = [
   {
     id: "expologic",
     title: "ExpoLogic · Feria Cultural",
-    year: 2025,
+    year: 2026,
     role: "Principal engineer · CAW Tech",
     description:
       "Fair management with dynamic exhibitor allocation — less manual logistics on the ground.",
@@ -152,7 +241,7 @@ const projects = [
   {
     id: "caw-tech",
     title: "CAW Tech",
-    year: 2025,
+    year: 2026,
     role: "Co-founder · Principal engineer",
     description:
       "Company marketing site — services, product positioning, and high-conversion contact funnels.",
@@ -170,7 +259,7 @@ const projects = [
   {
     id: "cba-volleystar",
     title: "CBA VolleyStar",
-    year: 2025,
+    year: 2026,
     role: "Full stack · CAW Tech",
     description:
       "Volleyball league landing and discovery — fixtures, branding, and fan-facing information.",
@@ -188,7 +277,7 @@ const projects = [
   {
     id: "sublimspace",
     title: "Sublimspace",
-    year: 2025,
+    year: 2026,
     role: "Full stack · E-commerce",
     description:
       "Wholesale and retail commerce for customized products — catalog, coupons, and sales analytics.",
@@ -291,6 +380,60 @@ const projects = [
     ],
     url: "https://reaction-app-alpha.vercel.app/",
     image: "./assets/Images/Reaction.webp",
+  },
+  {
+    id: "bullet-hell-example",
+    title: "Bullet Hell Example",
+    year: 2026,
+    role: "Side project · Game demo",
+    description:
+      "Browser bullet hell prototype — dense patterns, real-time collision, and canvas-driven gameplay.",
+    descriptionLong:
+      "An interactive bullet hell demo exploring canvas rendering, pattern scripting, and frame-budget gameplay in the browser. Built as a technical sandbox for input latency, entity pooling, and deployable game loops on Vercel.",
+    technologies: ["Next.js", "TypeScript", "React", "Canvas", "Vercel"],
+    highlights: [
+      "Real-time bullet patterns with collision detection on canvas.",
+      "Performance-minded loop suitable for arcade-style intensity.",
+      "Production deploy on Vercel for shareable demos.",
+    ],
+    url: "https://bullet-hell-example.vercel.app",
+    image: "./assets/Images/bullet-hell.png",
+  },
+  {
+    id: "la-congreso",
+    title: "LA Congreso",
+    year: 2026,
+    role: "Full stack · Artisan marketplace",
+    description:
+      "House of crafts marketplace — multi-brand catalog, maker stories, and WhatsApp-led ordering.",
+    descriptionLong:
+      "LA Congreso is a shared retail home for artisan brands in San Miguel de Tucumán: unified catalog, entrepreneur spotlights, trend carousels, and contact flows tuned for local buying habits. The site balances editorial storytelling with product discovery across bookbinding, fragrances, textiles, and more.",
+    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Vercel"],
+    highlights: [
+      "Multi-vendor catalog with brand-specific story pages.",
+      "Mobile-first commerce paths via WhatsApp and email inquiry.",
+      "Community positioning as a permanent house for makers and workshops.",
+    ],
+    url: "https://la-congreso.vercel.app",
+    image: "./assets/Images/la-congreso.png",
+  },
+  {
+    id: "mvp-to-pro-lightning-talk",
+    title: "MVP to Pro · Lightning Talk",
+    year: 2026,
+    role: "Talk deck · Product & UX",
+    description:
+      "Slide deck on Volley Manager scouting — when a dense, expert-first UI beats minimal design.",
+    descriptionLong:
+      "A presentation site for a UTN lightning talk tracing three scouting interface iterations for Volley Manager: tabular MVP, spatial court mapping, and a pro-grade dense dashboard with international symbols. The narrative challenges the “less is more” default — in live sports capture, intentional visual saturation can be the fastest path for expert operators.",
+    technologies: ["HTML", "CSS", "JavaScript"],
+    highlights: [
+      "Three-phase product story: tabular → spatial → pro efficiency.",
+      "Keyboard-first, single-click action density for match-day scouting.",
+      "Public build-in-public artifact documenting real production trade-offs.",
+    ],
+    url: "https://niclen17.github.io/Lightning-Talk-MVP-to-PRO/",
+    image: "./assets/Images/mvp-to-pro.jpeg",
   },
   {
     id: "caw-motors",
@@ -501,6 +644,7 @@ function getSortedProjects() {
       sorted.sort((a, b) => b.year - a.year);
       break;
     default:
+      sorted.sort(compareProjectsDefault);
       break;
   }
   return sorted;
