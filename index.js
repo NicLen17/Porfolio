@@ -889,11 +889,38 @@ function createExpToggleIcon() {
   return svg;
 }
 
-function initExperienceAccordion() {
-  const stack = document.querySelector("#experience .experience-stack");
-  if (!stack) return;
+const experienceMore = document.getElementById("experience-more");
+const experienceToggle = document.getElementById("experience-toggle");
+let experienceExpanded = false;
 
-  const cards = Array.from(stack.querySelectorAll(".exp-card"));
+function syncExperienceExpandPanel() {
+  if (!experienceMore || !experienceToggle) return;
+  experienceMore.classList.toggle("is-open", experienceExpanded);
+  experienceMore.setAttribute("aria-hidden", String(!experienceExpanded));
+  experienceToggle.textContent = experienceExpanded ? "Show fewer" : "See all";
+  experienceToggle.setAttribute("aria-expanded", String(experienceExpanded));
+}
+
+experienceToggle?.addEventListener("click", () => {
+  experienceExpanded = !experienceExpanded;
+
+  if (!experienceExpanded) {
+    experienceMore?.querySelectorAll(".exp-card.is-open").forEach((card) => {
+      card.classList.remove("is-open");
+      card.querySelector(".exp-card__trigger")?.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  syncExperienceExpandPanel();
+});
+
+syncExperienceExpandPanel();
+
+function initExperienceAccordion() {
+  const section = document.getElementById("experience");
+  if (!section) return;
+
+  const cards = Array.from(section.querySelectorAll(".exp-card"));
   cards.forEach((card, index) => {
     const existingToggle = card.querySelector(".exp-card__toggle");
     if (existingToggle && !existingToggle.querySelector(".exp-card__toggle-icon")) {
@@ -1035,7 +1062,91 @@ mobileNav.querySelectorAll("a").forEach((a) => {
   });
 });
 
+const navSectionIds = [
+  "about",
+  "experience",
+  "projects",
+  "speaking",
+  "testimonials",
+  "education",
+  "certifications",
+  "contact",
+];
+const navLinks = document.querySelectorAll(
+  ".site-header__link, .site-header__mobile-link"
+);
+const navSections = navSectionIds
+  .map((id) => document.getElementById(id))
+  .filter(Boolean);
+
+function setActiveNav(sectionId) {
+  const activeHash = sectionId ? `#${sectionId}` : null;
+
+  navLinks.forEach((link) => {
+    const isActive = activeHash !== null && link.getAttribute("href") === activeHash;
+    link.classList.toggle("is-active", isActive);
+
+    if (isActive) {
+      link.setAttribute("aria-current", "true");
+    } else {
+      link.removeAttribute("aria-current");
+    }
+  });
+}
+
+function syncActiveNav() {
+  // Marker just below the fixed header
+  const marker = 96;
+  let activeId = null;
+
+  for (const section of navSections) {
+    if (section.getBoundingClientRect().top - marker <= 0) {
+      activeId = section.id;
+    }
+  }
+
+  const nearBottom =
+    window.scrollY + window.innerHeight >=
+    document.documentElement.scrollHeight - 80;
+  if (nearBottom) {
+    activeId = "contact";
+  }
+
+  setActiveNav(activeId);
+}
+
+window.addEventListener("scroll", syncActiveNav, { passive: true });
+window.addEventListener("resize", syncActiveNav);
+syncActiveNav();
+
 const footerYear = document.getElementById("footer-year");
 if (footerYear) {
   footerYear.textContent = String(new Date().getFullYear());
 }
+
+document.querySelectorAll(".site-footer__copy").forEach((button) => {
+  button.addEventListener("click", async () => {
+    const value = button.getAttribute("data-copy");
+    if (!value) return;
+
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch {
+      const input = document.createElement("input");
+      input.value = value;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      input.remove();
+    }
+
+    const previousLabel = button.getAttribute("aria-label") || "Copy";
+    button.classList.add("is-copied");
+    button.setAttribute("aria-label", "Copied");
+
+    window.setTimeout(() => {
+      button.classList.remove("is-copied");
+      button.setAttribute("aria-label", previousLabel);
+    }, 1600);
+  });
+});
