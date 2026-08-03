@@ -1124,6 +1124,91 @@ if (footerYear) {
   footerYear.textContent = String(new Date().getFullYear());
 }
 
+const resumeDownload = document.querySelector(".resume-download");
+const resumeDownloadBtn = document.getElementById("resume-download-btn");
+const resumeLangMenu = document.getElementById("resume-lang-menu");
+
+function positionResumeMenu() {
+  if (!resumeDownloadBtn || !resumeLangMenu || resumeLangMenu.hidden) return;
+
+  const rect = resumeDownloadBtn.getBoundingClientRect();
+  const menuWidth = Math.max(rect.width, 140);
+  const gap = 8;
+  let top = rect.bottom + gap;
+  let left = rect.left + rect.width / 2 - menuWidth / 2;
+
+  resumeLangMenu.style.width = `${menuWidth}px`;
+  resumeLangMenu.style.minWidth = `${menuWidth}px`;
+  resumeLangMenu.style.left = "0px";
+  resumeLangMenu.style.top = "0px";
+
+  // measure after applying temporary position
+  const menuHeight = resumeLangMenu.offsetHeight || 88;
+  if (top + menuHeight > window.innerHeight - 12) {
+    top = Math.max(12, rect.top - gap - menuHeight);
+  }
+  left = Math.min(Math.max(12, left), window.innerWidth - menuWidth - 12);
+
+  resumeLangMenu.style.top = `${top}px`;
+  resumeLangMenu.style.left = `${left}px`;
+}
+
+function setResumeMenuOpen(open) {
+  if (!resumeDownload || !resumeDownloadBtn || !resumeLangMenu) return;
+  resumeDownload.classList.toggle("is-open", open);
+  resumeDownloadBtn.setAttribute("aria-expanded", String(open));
+  resumeLangMenu.hidden = !open;
+
+  if (open) {
+    positionResumeMenu();
+  } else {
+    resumeLangMenu.style.top = "";
+    resumeLangMenu.style.left = "";
+    resumeLangMenu.style.width = "";
+    resumeLangMenu.style.minWidth = "";
+  }
+}
+
+resumeDownloadBtn?.addEventListener("click", (event) => {
+  event.stopPropagation();
+  const isOpen = resumeDownloadBtn.getAttribute("aria-expanded") === "true";
+  setResumeMenuOpen(!isOpen);
+});
+
+resumeLangMenu?.querySelectorAll("a").forEach((link) => {
+  link.addEventListener("click", () => {
+    setResumeMenuOpen(false);
+  });
+});
+
+document.addEventListener("click", (event) => {
+  if (!resumeDownload?.contains(event.target) && !resumeLangMenu?.contains(event.target)) {
+    setResumeMenuOpen(false);
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    setResumeMenuOpen(false);
+  }
+});
+
+window.addEventListener("resize", () => {
+  if (resumeDownloadBtn?.getAttribute("aria-expanded") === "true") {
+    positionResumeMenu();
+  }
+});
+
+window.addEventListener(
+  "scroll",
+  () => {
+    if (resumeDownloadBtn?.getAttribute("aria-expanded") === "true") {
+      setResumeMenuOpen(false);
+    }
+  },
+  { passive: true }
+);
+
 document.querySelectorAll(".site-footer__copy").forEach((button) => {
   button.addEventListener("click", async () => {
     const value = button.getAttribute("data-copy");

@@ -77,9 +77,18 @@
         <p class="hero-role">Principal Software Engineer · Full Stack Developer</p>
         <div class="button-group hero-actions">
           <a class="hero-btn hero-btn--secondary" href="#projects">View selected work</a>
-          <a class="hero-btn hero-btn--primary" download href="./assets/Files/Fabio_Ramos_Full_Stack_Engineer_Resume.pdf">
-            Download Resume
-          </a>
+          <div class="resume-download">
+            <button
+              type="button"
+              class="hero-btn hero-btn--primary"
+              id="resume-download-btn"
+              aria-haspopup="menu"
+              aria-expanded="false"
+              aria-controls="resume-lang-menu"
+            >
+              Download Resume
+            </button>
+          </div>
         </div>
         <div class="meta-link-social">
           <a rel="noreferrer" target="_blank" href="https://www.linkedin.com/in/fabioramosnic"><img loading="lazy"
@@ -252,7 +261,7 @@
             <span class="about-stats__label">Years shipping production software</span>
           </li>
           <li class="about-stats__item">
-            <span class="about-stats__num">20+</span>
+            <span class="about-stats__num">35+</span>
             <span class="about-stats__label">Projects delivered across domains</span>
           </li>
           <li class="about-stats__item">
@@ -688,6 +697,25 @@
       <div id="project-modal-actions" class="project-modal__actions"></div>
     </div>
   </dialog>
+
+  <div class="resume-lang-menu" id="resume-lang-menu" role="menu" hidden>
+    <a
+      class="resume-lang-menu__option"
+      role="menuitem"
+      download
+      href="./assets/Files/Fabio_Ramos_Full_Stack_Developer.pdf"
+    >
+      English
+    </a>
+    <a
+      class="resume-lang-menu__option"
+      role="menuitem"
+      download
+      href="./assets/Files/Fabio_Ramos_Desarrollador_Full_Stack.pdf"
+    >
+      Español
+    </a>
+  </div>
 </body>
 
 </html>
