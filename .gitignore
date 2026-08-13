@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+.idea/
+.vscode/
+*.code-workspace
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Logs / caches
+*.log
+npm-debug.log*
+.cache/
+.temp/
+.tmp/
+
+# Typst local previews
+cv/preview/
+
+# Package lock noise from ad-hoc installs (optional local tooling)
+package-lock.json

@@ -13,19 +13,23 @@
     rel="stylesheet" />
 
   <meta name="description"
-    content="Fabio Ramos — Full Stack Developer with 6+ years building scalable web apps. Next.js, TypeScript, React, Node.js, Supabase. Principal engineer at CAW Tech; former CENSYS core banking and Globant Web UI." />
+    content="Fabio Ramos — Senior Full Stack Software Engineer specializing in TypeScript, React, Next.js and Node.js. Builds B2B products and enterprise systems with experience in SQL, APIs and legacy modernization." />
   <meta name="keywords"
-    content="Fabio Ramos, Software Engineer, Full Stack Developer, Principal Software Engineer, Next.js, TypeScript, Supabase, React, Argentina Dev" />
+    content="Fabio Ramos, Senior Full Stack Software Engineer, Senior Software Engineer, TypeScript, React, Next.js, Node.js, PostgreSQL, Enterprise, Legacy Modernization, Core Banking, Argentina" />
   <meta name="author" content="Fabio Ramos" />
 
-  <meta property="og:title" content="Fabio Ramos · Principal Software Engineer · Full Stack">
-  <meta property="og:description" content="Full Stack engineer with 6+ years shipping robust web products — B2B SaaS, EdTech, e-commerce, and high-reliability banking systems.">
+  <meta property="og:title" content="Fabio Ramos — Senior Full Stack Software Engineer">
+  <meta property="og:description" content="Senior Full Stack Software Engineer building scalable web applications, B2B products and enterprise solutions with TypeScript, React, Next.js, Node.js — plus legacy modernization experience.">
   <meta property="og:image" content="https://i.pinimg.com/736x/56/e3/0b/56e30b257021e5d366457d84e7851437.jpg">
   <meta property="og:url" content="https://www.fabioramos.com.ar">
   <meta property="og:type" content="website">
 
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Fabio Ramos — Senior Full Stack Software Engineer">
+  <meta name="twitter:description" content="Senior Full Stack Software Engineer · TypeScript, React, Next.js, Node.js · Enterprise & Legacy Modernization.">
 
-  <title>Fabio Ramos · Principal Software Engineer · Full Stack</title>
+  <title>Fabio Ramos — Senior Full Stack Software Engineer</title>
+  <script defer src="./i18n.js"></script>
   <script defer src="./index.js"></script>
 </head>
 
@@ -38,31 +42,35 @@
   <header class="site-header">
     <div class="site-header__inner">
       <button type="button" class="site-header__toggle" id="nav-toggle" aria-expanded="false" aria-controls="mobile-nav"
-        aria-label="Open menu">
+        aria-label="Open menu" data-i18n-aria="nav.openMenu">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
         </svg>
       </button>
-      <nav class="site-header__nav site-header__nav--desktop" aria-label="Primary">
-        <a href="#about" class="site-header__link">About</a>
-        <a href="#experience" class="site-header__link">Experience</a>
-        <a href="#projects" class="site-header__link">Projects</a>
-        <a href="#speaking" class="site-header__link">Speaking</a>
-        <a href="#testimonials" class="site-header__link">Recommendations</a>
-        <a href="#education" class="site-header__link">Education</a>
-        <a href="#certifications" class="site-header__link">Certifications</a>
-        <a href="#contact" class="site-header__link">Contact</a>
+      <nav class="site-header__nav site-header__nav--desktop" aria-label="Primary" data-i18n-aria="nav.primary">
+        <a href="#about" class="site-header__link" data-i18n="nav.about">About</a>
+        <a href="#experience" class="site-header__link" data-i18n="nav.experience">Experience</a>
+        <a href="#projects" class="site-header__link" data-i18n="nav.projects">Projects</a>
+        <a href="#speaking" class="site-header__link" data-i18n="nav.speaking">Speaking</a>
+        <a href="#testimonials" class="site-header__link" data-i18n="nav.testimonials">Recommendations</a>
+        <a href="#education" class="site-header__link" data-i18n="nav.education">Education</a>
+        <a href="#certifications" class="site-header__link" data-i18n="nav.certifications">Certifications</a>
+        <a href="#contact" class="site-header__link" data-i18n="nav.contact">Contact</a>
       </nav>
+      <div class="lang-switch" role="group" aria-label="Language" data-i18n-aria="lang.group">
+        <button type="button" class="lang-switch__btn is-active" data-set-lang="en" aria-pressed="true">EN</button>
+        <button type="button" class="lang-switch__btn" data-set-lang="es" aria-pressed="false">ES</button>
+      </div>
     </div>
     <div class="site-header__mobile" id="mobile-nav" hidden>
-      <a href="#about" class="site-header__mobile-link">About</a>
-      <a href="#experience" class="site-header__mobile-link">Experience</a>
-      <a href="#projects" class="site-header__mobile-link">Projects</a>
-      <a href="#speaking" class="site-header__mobile-link">Speaking</a>
-      <a href="#testimonials" class="site-header__mobile-link">Recommendations</a>
-      <a href="#education" class="site-header__mobile-link">Education</a>
-      <a href="#certifications" class="site-header__mobile-link">Certifications</a>
-      <a href="#contact" class="site-header__mobile-link">Contact</a>
+      <a href="#about" class="site-header__mobile-link" data-i18n="nav.about">About</a>
+      <a href="#experience" class="site-header__mobile-link" data-i18n="nav.experience">Experience</a>
+      <a href="#projects" class="site-header__mobile-link" data-i18n="nav.projects">Projects</a>
+      <a href="#speaking" class="site-header__mobile-link" data-i18n="nav.speaking">Speaking</a>
+      <a href="#testimonials" class="site-header__mobile-link" data-i18n="nav.testimonials">Recommendations</a>
+      <a href="#education" class="site-header__mobile-link" data-i18n="nav.education">Education</a>
+      <a href="#certifications" class="site-header__mobile-link" data-i18n="nav.certifications">Certifications</a>
+      <a href="#contact" class="site-header__mobile-link" data-i18n="nav.contact">Contact</a>
     </div>
   </header>
 
@@ -72,11 +80,13 @@
     </div>
     <div class="content hidden" id="content">
       <div class="meta-link hero-panel hidden">
-        <p class="hero-location">Based in Tucumán, Argentina</p>
+        <p class="hero-location" data-i18n="hero.location">Based in Tucumán, Argentina</p>
         <h1 class="hero-name">Fabio Ramos</h1>
-        <p class="hero-role">Principal Software Engineer · Full Stack Developer</p>
+        <p class="hero-role" data-i18n="hero.role">Senior Full Stack Software Engineer</p>
+        <p class="hero-stack" data-i18n="hero.stack">TypeScript · React · Next.js · Supabase · SQL</p>
+        <p class="hero-focus" data-i18n="hero.focus">Product Engineering · Software Architecture · Enterprise Systems</p>
         <div class="button-group hero-actions">
-          <a class="hero-btn hero-btn--secondary" href="#projects">View selected work</a>
+          <a class="hero-btn hero-btn--secondary" href="#projects" data-i18n="hero.viewWork">View featured work</a>
           <div class="resume-download">
             <button
               type="button"
@@ -85,6 +95,7 @@
               aria-haspopup="menu"
               aria-expanded="false"
               aria-controls="resume-lang-menu"
+              data-i18n="hero.downloadResume"
             >
               Download Resume
             </button>
@@ -96,7 +107,7 @@
               alt="LinkedIn" /></a>
           <a rel="noreferrer" target="_blank" href="https://github.com/NicLen17"><img loading="lazy" class="social-img"
               src="https://icongr.am/fontawesome/github.svg?size=128&color=ffffff" alt="GitHub" /></a>
-          <a rel="noreferrer" target="_blank"
+          <a rel="noreferrer" target="_blank" id="hero-email-link"
             href="mailto:fabioramosnic@gmail.com?subject=Hello%20Fabio&amp;body=I%E2%80%99m%20reaching%20out%20from%20your%20portfolio."><img
               loading="lazy" class="social-img" src="https://icongr.am/entypo/mail.svg?size=128&color=ffffff"
               alt="Email" /></a>
@@ -109,24 +120,25 @@
     <section id="about" class="site-section site-section--hero-end js-reveal">
       <div class="site-section__inner">
         <header class="section-heading">
-          <p class="section-heading__eyebrow">About</p>
-          <h2 class="section-heading__title">Building products with measurable impact</h2>
+          <p class="section-heading__eyebrow" data-i18n="about.eyebrow">About</p>
+          <h2 class="section-heading__title" data-i18n="about.title">Ownership, architecture, and production impact</h2>
         </header>
         <div class="about-grid">
           <div class="about-grid__left">
-            <p>Full Stack Developer with 6+ years building robust, scalable web applications. Deep expertise across modern
-              stacks — JavaScript, TypeScript, React, Next.js, Node.js — and SQL/NoSQL data layers. Proven track record
-              delivering efficient front-end and back-end solutions end to end.</p>
-            <p>I focus on complex problem-solving, collaborative teamwork, and tightening the development loop so teams
-              ship faster without sacrificing quality. Today I lead architecture and delivery at CAW Tech; previously I
-              shipped core banking modules at CENSYS and Web UI at Globant. Outcomes I care about: faster flows, fewer
-              incidents, and codebases that stay maintainable under real operational load.</p>
+            <p data-i18n="about.p1">Senior Full Stack Software Engineer with 5+ years building software across modern web applications, B2B
+              products and enterprise systems. I work primarily with TypeScript, React, Next.js and Supabase, complemented
+              by SQL, APIs and backend engineering.</p>
+            <p data-i18n="about.p2">Today I own architecture and end-to-end product delivery at CAW Tech as Principal Software Engineer and Co-Founder. Previously I maintained and adapted banking systems
+              at CENSYS and completed a competitive frontend internship at Globant. What differentiates my profile is the combination of
+              modern product engineering and SaaS ownership with enterprise systems and legacy modernization — protecting transactional integrity while shipping real-world production platforms.</p>
+            <p data-i18n="about.p3">I look for Senior Software Engineering and Full Stack roles where technical ownership, system design and
+              measurable business impact matter — with a path toward technical leadership and architecture.</p>
             <div class="about-highlights">
-              <h3 class="about-highlights__title">Achievements &amp; extras.</h3>
+              <h3 class="about-highlights__title" data-i18n="about.achievementsTitle">Achievements &amp; extras.</h3>
               <ul class="about-achievements">
                 <li>
                   <span class="about-achievements__icon" aria-hidden="true">🏆</span>
-                  <span><strong>ExpoLogic</strong> — semifinalist at <strong>Emprende U 2026</strong> (11 university
+                  <span data-i18n-html="about.a1"><strong>ExpoLogic</strong> — semifinalist at <strong>Emprende U 2026</strong> (11 university
                     finalists from 300+). Digitized fair &amp; stand management.
                     <a class="about-achievements__link"
                       href="https://www.lagaceta.com.ar/nota/1143781/sociedad/emprende-u-proponen-equipos-universitarios-tucumanos-llegaron-semifinal.html"
@@ -134,27 +146,26 @@
                 </li>
                 <li>
                   <span class="about-achievements__icon" aria-hidden="true">🏆</span>
-                  <span>Selected from hundreds of profiles for Globant&apos;s intensive
+                  <span data-i18n-html="about.a2">Selected from hundreds of profiles for Globant&apos;s intensive
                     <strong>SSR-level Web UI bootcamp</strong>.</span>
                 </li>
                 <li>
                   <span class="about-achievements__icon" aria-hidden="true">🏆</span>
-                  <span>International scholarship — <strong>Digital Companies &amp; E-Business Revolution</strong>
+                  <span data-i18n-html="about.a3">International scholarship — <strong>Digital Companies &amp; E-Business Revolution</strong>
                     at California State University, Northridge.</span>
                 </li>
                 <li>
                   <span class="about-achievements__icon" aria-hidden="true">🏆</span>
-                  <span>Shipped <strong>core banking modules</strong> for Argentine banks; SQL &amp; stored procedures
+                  <span data-i18n-html="about.a4">Maintained and adapted <strong>banking modules</strong> for Argentine banks; SQL &amp; stored procedures
                     up to <strong>60% faster</strong> on financial reports.</span>
                 </li>
                 <li>
                   <span class="about-achievements__icon" aria-hidden="true">🏆</span>
-                  <span>Architected <strong>Volley Manager</strong> from MVP to international scale; ExpoLogic cut
-                    operational load by <strong>~50%</strong>.</span>
+                  <span data-i18n-html="about.a5">Architected <strong>Volley Manager</strong> as a production SaaS/PWA for a professional volleyball club (~700 athletes, ~600 daily access events); <strong>ExpoLogic</strong> reached Emprende U semifinals.</span>
                 </li>
                 <li>
                   <span class="about-achievements__icon" aria-hidden="true">🏆</span>
-                  <span>Mentored new developers end-to-end while shipping in distributed Agile teams under production
+                  <span data-i18n="about.a6">Mentored new developers end-to-end while shipping in distributed Agile teams under production
                     pressure.</span>
                 </li>
               </ul>
@@ -166,7 +177,7 @@
                       <circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5" />
                     </svg>
                   </span>
-                  <span>Argentina-based Software Engineer</span>
+                  <span data-i18n="about.fact1">Argentina-based Software Engineer</span>
                 </li>
                 <li>
                   <span class="about-facts__icon" aria-hidden="true">
@@ -174,7 +185,7 @@
                       <path d="M12 3l1.8 5.5H19l-4.4 3.2 1.7 5.3L12 14.8 7.7 17l1.7-5.3L5 8.5h5.2L12 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
                     </svg>
                   </span>
-                  <span>Side-project tinkerer · prototypes that become products</span>
+                  <span data-i18n="about.fact2">Side-project tinkerer · prototypes that become products</span>
                 </li>
                 <li>
                   <span class="about-facts__icon" aria-hidden="true">
@@ -183,173 +194,167 @@
                       <path d="M9 9h6v6H9zM12 4v16M4 12h16" stroke="currentColor" stroke-width="1.5" />
                     </svg>
                   </span>
-                  <span>Hardware geek</span>
+                  <span data-i18n="about.fact3">Hardware geek</span>
                 </li>
               </ul>
             </div>
           </div>
           <div class="about-grid__right">
             <div class="skill-group">
-              <h4 class="skill-group__label">Programming languages</h4>
+              <h4 class="skill-group__label" data-i18n="about.skillCore">Core</h4>
               <div class="skill-group__pills">
-                <span class="accent-pill">JavaScript</span><span class="accent-pill">TypeScript</span><span
-                  class="accent-pill">SQL</span><span class="accent-pill">T-SQL</span><span
-                  class="accent-pill">Python</span><span class="accent-pill">HTML</span><span
-                  class="accent-pill">CSS</span>
+                <span class="accent-pill accent-pill--core">TypeScript</span><span
+                  class="accent-pill accent-pill--core">JavaScript</span><span
+                  class="accent-pill accent-pill--core">React</span><span
+                  class="accent-pill accent-pill--core">Next.js</span><span
+                  class="accent-pill accent-pill--core">Supabase</span><span
+                  class="accent-pill accent-pill--core">SQL</span><span
+                  class="accent-pill accent-pill--core">PostgreSQL</span>
               </div>
             </div>
             <div class="skill-group">
-              <h4 class="skill-group__label">Front end</h4>
+              <h4 class="skill-group__label" data-i18n="about.skillBackend">Backend / Data</h4>
               <div class="skill-group__pills">
-                <span class="accent-pill">React</span><span
-                  class="accent-pill">Next.js</span><span class="accent-pill">App Router</span><span
-                  class="accent-pill">Tailwind CSS</span><span class="accent-pill">Bootstrap</span><span
-                  class="accent-pill">shadcn/ui</span><span class="accent-pill">Zustand</span>
+                <span class="accent-pill">Express</span><span class="accent-pill">REST APIs</span><span
+                  class="accent-pill">Node.js</span><span class="accent-pill">MongoDB</span><span
+                  class="accent-pill">T-SQL</span><span class="accent-pill">Sybase</span>
               </div>
             </div>
             <div class="skill-group">
-              <h4 class="skill-group__label">Back-end &amp; data</h4>
+              <h4 class="skill-group__label" data-i18n="about.skillEngineering">Engineering</h4>
               <div class="skill-group__pills">
-                <span class="accent-pill">Node.js</span><span class="accent-pill">Express.js</span><span
-                  class="accent-pill">Supabase</span><span class="accent-pill">REST APIs</span><span
-                  class="accent-pill">PostgreSQL</span><span class="accent-pill">MongoDB</span><span
-                  class="accent-pill">Sybase</span>
+                <span class="accent-pill" data-i18n="about.pillArchitecture">Software Architecture</span><span class="accent-pill" data-i18n="about.pillApiDesign">API Design</span><span
+                  class="accent-pill" data-i18n="about.pillDbOpt">Database Optimization</span><span
+                  class="accent-pill">Git</span><span
+                  class="accent-pill">CI/CD</span><span
+                  class="accent-pill" data-i18n="about.pillTesting">Testing</span><span
+                  class="accent-pill">Agile / Scrum</span>
               </div>
             </div>
             <div class="skill-group">
-              <h4 class="skill-group__label">Legacy &amp; integration</h4>
+              <h4 class="skill-group__label" data-i18n="about.skillEnterprise">Enterprise / Legacy Modernization</h4>
               <div class="skill-group__pills">
-                <span class="accent-pill">PowerBuilder</span><span class="accent-pill">SOAP APIs</span><span
-                  class="accent-pill">Postman</span>
+                <span class="accent-pill" data-i18n="about.pillEnterprise">Enterprise Systems</span><span class="accent-pill" data-i18n="about.pillLegacy">Legacy Modernization</span><span
+                  class="accent-pill">PowerBuilder</span><span class="accent-pill" data-i18n="about.pillCoreBanking">Banking</span><span
+                  class="accent-pill">SOAP APIs</span>
               </div>
             </div>
             <div class="skill-group">
-              <h4 class="skill-group__label">Delivery</h4>
+              <h4 class="skill-group__label" data-i18n="about.skillComplementary">Complementary</h4>
               <div class="skill-group__pills">
-                <span class="accent-pill">Git</span><span class="accent-pill">GitHub</span><span
-                  class="accent-pill">CI/CD</span><span class="accent-pill">Scrum</span><span
-                  class="accent-pill">Kanban</span><span class="accent-pill">Code review</span><span
-                  class="accent-pill">Mentoring</span><span class="accent-pill">Best practices</span><span
-                  class="accent-pill">Vercel</span><span class="accent-pill">Render</span><span
-                  class="accent-pill">Heroku</span>
-              </div>
-            </div>
-            <div class="skill-group">
-              <h4 class="skill-group__label">Tools &amp; AI</h4>
-              <div class="skill-group__pills">
-                <span class="accent-pill">Cursor</span><span class="accent-pill">Copilot</span><span
-                  class="accent-pill">Claude Code</span><span class="accent-pill">Antigravity</span><span
-                  class="accent-pill">Jira</span><span class="accent-pill">Figma</span><span
-                  class="accent-pill">Canva</span><span class="accent-pill">Trello</span><span
-                  class="accent-pill">Looker Studio</span>
+                <span class="accent-pill">Tailwind CSS</span><span class="accent-pill">shadcn/ui</span><span
+                  class="accent-pill">Zustand</span><span class="accent-pill">Vercel</span><span
+                  class="accent-pill" data-i18n="about.pillMentoring">Mentoring</span><span class="accent-pill" data-i18n="about.pillCodeReview">Code review</span>
+                <span class="accent-pill">TestSprite</span><span class="accent-pill">Playwright</span><span class="accent-pill">Testing</span><span class="accent-pill">Redis</span>
               </div>
             </div>
           </div>
         </div>
         <div class="lang-block">
-          <h4 class="skill-group__label">Languages</h4>
+          <h4 class="skill-group__label" data-i18n="about.languagesTitle">Languages</h4>
           <ul class="lang-block__list">
-            <li><span>Spanish</span><span class="lang-block__level">Native</span></li>
-            <li><span>English</span><span class="lang-block__level">C1 · Professional working proficiency</span></li>
-            <li><span>Portuguese</span><span class="lang-block__level">Basic</span></li>
-            <li><span>Japanese</span><span class="lang-block__level">Basic</span></li>
+            <li><span data-i18n="about.langSpanish">Spanish</span><span class="lang-block__level" data-i18n="about.langSpanishLevel">Native</span></li>
+            <li><span data-i18n="about.langEnglish">English</span><span class="lang-block__level" data-i18n="about.langEnglishLevel">C1 · Professional working proficiency</span></li>
+            <li><span data-i18n="about.langPortuguese">Portuguese</span><span class="lang-block__level" data-i18n="about.langPortugueseLevel">Basic</span></li>
+            <li><span data-i18n="about.langJapanese">Japanese</span><span class="lang-block__level" data-i18n="about.langJapaneseLevel">Basic</span></li>
           </ul>
         </div>
-        <ul class="about-stats">
-          <li class="about-stats__item">
-            <span class="about-stats__num">6+</span>
-            <span class="about-stats__label">Years shipping production software</span>
+        <ul class="about-stats" id="about-stats" aria-live="polite">
+          <li class="about-stats__slot">
+            <div class="about-stats__viewport">
+              <div class="about-stats__track" data-stats-track></div>
+            </div>
           </li>
-          <li class="about-stats__item">
-            <span class="about-stats__num">35+</span>
-            <span class="about-stats__label">Projects delivered across domains</span>
+          <li class="about-stats__slot">
+            <div class="about-stats__viewport">
+              <div class="about-stats__track" data-stats-track></div>
+            </div>
           </li>
-          <li class="about-stats__item">
-            <span class="about-stats__num">15+</span>
-            <span class="about-stats__label">Certifications and courses completed</span>
+          <li class="about-stats__slot">
+            <div class="about-stats__viewport">
+              <div class="about-stats__track" data-stats-track></div>
+            </div>
           </li>
         </ul>
       </div>
     </section>
 
     <section id="experience" class="site-section site-section--alt js-reveal">
+      <!--
+        Confirmed overlaps:
+        - CENSYS + TecnoLine: parallel projects for a period
+        - Globant: internship after CENSYS hours
+      -->
       <div class="site-section__inner">
         <header class="section-heading">
-          <p class="section-heading__eyebrow">Experience</p>
-          <h2 class="section-heading__title">Roles that shaped how I ship</h2>
-          <p class="section-heading__subtitle">From legacy banking cores to modern Next.js products — same discipline:
-            understand the business, protect production, and leave the codebase better than I found it.</p>
+          <p class="section-heading__eyebrow" data-i18n="experience.eyebrow">Experience</p>
+          <h2 class="section-heading__title" data-i18n="experience.title">Roles that shaped how I ship</h2>
+          <p class="section-heading__subtitle" data-i18n="experience.subtitle">Modern web products, enterprise banking systems and legacy platforms — same
+            discipline: understand the business, protect production, and leave the architecture stronger than I found it.</p>
         </header>
         <div class="experience-stack" id="experience-featured">
           <article class="exp-card">
             <div class="exp-card__head">
               <div>
-                <h3 class="exp-card__role">Principal Software Developer</h3>
-                <p class="exp-card__company">CAW Tech <span class="exp-card__muted">· Argentina · Remote</span></p>
+                <h3 class="exp-card__role" data-i18n="experience.caw.role">Principal Software Engineer · Co-Founder</h3>
+                <p class="exp-card__company">CAW Tech <span class="exp-card__muted" data-i18n="experience.caw.muted">· Argentina · Remote</span></p>
               </div>
-              <p class="exp-card__period">September 2025 — Present</p>
+              <p class="exp-card__period" data-i18n="experience.caw.period">September 2025 — Present</p>
             </div>
-            <p class="exp-card__summary">Co-founder and technical lead — bridging complex engineering with business
-              strategy. Own architecture and delivery for B2B products on Next.js, TypeScript, and Supabase, with a
-              focus on data-driven decisions and scalable releases.</p>
+            <p class="exp-card__summary" data-i18n="experience.caw.summary">Co-founder and principal developer for CAW Tech products — owning technical direction, system architecture, product design, implementation, integrations, deployment and ongoing evolution from concept/MVP through production.</p>
             <div class="exp-card__stack">
-              <span>Next.js</span><span>TypeScript</span><span>Supabase</span><span>Architecture</span><span>Data-driven
-                product</span>
+              <span>Next.js</span><span>TypeScript</span><span>Node.js</span><span>Supabase</span><span>Architecture</span><span>B2B SaaS</span>
             </div>
             <ul class="exp-card__bullets">
-              <li>Lead architecture and delivery of digital products with Next.js, TypeScript, and Supabase — from
-                discovery to production.</li>
-              <li>Volley Manager: real-time data flows and large-scale sports administration for multi-tenant operations.</li>
-              <li>CAW Education: EdTech platform combining engineering and data science — academic KPIs and lighter admin
-                workflows.</li>
-              <li>ExpoLogic: dynamic resource-allocation engine for trade fairs — automated exhibitor logistics and lower
-                manual ops cost.</li>
-              <li>Shipped high-conversion e-commerce with SEO, performance, and scalability as first-class concerns.</li>
+              <li data-i18n="experience.caw.b1">Own architecture decisions and end-to-end delivery across CAW products on Next.js, TypeScript and Supabase — design, backend/database choices, frontend architecture, integrations and release practices.</li>
+              <li data-i18n="experience.caw.b2">Volley Manager: production SaaS/PWA for a professional volleyball club in Bolivia — ~700 athletes, ~15 staff and ~600 daily access/check-in events, including payments with Banco Económico and access control (QR + consent-based facial recognition).</li>
+              <li data-i18n="experience.caw.b3">Built domain-specific coaching tools: interactive volleyball scouting court, AI-assisted club information and a voice-based scouting workflow designed for coaches.</li>
+              <li data-i18n="experience.caw.b4">ExpoLogic: multi-tenant event-space SaaS with visual map builder, interactive spatial inventory/reservation, event website generation and virtual-fair exhibitor catalogs — Emprende U semifinalist; featured by La Gaceta.</li>
+              <li data-i18n="experience.caw.b5">CAW Education: designed a data-driven education platform for schools.</li>
             </ul>
           </article>
           <article class="exp-card">
             <div class="exp-card__head">
               <div>
-                <h3 class="exp-card__role">Software Developer · Core Banking</h3>
-                <p class="exp-card__company">CENSYS S.A. <span class="exp-card__muted">· Argentina · Remote</span></p>
+                <h3 class="exp-card__role" data-i18n="experience.censys.role">Software Developer · Banking</h3>
+                <p class="exp-card__company">CENSYS S.A. <span class="exp-card__muted" data-i18n="experience.censys.muted">· Argentina · Remote</span></p>
               </div>
-              <p class="exp-card__period">December 2023 — July 2025</p>
+              <p class="exp-card__period" data-i18n="experience.censys.period">December 2023 — July 2025</p>
             </div>
-            <p class="exp-card__summary">Full-time on production core banking for Sucrédito Bank (BSR) and Banco Santiago
-              del Estero (BSE). Built and maintained mission-critical modules with PowerBuilder and Sybase, collaborating
-              closely with QA and stakeholders on high-volume transactional systems.</p>
+            <p class="exp-card__summary" data-i18n="experience.censys.summary">Banking systems for Sucrédito Bank (BSR) and Banco Santiago del Estero
+              (BSE). Maintained and adapted existing modules with PowerBuilder and Sybase, collaborating with QA and
+              stakeholders on high-volume transactional systems.</p>
             <div class="exp-card__stack">
-              <span>PowerBuilder</span><span>SQL</span><span>Sybase</span><span>SOAP</span><span>Postman</span><span>Scrum</span>
+              <span>PowerBuilder</span><span>T-SQL</span><span>Sybase</span><span>SOAP</span><span>Banking</span><span>Scrum</span>
             </div>
             <ul class="exp-card__bullets">
-              <li>Developed and maintained core banking modules under production pressure — interfaces, business logic,
-                and transactional integrity.</li>
-              <li>Designed and tuned stored procedures, triggers, and Sybase SQL for stability and faster operational
-                workloads.</li>
-              <li>Integrated SOAP APIs (validated with Postman), supported UATs, and owned post-deploy incident care.</li>
-              <li>Mentored new teammates through onboarding while mapping banking modules and business flows.</li>
+              <li data-i18n="experience.censys.b1">Maintained and adapted existing banking modules under production pressure — requirement changes, business logic updates and
+                transactional integrity on business-critical systems.</li>
+              <li data-i18n="experience.censys.b2">Designed and tuned stored procedures, triggers and Sybase SQL / T-SQL — up to 60% faster execution on
+                financial reporting workloads.</li>
+              <li data-i18n="experience.censys.b3">Integrated SOAP APIs (validated with Postman), supported UATs and owned post-deploy incident care.</li>
+              <li data-i18n="experience.censys.b4">Implemented a hardware-assisted credit-card statement payment flow: operators scan the statement barcode with a reader, the system matches the records automatically, and payment of the credit-card summary is managed from there.</li>
+              <li data-i18n="experience.censys.b5">Mentored new developers through onboarding across technologies, Scrum practices and team workflows — connecting day-to-day development with the tech lead and QA/testers.</li>
             </ul>
           </article>
           <article class="exp-card">
             <div class="exp-card__head">
               <div>
-                <h3 class="exp-card__role">Front-End Developer Intern · Web UI (SSR)</h3>
-                <p class="exp-card__company">Globant <span class="exp-card__muted">· Yerba Buena, Tucumán · Remote</span>
+                <h3 class="exp-card__role" data-i18n="experience.globant.role">Front-End Engineer Intern · Web UI (SSR)</h3>
+                <p class="exp-card__company">Globant <span class="exp-card__muted" data-i18n="experience.globant.muted">· Yerba Buena, Tucumán · Remote</span>
                 </p>
               </div>
-              <p class="exp-card__period">July 2024 — October 2024</p>
+              <p class="exp-card__period" data-i18n="experience.globant.period">July 2024 — October 2024</p>
             </div>
-            <p class="exp-card__summary">Intensive Web UI internship focused on modern frontend delivery with React,
-              TypeScript, and Zustand. Worked in collaborative Agile teams building reusable, accessible components and
-              strengthening performance-oriented practices.</p>
+              <p class="exp-card__summary" data-i18n="experience.globant.summary">Competitive Web UI internship selected from ~500 professionals, completed alongside the full-time CENSYS role (outside CENSYS working hours). Focused on modern frontend delivery with React, TypeScript and Zustand in Agile teams.</p>
             <div class="exp-card__stack">
               <span>React</span><span>TypeScript</span><span>Zustand</span><span>Git</span><span>GitHub</span>
             </div>
             <ul class="exp-card__bullets">
-              <li>Built frontend apps with React, TypeScript, and Zustand — reusable, accessible, performance-oriented
+              <li data-i18n="experience.globant.b1">Selected from a pool of approximately 500 professionals for Globant's intensive Web UI internship.</li>
+              <li data-i18n="experience.globant.b2">Built frontend apps with React, TypeScript and Zustand — reusable, accessible, performance-oriented
                 components.</li>
-              <li>Applied web performance optimization and frontend best practices on client work.</li>
-              <li>Worked with Git/GitHub workflows, code reviews, and frontend architecture discussions.</li>
+              <li data-i18n="experience.globant.b3">Improved UI rendering and lifecycle practices, reducing initial load times by ~20%; participated in Git/GitHub workflows, code reviews and frontend architecture discussions.</li>
             </ul>
           </article>
         </div>
@@ -358,46 +363,46 @@
             <article class="exp-card" style="--stagger: 0">
               <div class="exp-card__head">
                 <div>
-                  <h3 class="exp-card__role">Full Stack Web Developer · MERN</h3>
-                  <p class="exp-card__company">TecnoLine <span class="exp-card__muted">· Tucumán · Hybrid</span></p>
+                  <h3 class="exp-card__role" data-i18n="experience.tecnoline.role">Full Stack Web Developer · MERN</h3>
+                  <p class="exp-card__company">TecnoLine <span class="exp-card__muted" data-i18n="experience.tecnoline.muted">· Tucumán · Hybrid</span></p>
                 </div>
-                <p class="exp-card__period">January 2023 — May 2024</p>
+                <p class="exp-card__period" data-i18n="experience.tecnoline.period">January 2023 — May 2024</p>
               </div>
-              <p class="exp-card__summary">Freelance delivery under TecnoLine — end-to-end ownership of 12+ production
-                apps, from requirements and UX through MERN implementation to cloud deploy. Direct client management
-                across e-commerce, SPAs, and administrative systems.</p>
+              <p class="exp-card__summary" data-i18n="experience.tecnoline.summary">Freelance delivery under TecnoLine — end-to-end ownership of 12+ production
+                apps, from requirements and UX through MERN implementation to cloud deploy. Delivered in parallel with
+                CENSYS for a period. Direct client management across e-commerce, SPAs, and administrative systems.</p>
               <div class="exp-card__stack">
                 <span>React</span><span>Node.js</span><span>MongoDB</span><span>Vercel</span><span>Render</span>
               </div>
               <ul class="exp-card__bullets">
-                <li>Shipped 12+ web apps — e-commerce, SPAs, and admin systems — with conversion-focused UX.</li>
-                <li>Integrated APIs, payment gateways, and external services; tuned SEO, accessibility, and PageSpeed.</li>
-                <li>Owned full lifecycle: analysis, build, deploy on Vercel/Render, and ongoing client support.</li>
+                <li data-i18n="experience.tecnoline.b1">Shipped 12+ web apps — e-commerce, SPAs, and admin systems — with conversion-focused UX.</li>
+                <li data-i18n="experience.tecnoline.b2">Integrated APIs, payment gateways, and external services; tuned SEO, accessibility, and PageSpeed.</li>
+                <li data-i18n="experience.tecnoline.b3">Owned full lifecycle: analysis, build, deploy on Vercel/Render, and ongoing client support.</li>
               </ul>
             </article>
             <article class="exp-card" style="--stagger: 1">
               <div class="exp-card__head">
                 <div>
-                  <h3 class="exp-card__role">Front-End Web Developer</h3>
-                  <p class="exp-card__company">Freelance <span class="exp-card__muted">· Argentina · Remote</span></p>
+                  <h3 class="exp-card__role" data-i18n="experience.freelance.role">Front-End Web Developer</h3>
+                  <p class="exp-card__company">Freelance <span class="exp-card__muted" data-i18n="experience.freelance.muted">· Argentina · Remote</span></p>
                 </div>
-                <p class="exp-card__period">June 2021 — December 2022</p>
+                <p class="exp-card__period" data-i18n="experience.freelance.period">June 2021 — December 2022</p>
               </div>
-              <p class="exp-card__summary">Remote freelance building and designing websites for entrepreneurs and
+              <p class="exp-card__summary" data-i18n="experience.freelance.summary">Remote freelance building and designing websites for entrepreneurs and
                 institutions. Handled hosting deploy, ongoing maintenance, and the commercialization of reusable web
                 templates after launch.</p>
               <div class="exp-card__stack">
                 <span>React.js</span><span>Web development</span><span>Hosting</span>
               </div>
               <ul class="exp-card__bullets">
-                <li>Designed and built websites for entrepreneurs and institutions, including hosting deploy and ops.</li>
-                <li>Maintained and iterated delivered projects; developed and commercialized reusable web templates.</li>
+                <li data-i18n="experience.freelance.b1">Designed and built websites for entrepreneurs and institutions, including hosting deploy and ops.</li>
+                <li data-i18n="experience.freelance.b2">Maintained and iterated delivered projects; developed and commercialized reusable web templates.</li>
               </ul>
             </article>
           </div>
         </div>
         <div class="cert-actions">
-          <button type="button" class="cert-actions__btn" id="experience-toggle" aria-expanded="false">
+          <button type="button" class="cert-actions__btn" id="experience-toggle" aria-expanded="false" data-i18n="experience.seeAll">
             See all
           </button>
         </div>
@@ -407,26 +412,25 @@
     <section id="projects" class="site-section js-reveal">
       <div class="site-section__inner">
         <header class="section-heading">
-          <p class="section-heading__eyebrow">Projects</p>
-          <h2 class="section-heading__title">Selected product &amp; client work</h2>
-          <p class="section-heading__subtitle">Highlights aligned with CAW Tech and freelance delivery. Use the sorter to
-            browse by name or year, or click a card for full project details.</p>
+          <p class="section-heading__eyebrow" data-i18n="projects.eyebrow">Projects</p>
+          <h2 class="section-heading__title" data-i18n="projects.title">Featured projects</h2>
+          <p class="section-heading__subtitle" data-i18n="projects.subtitle">Ordered by professional relevance: production SaaS ownership first, then multi-tenant product architecture, then selected Full Stack work. Expand for the full history.</p>
         </header>
         <div class="projects-toolbar">
-          <p class="projects-toolbar__hint">Filter project list</p>
-          <select class="projects-toolbar__select" aria-label="Select filter" id="filter-dropdown">
-            <option value="none">Recently added</option>
-            <option value="alphabetical-asc">Alphabetical (A-Z)</option>
-            <option value="alphabetical-desc">Alphabetical (Z-A)</option>
-            <option value="release-asc">Year (oldest first)</option>
-            <option value="release-desc">Year (newest first)</option>
+          <p class="projects-toolbar__hint" data-i18n="projects.filterHint">Filter project list</p>
+          <select class="projects-toolbar__select" aria-label="Select filter" id="filter-dropdown" data-i18n-aria="projects.filterLabel">
+            <option value="none" data-i18n="projects.filterNone">Recently added</option>
+            <option value="alphabetical-asc" data-i18n="projects.filterAsc">Alphabetical (A-Z)</option>
+            <option value="alphabetical-desc" data-i18n="projects.filterDesc">Alphabetical (Z-A)</option>
+            <option value="release-asc" data-i18n="projects.filterYearOld">Year (oldest first)</option>
+            <option value="release-desc" data-i18n="projects.filterYearNew">Year (newest first)</option>
           </select>
         </div>
         <div id="projects-container" class="projects-grid"></div>
         <div id="projects-more" class="expand-panel" aria-hidden="true"></div>
         <div class="cert-actions">
-          <button type="button" class="cert-actions__btn" id="projects-toggle" aria-expanded="false">
-            See all
+          <button type="button" class="cert-actions__btn" id="projects-toggle" aria-expanded="false" data-i18n="projects.viewAll">
+            View all projects
           </button>
         </div>
       </div>
@@ -435,48 +439,49 @@
     <section id="speaking" class="site-section site-section--alt js-reveal">
       <div class="site-section__inner">
         <header class="section-heading">
-          <p class="section-heading__eyebrow">Advocacy</p>
-          <h2 class="section-heading__title">Beyond writing code</h2>
-          <p class="section-heading__subtitle">Consolidating a technical communicator profile — sharing practical lessons
+          <p class="section-heading__eyebrow" data-i18n="speaking.eyebrow">Advocacy</p>
+          <h2 class="section-heading__title" data-i18n="speaking.title">Beyond writing code</h2>
+          <p class="section-heading__subtitle" data-i18n="speaking.subtitle">Consolidating a technical communicator profile — sharing practical lessons
             from leading real projects and shipping software products.</p>
         </header>
 
         <div class="speaking-layout">
           <div class="speaking-intro">
-            <p>My goal is to grow as a technical advocate and take my contributions beyond writing code. I want to share
+            <p data-i18n="speaking.p1">My goal is to grow as a technical advocate and take my contributions beyond writing code. I want to share
               the practical lessons learned while leading real projects and building software products — giving the
               community a broader, inside view of the industry.</p>
-            <p>I am especially interested in the intersection of technical architecture, business vision, and strategic
+            <p data-i18n="speaking.p2">I am especially interested in the intersection of technical architecture, business vision, and strategic
               client work. I keep refining how I communicate — empowering developers to level up in a fast-paced
               ecosystem.</p>
           </div>
 
           <ul class="speaking-goals">
             <li class="speaking-goal">
-              <h3 class="speaking-goal__title">Beyond the code</h3>
-              <p class="speaking-goal__text">Share lessons from building, commercializing, and scaling software products
+              <h3 class="speaking-goal__title" data-i18n="speaking.g1Title">Beyond the code</h3>
+              <p class="speaking-goal__text" data-i18n="speaking.g1Text">Share lessons from building, commercializing, and scaling software products
                 in the real market.</p>
             </li>
             <li class="speaking-goal">
-              <h3 class="speaking-goal__title">Tech meets business</h3>
-              <p class="speaking-goal__text">Bridging the gap between code and business — delivering end-to-end technical
+              <h3 class="speaking-goal__title" data-i18n="speaking.g2Title">Tech meets business</h3>
+              <p class="speaking-goal__text" data-i18n="speaking.g2Text">Bridging the gap between code and business — delivering end-to-end technical
                 vision.</p>
             </li>
             <li class="speaking-goal">
-              <h3 class="speaking-goal__title">Technical storytelling</h3>
-              <p class="speaking-goal__text">Communicating complex architectures with clarity — practical, grounded, and
+              <h3 class="speaking-goal__title" data-i18n="speaking.g3Title">Technical storytelling</h3>
+              <p class="speaking-goal__text" data-i18n="speaking.g3Text">Communicating complex architectures with clarity — practical, grounded, and
                 useful for today&apos;s ecosystem.</p>
             </li>
           </ul>
         </div>
 
         <div class="speaking-videos">
-          <h3 class="speaking-videos__title">Talks &amp; clips</h3>
+          <h3 class="speaking-videos__title" data-i18n="speaking.videosTitle">Talks &amp; clips</h3>
           <div class="speaking-videos__grid">
             <div class="speaking-video">
               <iframe
                 src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7472681732555726848?compact=1"
                 title="LinkedIn talk — technical advocacy clip 1"
+                data-i18n-title="speaking.video1"
                 loading="lazy"
                 allowfullscreen></iframe>
             </div>
@@ -484,13 +489,14 @@
               <iframe
                 src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7358968134524907520?compact=1"
                 title="LinkedIn talk — technical advocacy clip 2"
+                data-i18n-title="speaking.video2"
                 loading="lazy"
                 allowfullscreen></iframe>
             </div>
           </div>
           <p class="speaking-videos__more">
             <a href="https://www.linkedin.com/in/fabioramosnic" target="_blank" rel="noopener noreferrer">
-              More on LinkedIn <span aria-hidden="true">↗</span>
+              <span data-i18n="speaking.moreLinkedIn">More on LinkedIn</span> <span aria-hidden="true">↗</span>
             </a>
           </p>
         </div>
@@ -500,60 +506,60 @@
     <section id="testimonials" class="site-section js-reveal">
       <div class="site-section__inner">
         <header class="section-heading">
-          <p class="section-heading__eyebrow">Recommendations</p>
-          <h2 class="section-heading__title">What colleagues say on LinkedIn</h2>
-          <p class="section-heading__subtitle">Translated excerpts from public LinkedIn recommendations — technical depth on
+          <p class="section-heading__eyebrow" data-i18n="testimonials.eyebrow">Recommendations</p>
+          <h2 class="section-heading__title" data-i18n="testimonials.title">What colleagues say on LinkedIn</h2>
+          <p class="section-heading__subtitle" data-i18n="testimonials.subtitle">Translated excerpts from public LinkedIn recommendations — technical depth on
             CAW Education, collaboration at CENSYS, and ownership under pressure.</p>
         </header>
         <div class="testimonials-grid">
-          <figure class="testimonial-card" lang="en">
+          <figure class="testimonial-card" lang="en" data-testimonial-lang>
             <div class="testimonial-card__content">
-            <blockquote class="testimonial-card__quote" data-testimonial-quote>I had the pleasure of working with Fabio on a
+            <blockquote class="testimonial-card__quote" data-testimonial-quote data-i18n="testimonials.t1">I had the pleasure of working with Fabio on a
               demanding data-science initiative for education, CAW Education. He was essential as a full-stack engineer,
               turning our analysis into a robust, functional platform. His impact was remarkable: he integrated a complex
               data-capture system and KPI visualizations with multiple management tools for teachers and administrators.</blockquote>
-            <button type="button" class="testimonial-card__toggle" hidden data-testimonial-toggle aria-expanded="false">Read
+            <button type="button" class="testimonial-card__toggle" hidden data-testimonial-toggle aria-expanded="false" data-i18n="testimonials.readMore">Read
               more</button>
             </div>
             <figcaption class="testimonial-card__meta">
               <p class="testimonial-card__author">Mariano Torres</p>
-              <p class="testimonial-card__role">Co-founder &amp; Managing Director · CAW Tech</p>
-              <p class="testimonial-card__relation">Worked on the same team · December 2025</p>
+              <p class="testimonial-card__role" data-i18n="testimonials.t1Role">Co-founder &amp; Managing Director · CAW Tech</p>
+              <p class="testimonial-card__relation" data-i18n="testimonials.t1Relation">Worked on the same team · December 2025</p>
               <a class="testimonial-card__link" href="https://www.linkedin.com/in/mariano-a-torres/" target="_blank"
-                rel="noopener noreferrer">View on LinkedIn <span aria-hidden="true">↗</span></a>
+                rel="noopener noreferrer"><span data-i18n="testimonials.viewLinkedIn">View on LinkedIn</span> <span aria-hidden="true">↗</span></a>
             </figcaption>
           </figure>
-          <figure class="testimonial-card" lang="en">
+          <figure class="testimonial-card" lang="en" data-testimonial-lang>
             <div class="testimonial-card__content">
-            <blockquote class="testimonial-card__quote" data-testimonial-quote>I worked with Fabio at Censys for two years and
+            <blockquote class="testimonial-card__quote" data-testimonial-quote data-i18n="testimonials.t2">I worked with Fabio at Censys for two years and
               can confidently say he is an exceptional professional. He stands out for analytical depth and dedication.
               His collaborative mindset and problem-solving always made a difference in the hardest moments. Beyond his
               technical skills, he generously shares knowledge and supports teammates, building a positive, productive environment.</blockquote>
-            <button type="button" class="testimonial-card__toggle" hidden data-testimonial-toggle aria-expanded="false">Read
+            <button type="button" class="testimonial-card__toggle" hidden data-testimonial-toggle aria-expanded="false" data-i18n="testimonials.readMore">Read
               more</button>
             </div>
             <figcaption class="testimonial-card__meta">
               <p class="testimonial-card__author">María Josefina Serrano</p>
-              <p class="testimonial-card__role">BA · QA · Tester</p>
-              <p class="testimonial-card__relation">Senior colleague at CENSYS · December 2024</p>
+              <p class="testimonial-card__role" data-i18n="testimonials.t2Role">BA · QA · Tester</p>
+              <p class="testimonial-card__relation" data-i18n="testimonials.t2Relation">Senior colleague at CENSYS · December 2024</p>
               <a class="testimonial-card__link"
-                href="https://www.linkedin.com/in/mar%C3%ADajosefinaserrano/" target="_blank" rel="noopener noreferrer">View
-                on LinkedIn <span aria-hidden="true">↗</span></a>
+                href="https://www.linkedin.com/in/mar%C3%ADajosefinaserrano/" target="_blank" rel="noopener noreferrer"><span data-i18n="testimonials.viewLinkedIn">View
+                on LinkedIn</span> <span aria-hidden="true">↗</span></a>
             </figcaption>
           </figure>
-          <figure class="testimonial-card" lang="en">
+          <figure class="testimonial-card" lang="en" data-testimonial-lang>
             <div class="testimonial-card__content">
-            <blockquote class="testimonial-card__quote" data-testimonial-quote>An outstanding professional and colleague.
+            <blockquote class="testimonial-card__quote" data-testimonial-quote data-i18n="testimonials.t3">An outstanding professional and colleague.
               Fabio is responsible and creative—you can confidently tackle any project alongside him.</blockquote>
-            <button type="button" class="testimonial-card__toggle" hidden data-testimonial-toggle aria-expanded="false">Read
+            <button type="button" class="testimonial-card__toggle" hidden data-testimonial-toggle aria-expanded="false" data-i18n="testimonials.readMore">Read
               more</button>
             </div>
             <figcaption class="testimonial-card__meta">
               <p class="testimonial-card__author">Juan Manuel Albarracín Olmos</p>
-              <p class="testimonial-card__role">T-SQL · ETL · PowerBuilder · Backend</p>
-              <p class="testimonial-card__relation">Same team · CENSYS · December 2024</p>
+              <p class="testimonial-card__role" data-i18n="testimonials.t3Role">T-SQL · ETL · PowerBuilder · Backend</p>
+              <p class="testimonial-card__relation" data-i18n="testimonials.t3Relation">Same team · CENSYS · December 2024</p>
               <a class="testimonial-card__link" href="https://www.linkedin.com/in/jmpk/" target="_blank"
-                rel="noopener noreferrer">View on LinkedIn <span aria-hidden="true">↗</span></a>
+                rel="noopener noreferrer"><span data-i18n="testimonials.viewLinkedIn">View on LinkedIn</span> <span aria-hidden="true">↗</span></a>
             </figcaption>
           </figure>
         </div>
@@ -563,31 +569,31 @@
     <section id="education" class="site-section site-section--alt js-reveal">
       <div class="site-section__inner">
         <header class="section-heading">
-          <p class="section-heading__eyebrow">Education</p>
-          <h2 class="section-heading__title">Continuous learning</h2>
-          <p class="section-heading__subtitle">Formal training that complements shipping production software — from
+          <p class="section-heading__eyebrow" data-i18n="education.eyebrow">Education</p>
+          <h2 class="section-heading__title" data-i18n="education.title">Continuous learning</h2>
+          <p class="section-heading__subtitle" data-i18n="education.subtitle">Formal training that complements shipping production software — from
             systems engineering fundamentals to data science and international digital business immersion.</p>
         </header>
         <div class="education-grid">
           <article class="edu-card">
-            <h3 class="edu-card__title">Information Systems Engineering (in progress)</h3>
+            <h3 class="edu-card__title" data-i18n="education.e1Title">Information Systems Engineering (in progress)</h3>
             <p class="edu-card__school">Universidad Tecnológica Nacional (UTN)</p>
-            <p class="edu-card__period">March 2022 — Present</p>
-            <p class="edu-card__detail">Systems analysis, software engineering, databases, and computer science
+            <p class="edu-card__period" data-i18n="education.e1Period">March 2022 — Present</p>
+            <p class="edu-card__detail" data-i18n="education.e1Detail">Systems analysis, software engineering, databases, and computer science
               fundamentals — grounding for production-grade architecture decisions.</p>
           </article>
           <article class="edu-card">
-            <h3 class="edu-card__title">Graduate Diploma · Data Science for Organizations</h3>
+            <h3 class="edu-card__title" data-i18n="education.e2Title">Graduate Diploma · Data Science for Organizations</h3>
             <p class="edu-card__school">Universidad Nacional de Tucumán (UNT)</p>
-            <p class="edu-card__period">April 2025 — December 2025</p>
-            <p class="edu-card__detail">Analytics for organizations, dashboards, SQL analysis, and Python for
+            <p class="edu-card__period" data-i18n="education.e2Period">April 2025 — December 2025</p>
+            <p class="edu-card__detail" data-i18n="education.e2Detail">Analytics for organizations, dashboards, SQL analysis, and Python for
               decision-oriented reporting and operational KPIs.</p>
           </article>
           <article class="edu-card">
-            <h3 class="edu-card__title">International Program · Digital Companies &amp; E-Business Revolution</h3>
+            <h3 class="edu-card__title" data-i18n="education.e3Title">International Program · Digital Companies &amp; E-Business Revolution</h3>
             <p class="edu-card__school">California State University, Northridge (CSUN)</p>
-            <p class="edu-card__period">July 2025 — August 2025</p>
-            <p class="edu-card__detail">Digital business models, market validation, pricing strategy, and MVP execution
+            <p class="edu-card__period" data-i18n="education.e3Period">July 2025 — August 2025</p>
+            <p class="edu-card__detail" data-i18n="education.e3Detail">Digital business models, market validation, pricing strategy, and MVP execution
               in an international immersion program.</p>
           </article>
         </div>
@@ -597,16 +603,16 @@
     <section id="certifications" class="site-section js-reveal">
       <div class="site-section__inner">
         <header class="section-heading">
-          <p class="section-heading__eyebrow">Certifications</p>
-          <h2 class="section-heading__title">Credentials</h2>
-          <p class="section-heading__subtitle">Courses and certifications across cloud, data science, full-stack
-            development, and language proficiency — expand the list for the full history.</p>
+          <p class="section-heading__eyebrow" data-i18n="certifications.eyebrow">Certifications</p>
+          <h2 class="section-heading__title" data-i18n="certifications.title">Selected credentials</h2>
+          <p class="section-heading__subtitle" data-i18n="certifications.subtitle">Priority certifications for cloud, English proficiency and data — expand
+            for the full history.</p>
         </header>
         <div id="certifications-root">
           <div id="certifications-grid" class="cert-grid"></div>
           <div id="certifications-more" class="expand-panel" aria-hidden="true"></div>
           <div class="cert-actions">
-            <button type="button" class="cert-actions__btn" id="cert-toggle" aria-expanded="false">See all</button>
+            <button type="button" class="cert-actions__btn" id="cert-toggle" aria-expanded="false" data-i18n="certifications.seeAll">See all</button>
           </div>
         </div>
       </div>
@@ -614,18 +620,18 @@
   </main>
 
   <a href="#body" class="back-to-top" id="back-to-top">
-    <img loading="lazy" src="https://icongr.am/clarity/arrow.svg?size=32&color=000000" alt="Back to top arrow" />
+    <img loading="lazy" src="https://icongr.am/clarity/arrow.svg?size=32&color=000000" alt="Back to top arrow" data-i18n-alt="footer.backToTop" />
   </a>
 
   <footer id="contact" class="site-footer js-reveal">
     <div class="site-footer__inner">
       <div class="site-footer__intro">
-        <h2 class="site-footer__title">Let&apos;s connect</h2>
-        <p class="site-footer__text">Open to principal engineering, tech lead, and senior full-stack roles where product
-          judgment, collaborative delivery, and calm execution matter. Happy to talk about B2B SaaS, EdTech, or
-          high-reliability platforms.</p>
+        <h2 class="site-footer__title" data-i18n="footer.title">Let&apos;s connect</h2>
+        <p class="site-footer__text" data-i18n="footer.text">Available for Senior Software Engineering and Full Stack opportunities where
+          technical ownership, system design and collaborative delivery matter. Open to roles involving modern TypeScript
+          stacks, B2B products and enterprise systems — including teams modernizing legacy platforms.</p>
         <div class="site-footer__actions">
-          <a class="site-footer__btn site-footer__btn--primary" href="mailto:fabioramosnic@gmail.com?subject=Hello%20Fabio">Email me</a>
+          <a class="site-footer__btn site-footer__btn--primary" id="footer-email-link" href="mailto:fabioramosnic@gmail.com?subject=Hello%20Fabio" data-i18n="footer.emailMe">Email me</a>
           <a class="site-footer__btn site-footer__btn--ghost" href="https://www.linkedin.com/in/fabioramosnic"
             target="_blank" rel="noopener noreferrer">LinkedIn</a>
           <a class="site-footer__btn site-footer__btn--ghost" href="https://github.com/NicLen17" target="_blank"
@@ -634,11 +640,11 @@
       </div>
       <dl class="site-footer__details">
         <div>
-          <dt>Email</dt>
+          <dt data-i18n="footer.email">Email</dt>
           <dd class="site-footer__copyable">
             <a href="mailto:fabioramosnic@gmail.com">fabioramosnic@gmail.com</a>
             <button type="button" class="site-footer__copy" data-copy="fabioramosnic@gmail.com"
-              aria-label="Copy email address">
+              aria-label="Copy email address" data-i18n-aria="footer.copyEmail">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.5" />
                 <path d="M5 15V5a2 2 0 0 1 2-2h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
@@ -647,12 +653,12 @@
           </dd>
         </div>
         <div>
-          <dt>Phone</dt>
+          <dt data-i18n="footer.phone">Phone</dt>
           <dd class="site-footer__copyable">
             <a href="https://wa.me/543813379225" target="_blank" rel="noopener noreferrer"
-              aria-label="Chat on WhatsApp">+54 381 337-9225</a>
+              aria-label="Chat on WhatsApp" data-i18n-aria="footer.whatsapp">+54 381 337-9225</a>
             <button type="button" class="site-footer__copy" data-copy="+54 381 337-9225"
-              aria-label="Copy phone number">
+              aria-label="Copy phone number" data-i18n-aria="footer.copyPhone">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.5" />
                 <path d="M5 15V5a2 2 0 0 1 2-2h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
@@ -661,21 +667,21 @@
           </dd>
         </div>
         <div>
-          <dt>Company</dt>
+          <dt data-i18n="footer.company">Company</dt>
           <dd><a href="https://www.caw.com.ar" target="_blank" rel="noopener noreferrer">CAW Tech</a></dd>
         </div>
         <div>
-          <dt>Site</dt>
+          <dt data-i18n="footer.site">Site</dt>
           <dd><a href="https://www.fabioramos.com.ar">fabioramos.com.ar</a></dd>
         </div>
       </dl>
     </div>
-    <p class="site-footer__legal">© <span id="footer-year"></span> Fabio Ramos - Todos los derechos reservados</p>
+    <p class="site-footer__legal">© <span id="footer-year"></span> Fabio Ramos - <span data-i18n="footer.legal">Todos los derechos reservados</span></p>
   </footer>
 
   <dialog id="project-modal" class="project-modal" aria-labelledby="project-modal-title">
     <div class="project-modal__panel">
-      <button type="button" class="project-modal__close" id="project-modal-close" aria-label="Close project details">
+      <button type="button" class="project-modal__close" id="project-modal-close" aria-label="Close project details" data-i18n-aria="projects.closeModal">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
         </svg>
@@ -685,13 +691,20 @@
         <div>
           <p class="project-modal__eyebrow" id="project-modal-role"></p>
           <h2 id="project-modal-title" class="project-modal__title"></h2>
+          <p id="project-modal-tagline" class="project-modal__tagline" hidden></p>
         </div>
-        <span id="project-modal-year" class="project-modal__year"></span>
+        <div class="project-modal__meta">
+          <span id="project-modal-status" class="project-modal__status" hidden></span>
+          <span id="project-modal-year" class="project-modal__year"></span>
+        </div>
       </div>
+      <div id="project-modal-metrics" class="project-modal__metrics" hidden></div>
       <p id="project-modal-desc" class="project-modal__desc"></p>
+      <div id="project-modal-case" class="project-modal__case" hidden></div>
       <ul id="project-modal-highlights" class="project-modal__highlights"></ul>
+      <div id="project-modal-tech-metrics" class="project-modal__tech-metrics" hidden></div>
       <div class="project-modal__section">
-        <h3 class="project-modal__label">Technologies</h3>
+        <h3 class="project-modal__label" data-i18n="projects.technologies">Technologies</h3>
         <div id="project-modal-tags" class="project-modal__tags"></div>
       </div>
       <div id="project-modal-actions" class="project-modal__actions"></div>
@@ -703,7 +716,7 @@
       class="resume-lang-menu__option"
       role="menuitem"
       download
-      href="./assets/Files/Fabio_Ramos_Full_Stack_Developer.pdf"
+      href="./assets/Files/Fabio_Ramos_Senior_Full_Stack_Software_Engineer.pdf"
     >
       English
     </a>
@@ -711,7 +724,7 @@
       class="resume-lang-menu__option"
       role="menuitem"
       download
-      href="./assets/Files/Fabio_Ramos_Desarrollador_Full_Stack.pdf"
+      href="./assets/Files/Fabio_Ramos_Ingeniero_Software_Full_Stack_Senior.pdf"
     >
       Español
     </a>

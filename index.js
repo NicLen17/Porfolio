@@ -144,7 +144,82 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;");
 }
 
+const LANG_STORAGE_KEY = "portfolio-lang";
+const I18N = window.PORTFOLIO_I18N || { en: {}, es: {} };
+const CERT_I18N = window.PORTFOLIO_CERT_I18N || { en: {}, es: {} };
+const PROJECT_I18N = window.PORTFOLIO_PROJECT_I18N || {};
+
+function detectInitialLang() {
+  try {
+    const stored = localStorage.getItem(LANG_STORAGE_KEY);
+    if (stored === "en" || stored === "es") return stored;
+  } catch {
+    /* ignore */
+  }
+  const browser = (navigator.language || "").toLowerCase();
+  return browser.startsWith("es") ? "es" : "en";
+}
+
+let currentLang = detectInitialLang();
+
+function getDict(lang = currentLang) {
+  return I18N[lang] || I18N.en || {};
+}
+
+function t(path, lang = currentLang) {
+  const parts = String(path).split(".");
+  let node = getDict(lang);
+  for (const part of parts) {
+    if (node == null || typeof node !== "object") return path;
+    node = node[part];
+  }
+  if (typeof node === "string") return node;
+  if (node == null) {
+    if (lang !== "en") return t(path, "en");
+    return path;
+  }
+  return node;
+}
+
+function localizeProject(project) {
+  if (currentLang !== "es") return project;
+  const es = PROJECT_I18N[project.id];
+  if (!es) return project;
+  return {
+    ...project,
+    title: es.title ?? project.title,
+    role: es.role ?? project.role,
+    tagline: es.tagline ?? project.tagline,
+    status: es.status ?? project.status,
+    statusKind: es.statusKind ?? project.statusKind,
+    description: es.description ?? project.description,
+    descriptionLong: es.descriptionLong ?? project.descriptionLong,
+    highlights: es.highlights ?? project.highlights,
+    metrics: es.metrics ?? project.metrics,
+    techMetrics: es.techMetrics ?? project.techMetrics,
+    caseStudy: es.caseStudy ?? project.caseStudy,
+    myRole: es.myRole ?? project.myRole,
+  };
+}
+
+function getImpactStats() {
+  const stats = t("stats");
+  return Array.isArray(stats) ? stats : I18N.en.stats;
+}
+
+function localizeCert(cert) {
+  const pack = CERT_I18N[currentLang]?.[cert.id] || CERT_I18N.en?.[cert.id] || {};
+  const dates = t("certDates") || {};
+  return {
+    ...cert,
+    name: pack.name || cert.name,
+    issuer: pack.issuer || cert.issuer,
+    date: dates[cert.date] || cert.date,
+  };
+}
+
 const PROJECT_VERCEL_ADDED_AT = {
+  "la-leyenda": 1786057992000,
   "bullet-hell-example": 1780945476668,
   "la-congreso": 1780657175106,
   "mvp-to-pro-lightning-talk": 1780700000000,
@@ -170,6 +245,14 @@ const PROJECT_VERCEL_ADDED_AT = {
 };
 
 function compareProjectsDefault(a, b) {
+  const aFeatured = a.featured ? 1 : 0;
+  const bFeatured = b.featured ? 1 : 0;
+  if (bFeatured !== aFeatured) return bFeatured - aFeatured;
+
+  const aOrder = a.featuredOrder ?? Number.MAX_SAFE_INTEGER;
+  const bOrder = b.featuredOrder ?? Number.MAX_SAFE_INTEGER;
+  if (aOrder !== bOrder) return aOrder - bOrder;
+
   const aAdded = PROJECT_VERCEL_ADDED_AT[a.id];
   const bAdded = PROJECT_VERCEL_ADDED_AT[b.id];
 
@@ -187,62 +270,199 @@ function compareProjectsDefault(a, b) {
 
 const projects = [
   {
-    id: "caw-education",
-    title: "CAW Education",
-    year: 2026,
-    role: "Principal engineer · CAW Tech",
-    description:
-      "EdTech platform merging engineering and data science for academic KPIs and lighter admin workflows.",
-    descriptionLong:
-      "CAW Education connects classroom data capture, educator dashboards, and leadership KPIs in one product. The platform reduces manual reporting for teachers and administrators while giving decision-makers visibility into engagement, performance trends, and operational load across programs.",
-    technologies: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "Tailwind CSS", "Chart.js", "Vercel"],
-    highlights: [
-      "Integrated multi-source academic metrics into unified educator and admin views.",
-      "Designed data models and flows aligned with real school operations and reporting cycles.",
-      "Shipped iterative releases with measurable reduction in manual spreadsheet work.",
-    ],
-    image: "./assets/Images/cawpic.jfif",
-  },
-  {
     id: "volley-manager",
     title: "Volley Manager",
     year: 2026,
-    role: "Principal engineer · CAW Tech",
+    featured: true,
+    featuredOrder: 1,
+    role: "Principal Software Engineer · Co-Founder · CAW Tech",
+    tagline: "Production SaaS / PWA for professional volleyball club operations",
+    status: "In production",
+    statusKind: "production",
     description:
-      "Large-scale volleyball administration with optimized real-time data flows for leagues and operations.",
+      "Production SaaS/PWA powering daily operations for a professional volleyball club in Bolivia — athletes, staff, access, payments and coaching tools.",
     descriptionLong:
-      "Volley Manager supports federations, clubs, and tournament operators managing fixtures, rosters, standings, and live updates at scale. The product prioritizes low-latency updates, predictable data integrity during match days, and workflows that work under venue connectivity constraints.",
-    technologies: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "Vercel"],
+      "Volley Manager is a production digital operations platform for a professional volleyball club in Bolivia. It supports club administration, athlete management, attendance, alerts, notifications, financial workflows and access control — including QR access and consent-based facial recognition, with QR fallback when consent is not provided. Families can register and pay online through an integration with Banco Económico (Bolivia).",
+    technologies: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "PWA", "Vercel"],
+    metrics: [
+      { value: "~700", label: "Athletes" },
+      { value: "~15", label: "Staff members" },
+      { value: "~600", label: "Daily access events" },
+      { value: "4K+", label: "Visitors / 30 days" },
+      { value: "15K+", label: "Page views / 30 days" },
+    ],
+    techMetrics: [{ value: "100K+", label: "Supabase requests / 7 days" }],
+    caseStudy: [
+      {
+        title: "The problem",
+        body: "A professional club needs a single operational system for athletes, staff and families — not a generic admin CRUD. Daily check-ins, payments, attendance and coaching workflows have to work together under real venue conditions.",
+      },
+      {
+        title: "The platform",
+        body: "Volley Manager acts as the club’s digital operational system: administration, athlete status, attendance, alerts, notifications, financial management and day-to-day staff workflows in one production SaaS/PWA.",
+      },
+      {
+        title: "Product modules",
+        items: [
+          "Club administration and athlete management",
+          "Attendance, alerts and operational notifications",
+          "Financial management and daily administrative workflows",
+          "QR access with consent-based facial recognition fallback to QR",
+          "Online registration and payment flow for athletes/families",
+        ],
+      },
+      {
+        title: "Coaching & scouting",
+        body: "A domain-specific coaching module with an interactive visual volleyball court. Coaches record and manage scouting information through a spatial workflow — not a generic statistics form.",
+      },
+      {
+        title: "AI / voice scouting",
+        body: "Includes AI chat contextualized with club information and a voice-based volleyball scouting workflow designed and developed specifically for coaches who need to capture information without breaking attention on the court.",
+      },
+      {
+        title: "Payments & access",
+        body: "Online registration and payments integrated with Banco Económico (Bolivia). Access control combines QR and consent-based facial recognition, with QR as the fallback when consent is not provided. No sensitive biometric or financial details are exposed here.",
+      },
+      {
+        title: "My role",
+        body: "As Principal Software Engineer and Co-Founder at CAW Tech, I own architecture decisions, product design, implementation, integrations, deployment and ongoing technical evolution end-to-end.",
+      },
+    ],
     highlights: [
-      "Optimized real-time pipelines for standings, fixtures, and operational dashboards.",
-      "Structured domain models for leagues, teams, matches, and staff permissions.",
-      "Built for high-traffic match windows with resilient sync and clear admin tooling.",
+      "Production platform for ~700 athletes and ~15 staff with ~600 daily access/check-in events.",
+      "Administrative, financial, attendance and access-control workflows — including Banco Económico payments.",
+      "Interactive volleyball scouting court, AI-assisted club context and voice-based scouting for coaches.",
     ],
     image: "./assets/Images/VolleyManager.png",
   },
   {
     id: "expologic",
-    title: "ExpoLogic · Feria Cultural",
+    title: "ExpoLogic",
     year: 2026,
-    role: "Principal engineer · CAW Tech",
+    featured: true,
+    featuredOrder: 2,
+    role: "Principal Software Engineer · Co-Founder · CAW Tech",
+    tagline: "Multi-tenant SaaS for event spaces, maps, reservations and virtual fairs",
+    status: "MVP · Preparing for adoption",
+    statusKind: "mvp",
     description:
-      "Fair management with dynamic exhibitor allocation — less manual logistics on the ground.",
+      "Multi-tenant event-space SaaS with visual map builder, interactive stand reservation, event websites and exhibitor catalogs.",
     descriptionLong:
-      "ExpoLogic automates exhibitor placement, resource scheduling, and fair-floor logistics for cultural events. Operators configure constraints once; the engine proposes fair allocations and reduces last-minute manual reshuffling during setup and teardown.",
+      "ExpoLogic is a SaaS/multi-tenant platform for managing spaces — initially targeting fairs and events. It combines organizer dashboards, event website generation, a visual map builder, interactive spatial inventory and reservation, exhibitor catalogs and a virtual-fair experience. The product concept is designed to bring capabilities typically found in more expensive event-management platforms to municipalities and smaller organizers — an uncommon approach in the local market.",
     technologies: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "Tailwind CSS", "Vercel"],
+    metrics: [
+      { value: "SaaS", label: "Multi-tenant hub" },
+      { value: "Map", label: "Visual builder" },
+      { value: "Reserve", label: "Spatial inventory" },
+      { value: "Semi", label: "Emprende U" },
+    ],
+    caseStudy: [
+      {
+        title: "The problem",
+        body: "Professional event/space management software is often expensive, complex and inaccessible to municipalities and smaller organizers who still need modern public websites, maps and reservation flows.",
+      },
+      {
+        title: "Multi-tenant hub",
+        body: "A central hub manages tenants/organizers. Each organizer receives their own environment to manage events, reservations, public websites, maps and exhibitors.",
+        diagram:
+          "CAW / Hub\n├── Tenant A / Organizer\n│   ├── Event\n│   ├── Reservations\n│   ├── Website\n│   ├── Map\n│   └── Exhibitors\n└── Tenant B / Organizer\n    ├── Event\n    ├── Reservations\n    ├── Website\n    ├── Map\n    └── Exhibitors",
+      },
+      {
+        title: "Website generation",
+        body: "Organizers can generate a public event website from the platform. Sites are template-driven with configurable themes/styles so organizers manage public content without manually building a site from scratch.",
+      },
+      {
+        title: "Visual map builder",
+        body: "Organizers create geographic/event layouts, define spaces, choose stand sizes, position stands, add text and configure spatial elements. Visitors then browse the resulting map on the public event page.",
+      },
+      {
+        title: "Interactive spatial inventory",
+        body: "Visitors and exhibitors browse the map, see available spaces, select a stand — similar to selecting a seat when purchasing an airline ticket — and reserve it. Framed as interactive spatial inventory and reservation, not a simple booking form.",
+      },
+      {
+        title: "Virtual fair / catalog",
+        body: "Organizers manage exhibitors; exhibitors upload products into digital catalogs shown on the event website. The physical event connects to a persistent online exhibitor showcase — not an e-commerce marketplace.",
+      },
+      {
+        title: "External validation",
+        body: "Presented at Emprende U and reached the semifinal stage. The product was also featured by La Gaceta in connection with the event. Prospective organizers in Tucumán have expressed interest; the product is being prepared for broader adoption.",
+      },
+      {
+        title: "My role",
+        body: "Architected and developed the multi-tenant SaaS from the ground up — hub/tenant model, visual map builder, reservation flows, website generation and virtual-fair catalog experience.",
+      },
+    ],
     highlights: [
-      "Dynamic resource allocation engine for booths, services, and exhibitor constraints.",
-      "Operator dashboards to validate assignments before publishing to exhibitors.",
-      "Deployed for live cultural fair operations with public-facing information surfaces.",
+      "Multi-tenant hub where each organizer manages events, websites, maps and exhibitors.",
+      "Visual map builder with interactive spatial inventory and stand reservation.",
+      "Semifinalist at Emprende U; featured by La Gaceta. Preparing for adoption in Tucumán.",
     ],
     url: "https://lola-mora.vercel.app",
-    image: "./assets/Images/ExpoLogic.jpeg",
+    image: "./assets/Images/ExpoLogic.png",
+  },
+  {
+    id: "caw-education",
+    title: "CAW Education",
+    year: 2026,
+    featured: true,
+    featuredOrder: 3,
+    role: "Principal Software Engineer · Co-Founder · CAW Tech",
+    tagline: "Data-driven educational operations for primary and secondary schools",
+    status: "Product development",
+    statusKind: "dev",
+    description:
+      "Education platform for schools — attendance, grades, student evolution, alerts and organizational KPIs.",
+    descriptionLong:
+      "CAW Education is a CAW Tech product targeted at primary and secondary schools. The platform is designed to centralize educational data such as attendance, grades, student evolution, comparisons, alerts, parent notifications, teacher and preceptor information, and academic/organizational KPIs — influenced by a Data Science for Organizations background and positioned as data-driven educational operations.",
+    technologies: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "Tailwind CSS", "Chart.js", "Vercel"],
+    caseStudy: [
+      {
+        title: "The problem",
+        body: "Schools often manage attendance, grades, alerts and family communication across fragmented tools and spreadsheets, limiting operational visibility.",
+      },
+      {
+        title: "The platform",
+        body: "Designed to centralize student attendance, grades, evolution, comparisons, alerts, parent notifications and academic/organizational KPIs for teachers, preceptors and families.",
+      },
+      {
+        title: "My role",
+        body: "Designed the product architecture and data-oriented workflows, applying organizational data-analysis principles to turn educational records into operational dashboards and decision-support views.",
+      },
+    ],
+    highlights: [
+      "Designed a data-driven education platform for primary and secondary schools.",
+      "Centralizes attendance, grades, student evolution, comparisons and alerts.",
+      "Operational dashboards and KPIs for teachers, preceptors and families.",
+    ],
+    image: "./assets/Images/cawpic.jfif",
+  },
+  {
+    id: "sublimspace",
+    title: "Sublimspace",
+    year: 2026,
+    featured: true,
+    featuredOrder: 4,
+    role: "Full Stack · E-commerce",
+    description:
+      "Wholesale and retail commerce for customized products — catalog, coupons, and sales analytics.",
+    descriptionLong:
+      "Sublimspace runs B2B and B2C flows for personalized merchandise: variant catalogs, coupon campaigns, order tracking, and sales dashboards. The storefront balances merchandising flexibility with checkout clarity for repeat wholesale buyers and retail customers.",
+    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Vercel"],
+    highlights: [
+      "Catalog and variant management for customized product lines.",
+      "Coupon and promotion flows with conversion-oriented UX.",
+      "Analytics views for sales performance and inventory movement.",
+    ],
+    url: "https://sublimspacetuc.vercel.app",
+    image: "./assets/Images/Sublimspace.png",
   },
   {
     id: "caw-tech",
     title: "CAW Tech",
     year: 2026,
-    role: "Co-founder · Principal engineer",
+    featured: true,
+    featuredOrder: 5,
+    role: "Co-founder · Principal Software Engineer",
     description:
       "Company marketing site — services, product positioning, and high-conversion contact funnels.",
     descriptionLong:
@@ -255,6 +475,61 @@ const projects = [
     ],
     url: "https://www.caw.com.ar",
     image: "./assets/Images/CAW.png",
+  },
+  {
+    id: "txtgen",
+    title: "TxtGen",
+    year: 2025,
+    featured: true,
+    featuredOrder: 6,
+    role: "Product engineer",
+    description:
+      "Generate downloadable structured .txt documents from configurable templates.",
+    descriptionLong:
+      "TxtGen lets users compose repeatable text exports from templates—ideal for batch documentation, labels, and structured reports. The UI focuses on template editing, preview, and one-click downloads without server-side lock-in for simple workflows.",
+    technologies: ["React", "TypeScript", "Vite", "JavaScript", "Vercel"],
+    highlights: [
+      "Template builder with live preview before export.",
+      "Deterministic .txt output for repeatable operational documents.",
+      "Zero-friction deploy for internal and public use.",
+    ],
+    url: "https://txt-gent.vercel.app/",
+    image: "./assets/Images/TxtGen.png",
+  },
+  {
+    id: "bootcamp-backend",
+    title: "Bootcamp Back-end",
+    year: 2024,
+    role: "Back-end · Education",
+    description:
+      "Bootcamp management API — cohorts, students, and documented REST endpoints.",
+    descriptionLong:
+      "A Node.js backend for bootcamp operations: cohort lifecycle, student records, and authenticated APIs documented in Postman. Designed for teaching environments where clarity of contracts matters as much as runtime stability.",
+    technologies: ["Node.js", "Express", "MongoDB", "JavaScript", "Postman"],
+    highlights: [
+      "REST APIs with consistent error shapes for frontend consumers.",
+      "MongoDB schemas for cohorts, enrollments, and progress tracking.",
+      "Postman documentation for partner teams and students.",
+    ],
+    image: "./assets/Images/BOTCAMPBACK.webp",
+  },
+  {
+    id: "la-leyenda",
+    title: "La Leyenda",
+    year: 2026,
+    role: "Full stack · Game / product",
+    description:
+      "CS2 career simulator — narrative events, roles, daily challenges and shareable career summaries.",
+    descriptionLong:
+      "La Leyenda is a web career simulator inspired by El Ídolo: short matches, high-impact decisions and a shareable retirement summary. Players pick nick, region, nationality and role (Entry / AWP / IGL / Lurk / Support), resolve 200+ narrative events, close tournament splits and compare careers against legends. Built with Next.js and TypeScript; optional Supabase for daily rankings, with localStorage fallback.",
+    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "Supabase", "Vercel"],
+    highlights: [
+      "Client-side game engine with narrative events, splits and retirement summary.",
+      "Daily challenge and ranking flows with optional Supabase persistence.",
+      "Production deploy on Vercel (la-leyenda-counter-strike.vercel.app).",
+    ],
+    url: "https://la-leyenda-counter-strike.vercel.app",
+    image: "./assets/Images/la-leyenda.webp",
   },
   {
     id: "cba-volleystar",
@@ -273,24 +548,6 @@ const projects = [
     ],
     url: "https://cba-volleystar.vercel.app",
     image: "./assets/Images/CBA.jpeg",
-  },
-  {
-    id: "sublimspace",
-    title: "Sublimspace",
-    year: 2026,
-    role: "Full stack · E-commerce",
-    description:
-      "Wholesale and retail commerce for customized products — catalog, coupons, and sales analytics.",
-    descriptionLong:
-      "Sublimspace runs B2B and B2C flows for personalized merchandise: variant catalogs, coupon campaigns, order tracking, and sales dashboards. The storefront balances merchandising flexibility with checkout clarity for repeat wholesale buyers and retail customers.",
-    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Vercel"],
-    highlights: [
-      "Catalog and variant management for customized product lines.",
-      "Coupon and promotion flows with conversion-oriented UX.",
-      "Analytics views for sales performance and inventory movement.",
-    ],
-    url: "https://sublimspacetuc.vercel.app",
-    image: "./assets/Images/Sublimspace.jfif",
   },
   {
     id: "terradeco",
@@ -345,24 +602,6 @@ const projects = [
     ],
     url: "https://little-bite-society.vercel.app",
     image: "./assets/Images/LBS.png",
-  },
-  {
-    id: "txtgen",
-    title: "TxtGen",
-    year: 2025,
-    role: "Product engineer",
-    description:
-      "Generate downloadable structured .txt documents from configurable templates.",
-    descriptionLong:
-      "TxtGen lets users compose repeatable text exports from templates—ideal for batch documentation, labels, and structured reports. The UI focuses on template editing, preview, and one-click downloads without server-side lock-in for simple workflows.",
-    technologies: ["React", "TypeScript", "Vite", "JavaScript", "Vercel"],
-    highlights: [
-      "Template builder with live preview before export.",
-      "Deterministic .txt output for repeatable operational documents.",
-      "Zero-friction deploy for internal and public use.",
-    ],
-    url: "https://txt-gent.vercel.app/",
-    image: "./assets/Images/TxtGen.webp",
   },
   {
     id: "reaction-app",
@@ -450,23 +689,6 @@ const projects = [
       "Structured metadata for search and social sharing.",
     ],
     image: "./assets/Images/CAW-3.webp",
-  },
-  {
-    id: "bootcamp-backend",
-    title: "Bootcamp Back-end",
-    year: 2024,
-    role: "Back-end · Education",
-    description:
-      "Bootcamp management API — cohorts, students, and documented REST endpoints.",
-    descriptionLong:
-      "A Node.js backend for bootcamp operations: cohort lifecycle, student records, and authenticated APIs documented in Postman. Designed for teaching environments where clarity of contracts matters as much as runtime stability.",
-    technologies: ["Node.js", "Express", "MongoDB", "JavaScript", "Postman"],
-    highlights: [
-      "REST APIs with consistent error shapes for frontend consumers.",
-      "MongoDB schemas for cohorts, enrollments, and progress tracking.",
-      "Postman documentation for partner teams and students.",
-    ],
-    image: "./assets/Images/BOTCAMPBACK.webp",
   },
   {
     id: "cebamate",
@@ -598,7 +820,7 @@ const projects = [
   },
 ];
 
-const PROJECT_PREVIEW_COUNT = 8;
+const PROJECT_PREVIEW_COUNT = 6;
 const projectsContainer = document.getElementById("projects-container");
 const projectsMore = document.getElementById("projects-more");
 const projectsToggle = document.getElementById("projects-toggle");
@@ -606,23 +828,27 @@ let projectSortCriteria = "none";
 let projectsExpanded = false;
 
 function renderProjectCard(p) {
-  const gi = hashToGradientIndex(p.id);
-  const cardTags = (p.technologies ?? []).slice(0, 6);
-  const tagsHtml = cardTags.map((t) => `<span class="accent-pill">${escapeHtml(t)}</span>`).join("");
-  const title = escapeHtml(p.title);
-  const bar = `<div class="project-card__bar"><h3 class="project-card__title">${title}</h3><span class="project-card__year">${p.year}</span></div>`;
+  const project = localizeProject(p);
+  const gi = hashToGradientIndex(project.id);
+  const cardTags = (project.technologies ?? []).slice(0, 6);
+  const tagsHtml = cardTags
+    .map((tag) => `<span class="accent-pill">${escapeHtml(tag)}</span>`)
+    .join("");
+  const title = escapeHtml(project.title);
+  const bar = `<div class="project-card__bar"><h3 class="project-card__title">${title}</h3><span class="project-card__year">${project.year}</span></div>`;
   const scrim = `<div class="project-card__scrim" aria-hidden="true"></div>`;
-  const media = p.image
-    ? `<div class="project-card__media"><img loading="lazy" src="${escapeHtml(p.image)}" alt="${title} — project screenshot" /><div class="project-card__shine" aria-hidden="true"></div>${scrim}${bar}</div>`
+  const altSuffix = t("projects.screenshotAlt");
+  const media = project.image
+    ? `<div class="project-card__media"><img loading="lazy" src="${escapeHtml(project.image)}" alt="${title} — ${escapeHtml(altSuffix)}" /><div class="project-card__shine" aria-hidden="true"></div>${scrim}${bar}</div>`
     : `<div class="project-card__media project-card__media--gradient project-card__grad--${gi}"><div class="project-card__shine" aria-hidden="true"></div>${scrim}${bar}</div>`;
 
   return `
-    <button type="button" class="project-card" data-project-id="${escapeHtml(p.id)}" aria-label="View details for ${title}">
+    <button type="button" class="project-card" data-project-id="${escapeHtml(project.id)}" aria-label="${escapeHtml(t("projects.viewDetailsFor"))} ${title}">
       ${media}
       <div class="project-card__body">
-        <p class="project-card__desc">${escapeHtml(p.description)}</p>
+        <p class="project-card__desc">${escapeHtml(project.description)}</p>
         <div class="project-card__tags">${tagsHtml}</div>
-        <p class="project-card__hint">View details</p>
+        <p class="project-card__hint">${escapeHtml(t("projects.viewDetails"))}</p>
       </div>
     </button>
   `;
@@ -654,10 +880,15 @@ const projectModal = document.getElementById("project-modal");
 const projectModalClose = document.getElementById("project-modal-close");
 const projectModalMedia = document.getElementById("project-modal-media");
 const projectModalTitle = document.getElementById("project-modal-title");
+const projectModalTagline = document.getElementById("project-modal-tagline");
 const projectModalYear = document.getElementById("project-modal-year");
+const projectModalStatus = document.getElementById("project-modal-status");
 const projectModalRole = document.getElementById("project-modal-role");
 const projectModalDesc = document.getElementById("project-modal-desc");
+const projectModalMetrics = document.getElementById("project-modal-metrics");
+const projectModalCase = document.getElementById("project-modal-case");
 const projectModalHighlights = document.getElementById("project-modal-highlights");
+const projectModalTechMetrics = document.getElementById("project-modal-tech-metrics");
 const projectModalTags = document.getElementById("project-modal-tags");
 const projectModalActions = document.getElementById("project-modal-actions");
 
@@ -671,7 +902,7 @@ function renderModalMedia(project) {
   if (project.image) {
     projectModalMedia.hidden = false;
     projectModalMedia.className = "project-modal__media";
-    projectModalMedia.innerHTML = `<img loading="lazy" src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)} — project screenshot" />`;
+    projectModalMedia.innerHTML = `<img loading="lazy" src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)} — ${escapeHtml(t("projects.screenshotAlt"))}" />`;
     return;
   }
   projectModalMedia.hidden = false;
@@ -679,8 +910,46 @@ function renderModalMedia(project) {
   projectModalMedia.innerHTML = "";
 }
 
+function renderMetricCards(items) {
+  return (items ?? [])
+    .map(
+      (metric) => `
+        <div class="project-modal__metric">
+          <span class="project-modal__metric-value">${escapeHtml(metric.value)}</span>
+          <span class="project-modal__metric-label">${escapeHtml(metric.label)}</span>
+        </div>`
+    )
+    .join("");
+}
+
+function renderCaseStudy(sections) {
+  return (sections ?? [])
+    .map((section) => {
+      const items = Array.isArray(section.items)
+        ? `<ul class="project-modal__case-list">${section.items
+            .map((item) => `<li>${escapeHtml(item)}</li>`)
+            .join("")}</ul>`
+        : "";
+      const body = section.body
+        ? `<p class="project-modal__case-body">${escapeHtml(section.body)}</p>`
+        : "";
+      const diagram = section.diagram
+        ? `<pre class="project-modal__diagram">${escapeHtml(section.diagram)}</pre>`
+        : "";
+      return `
+        <article class="project-modal__case-block">
+          <h3 class="project-modal__case-title">${escapeHtml(section.title)}</h3>
+          ${body}
+          ${items}
+          ${diagram}
+        </article>`;
+    })
+    .join("");
+}
+
 function openProjectModal(projectId) {
-  const project = projects.find((item) => item.id === projectId);
+  const raw = projects.find((item) => item.id === projectId);
+  const project = raw ? localizeProject(raw) : null;
   if (!project || !projectModal) return;
 
   renderModalMedia(project);
@@ -688,12 +957,51 @@ function openProjectModal(projectId) {
   projectModalYear.textContent = String(project.year);
   projectModalRole.textContent = project.role ?? "";
   projectModalRole.hidden = !project.role;
+
+  if (projectModalTagline) {
+    projectModalTagline.textContent = project.tagline ?? "";
+    projectModalTagline.hidden = !project.tagline;
+  }
+
+  if (projectModalStatus) {
+    projectModalStatus.textContent = project.status ?? "";
+    projectModalStatus.hidden = !project.status;
+    projectModalStatus.className = "project-modal__status";
+    if (project.statusKind === "mvp") projectModalStatus.classList.add("project-modal__status--mvp");
+    if (project.statusKind === "dev") projectModalStatus.classList.add("project-modal__status--dev");
+  }
+
   projectModalDesc.textContent = project.descriptionLong ?? project.description;
 
-  projectModalHighlights.innerHTML = (project.highlights ?? [])
-    .map((item) => `<li>${escapeHtml(item)}</li>`)
-    .join("");
-  projectModalHighlights.hidden = !project.highlights?.length;
+  if (projectModalMetrics) {
+    const hasMetrics = Array.isArray(project.metrics) && project.metrics.length > 0;
+    projectModalMetrics.hidden = !hasMetrics;
+    projectModalMetrics.innerHTML = hasMetrics ? renderMetricCards(project.metrics) : "";
+  }
+
+  if (projectModalCase) {
+    const hasCase = Array.isArray(project.caseStudy) && project.caseStudy.length > 0;
+    projectModalCase.hidden = !hasCase;
+    projectModalCase.innerHTML = hasCase ? renderCaseStudy(project.caseStudy) : "";
+  }
+
+  const showHighlights = !(Array.isArray(project.caseStudy) && project.caseStudy.length > 0);
+  projectModalHighlights.innerHTML = showHighlights
+    ? (project.highlights ?? []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")
+    : "";
+  projectModalHighlights.hidden = !showHighlights || !project.highlights?.length;
+
+  if (projectModalTechMetrics) {
+    const hasTech = Array.isArray(project.techMetrics) && project.techMetrics.length > 0;
+    projectModalTechMetrics.hidden = !hasTech;
+    projectModalTechMetrics.innerHTML = hasTech
+      ? `<h3 class="project-modal__tech-metrics-title">${escapeHtml(
+          t("projects.techScale")
+        )}</h3><div class="project-modal__tech-metrics-grid">${renderMetricCards(
+          project.techMetrics
+        )}</div>`
+      : "";
+  }
 
   const techList = project.technologies ?? [];
   projectModalTags.innerHTML = techList
@@ -719,7 +1027,7 @@ function renderProjectModalLink(project) {
   link.href = project.url;
   link.target = "_blank";
   link.rel = "noopener noreferrer";
-  link.innerHTML = 'Visit live project <span aria-hidden="true">↗</span>';
+  link.innerHTML = `${escapeHtml(t("projects.visitLive"))} <span aria-hidden="true">↗</span>`;
   projectModalActions.append(link);
 }
 
@@ -769,7 +1077,9 @@ function renderprojects() {
 
   if (projectsToggle) {
     projectsToggle.hidden = sorted.length <= PROJECT_PREVIEW_COUNT;
-    projectsToggle.textContent = projectsExpanded ? "Show fewer" : "See all";
+    projectsToggle.textContent = projectsExpanded
+      ? t("projects.showFewer")
+      : t("projects.viewAll");
     projectsToggle.setAttribute("aria-expanded", String(projectsExpanded));
   }
 }
@@ -804,17 +1114,17 @@ projectModal?.addEventListener("close", () => {
 });
 
 const certifications = [
+  { id: "aws-cloud", name: "Cloud Computing · AWS", issuer: "Coderhouse", date: "May 2025" },
+  { id: "digital-ebusiness-csun", name: "Digital Companies & E-Business Revolution", issuer: "California State University, Northridge", date: "July 2025" },
+  { id: "business-english-csun", name: "Business English", issuer: "California State University, Northridge", date: "June 2025" },
   { id: "org-data-mgmt", name: "Management and Processing of Organizational Data", issuer: "Universidad Nacional de Tucumán", date: "October 2025" },
   { id: "data-science-python", name: "Data Science using Python", issuer: "Universidad Nacional de Tucumán", date: "August 2025" },
   { id: "data-science-challenges", name: "Challenges and Applications of Data Science in Organizations", issuer: "Universidad Nacional de Tucumán", date: "August 2025" },
-  { id: "digital-ebusiness-csun", name: "Digital Companion & E-business Revolution", issuer: "California State University, Northridge", date: "July 2025" },
-  { id: "business-english-csun", name: "Business English", issuer: "California State University, Northridge", date: "June 2025" },
   { id: "statistical-tools-ds", name: "Statistical Tools for Data Science", issuer: "Universidad Nacional de Tucumán", date: "June 2025" },
-  { id: "aws-cloud", name: "Cloud Computing · AWS", issuer: "Coderhouse", date: "May 2025" },
+  { id: "ef-set-c1", name: "EF SET Official Certificate 65/100 (C1 Advanced)", issuer: "EF SET", date: "May 2024" },
   { id: "english-b2-rush", name: "English Studies Certification · B2", issuer: "Instituto Rush", date: "December 2024" },
   { id: "backend-node-rolling", name: "BackEnd Node.js · Database Integration in Web Apps", issuer: "RollingCode", date: "November 2024" },
   { id: "english-b2-rush-2024", name: "Foreign Language Certification · B2 English", issuer: "Instituto Rush", date: "July 2024" },
-  { id: "ef-set-c1", name: "EF SET Official Certificate 65/100 (C1 Advanced)", issuer: "EF SET", date: "May 2024" },
   { id: "testing-qcqa", name: "Testing QC/QA", issuer: "Global Learning", date: "November 2023" },
   { id: "potencial-tech", name: "Potencial Tech 2 (Front-End)", issuer: "Alkemy", date: "October 2023" },
   { id: "frontend-stage3", name: "Front-End Developer · Stage 3", issuer: "ITMaster Academy", date: "October 2023" },
@@ -831,11 +1141,12 @@ const certToggle = document.getElementById("cert-toggle");
 let certsExpanded = false;
 
 function renderCertCard(c, stagger = 0) {
+  const cert = localizeCert(c);
   return `
     <article class="cert-card" style="--stagger: ${stagger}">
-      <h3 class="cert-card__name">${c.name}</h3>
-      <p class="cert-card__issuer">${c.issuer}</p>
-      <p class="cert-card__date">${c.date}</p>
+      <h3 class="cert-card__name">${escapeHtml(cert.name)}</h3>
+      <p class="cert-card__issuer">${escapeHtml(cert.issuer)}</p>
+      <p class="cert-card__date">${escapeHtml(cert.date)}</p>
     </article>
   `;
 }
@@ -859,7 +1170,9 @@ function renderCerts() {
 
   if (certToggle) {
     certToggle.hidden = certifications.length <= FEATURED_CERT_COUNT;
-    certToggle.textContent = certsExpanded ? "Show fewer" : "See all";
+    certToggle.textContent = certsExpanded
+      ? t("certifications.showFewer")
+      : t("certifications.seeAll");
     certToggle.setAttribute("aria-expanded", String(certsExpanded));
   }
 }
@@ -897,7 +1210,9 @@ function syncExperienceExpandPanel() {
   if (!experienceMore || !experienceToggle) return;
   experienceMore.classList.toggle("is-open", experienceExpanded);
   experienceMore.setAttribute("aria-hidden", String(!experienceExpanded));
-  experienceToggle.textContent = experienceExpanded ? "Show fewer" : "See all";
+  experienceToggle.textContent = experienceExpanded
+    ? t("experience.showFewer")
+    : t("experience.seeAll");
   experienceToggle.setAttribute("aria-expanded", String(experienceExpanded));
 }
 
@@ -984,22 +1299,31 @@ function initTestimonials() {
     const quote = card.querySelector("[data-testimonial-quote]");
     const btn = card.querySelector("[data-testimonial-toggle]");
     if (!quote || !btn) return;
+
     const full = quote.textContent.trim();
-    if (full.length <= COLLAPSED_LEN) {
-      btn.hidden = true;
-      return;
-    }
+    quote.dataset.fullText = full;
+    quote.classList.remove("is-collapsed");
+    quote.style.maxHeight = "";
+    card.classList.remove("testimonial-card--expanded");
+    btn.hidden = true;
+    btn.setAttribute("aria-expanded", "false");
+    btn.textContent = t("testimonials.readMore");
+
+    if (full.length <= COLLAPSED_LEN) return;
 
     quote.classList.add("is-collapsed");
     quote.style.maxHeight = `${COLLAPSED_HEIGHT}px`;
     btn.hidden = false;
+
+    if (btn.dataset.bound === "true") return;
+    btn.dataset.bound = "true";
 
     const expandQuote = () => {
       quote.classList.remove("is-collapsed");
       quote.style.maxHeight = `${quote.scrollHeight}px`;
       card.classList.add("testimonial-card--expanded");
       btn.setAttribute("aria-expanded", "true");
-      btn.textContent = "Read less";
+      btn.textContent = t("testimonials.readLess");
     };
 
     const collapseQuote = () => {
@@ -1010,7 +1334,7 @@ function initTestimonials() {
       });
       card.classList.remove("testimonial-card--expanded");
       btn.setAttribute("aria-expanded", "false");
-      btn.textContent = "Read more";
+      btn.textContent = t("testimonials.readMore");
     };
 
     quote.addEventListener("transitionend", (event) => {
@@ -1227,7 +1551,7 @@ document.querySelectorAll(".site-footer__copy").forEach((button) => {
 
     const previousLabel = button.getAttribute("aria-label") || "Copy";
     button.classList.add("is-copied");
-    button.setAttribute("aria-label", "Copied");
+    button.setAttribute("aria-label", t("footer.copied"));
 
     window.setTimeout(() => {
       button.classList.remove("is-copied");
@@ -1235,3 +1559,384 @@ document.querySelectorAll(".site-footer__copy").forEach((button) => {
     }, 1600);
   });
 });
+
+let refreshAboutStats = null;
+
+function initAboutStatsRotator() {
+  const root = document.getElementById("about-stats");
+  const slots = root ? Array.from(root.querySelectorAll(".about-stats__slot")) : [];
+  const tracks = root ? Array.from(root.querySelectorAll("[data-stats-track]")) : [];
+  if (!root || slots.length !== 3 || tracks.length !== 3) return;
+
+  let impactStats = getImpactStats();
+  if (impactStats.length < 3) return;
+
+  const AUTO_MS = 3800;
+  const TRANSITION_MS = 650;
+  const CYCLES = 6;
+  const BASE_CYCLE = 2;
+  /** @type {number[]} animation offsets into each track */
+  const offsets = [0, 0, 0];
+  /** @type {number[]} which impactStats index is currently visible per slot (always unique) */
+  let visible = [0, 1, 2];
+  let selectedSlot = 0;
+  let activeSlot = 0;
+  let timer = 0;
+  let paused = false;
+  let animating = false;
+  let itemHeight = 116;
+  let wheelLocked = false;
+  let wheelIdleTimer = 0;
+  let glowTimer = 0;
+
+  function normalizeIndex(index) {
+    const n = impactStats.length;
+    return ((index % n) + n) % n;
+  }
+
+  function statAt(index) {
+    return impactStats[normalizeIndex(index)];
+  }
+
+  function setItemContent(item, stat) {
+    const num = item.querySelector(".about-stats__num");
+    const label = item.querySelector(".about-stats__label");
+    if (num) num.textContent = stat.num;
+    if (label) label.textContent = stat.label;
+  }
+
+  function syncTrackItem(slotIndex, offsetPos, statIndex) {
+    const item = tracks[slotIndex].children[offsetPos];
+    if (item) setItemContent(item, impactStats[normalizeIndex(statIndex)]);
+  }
+
+  function renderItems(track) {
+    const nodes = [];
+    const total = impactStats.length * CYCLES;
+    for (let i = 0; i < total; i += 1) {
+      const stat = statAt(i);
+      nodes.push(
+        `<div class="about-stats__item"><span class="about-stats__num">${escapeHtml(
+          stat.num
+        )}</span><span class="about-stats__label">${escapeHtml(stat.label)}</span></div>`
+      );
+    }
+    track.innerHTML = nodes.join("");
+  }
+
+  function measure() {
+    const sample = tracks[0].querySelector(".about-stats__item");
+    if (sample) itemHeight = sample.getBoundingClientRect().height || itemHeight;
+    tracks.forEach((track) => {
+      const viewport = track.parentElement;
+      if (viewport) viewport.style.height = `${itemHeight}px`;
+    });
+  }
+
+  function applySlotTransform(slotIndex, animate) {
+    const track = tracks[slotIndex];
+    track.style.transition = animate
+      ? `transform ${TRANSITION_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`
+      : "none";
+    track.style.transform = `translateY(${-offsets[slotIndex] * itemHeight}px)`;
+  }
+
+  function hardResetSlot(slotIndex) {
+    const n = impactStats.length;
+    const min = n;
+    const max = n * (CYCLES - 2);
+    if (offsets[slotIndex] >= min && offsets[slotIndex] < max) return;
+
+    const resetOffset = n * BASE_CYCLE + visible[slotIndex];
+    offsets[slotIndex] = resetOffset;
+    syncTrackItem(slotIndex, resetOffset, visible[slotIndex]);
+    applySlotTransform(slotIndex, false);
+  }
+
+  function setSelected(slotIndex) {
+    selectedSlot = slotIndex;
+    slots.forEach((slot, index) => {
+      slot.classList.toggle("is-selected", index === slotIndex);
+    });
+  }
+
+  function setGlow(slotIndex) {
+    slots.forEach((slot, index) => {
+      slot.classList.toggle("is-glowing", index === slotIndex);
+    });
+    window.clearTimeout(glowTimer);
+    glowTimer = window.setTimeout(() => {
+      slots[slotIndex]?.classList.remove("is-glowing");
+    }, TRANSITION_MS + 420);
+  }
+
+  function pickNextUniqueStat(slotIndex, delta) {
+    const n = impactStats.length;
+    const occupied = new Set();
+    for (let i = 0; i < visible.length; i += 1) {
+      if (i !== slotIndex) occupied.add(visible[i]);
+    }
+
+    let candidate = visible[slotIndex];
+    for (let step = 0; step < n; step += 1) {
+      candidate = normalizeIndex(candidate + delta);
+      if (!occupied.has(candidate)) return candidate;
+    }
+    return normalizeIndex(visible[slotIndex] + delta);
+  }
+
+  function advanceSlot(slotIndex, delta = 1) {
+    if (animating) return;
+    const direction = delta >= 0 ? 1 : -1;
+    const nextStat = pickNextUniqueStat(slotIndex, direction);
+    if (nextStat === visible[slotIndex]) return;
+
+    animating = true;
+    setSelected(slotIndex);
+    activeSlot = slotIndex;
+
+    const nextOffset = offsets[slotIndex] + direction;
+    syncTrackItem(slotIndex, nextOffset, nextStat);
+    visible[slotIndex] = nextStat;
+    offsets[slotIndex] = nextOffset;
+
+    setGlow(slotIndex);
+    applySlotTransform(slotIndex, true);
+    window.setTimeout(() => {
+      hardResetSlot(slotIndex);
+      animating = false;
+    }, TRANSITION_MS + 40);
+  }
+
+  function advanceNext(delta = 1) {
+    advanceSlot(activeSlot, delta);
+    activeSlot = (activeSlot + 1) % slots.length;
+  }
+
+  function startTimer() {
+    window.clearInterval(timer);
+    timer = window.setInterval(() => {
+      if (!paused && !animating) advanceNext(1);
+    }, AUTO_MS);
+  }
+
+  function slotFromEventTarget(target) {
+    const el = target instanceof Element ? target : null;
+    const slotEl = el?.closest?.(".about-stats__slot");
+    if (!slotEl) return selectedSlot;
+    const index = slots.indexOf(slotEl);
+    return index >= 0 ? index : selectedSlot;
+  }
+
+  function rebuild() {
+    impactStats = getImpactStats();
+    if (impactStats.length < 3) return;
+
+    visible = [0, 1, 2];
+    const base = impactStats.length * BASE_CYCLE;
+    offsets[0] = base;
+    offsets[1] = base + 1;
+    offsets[2] = base + 2;
+
+    tracks.forEach((track, slot) => {
+      renderItems(track);
+      syncTrackItem(slot, offsets[slot], visible[slot]);
+    });
+    measure();
+    tracks.forEach((_, slot) => applySlotTransform(slot, false));
+    setSelected(selectedSlot);
+  }
+
+  rebuild();
+  refreshAboutStats = rebuild;
+
+  slots.forEach((slot, index) => {
+    slot.addEventListener("mouseenter", () => {
+      setSelected(index);
+      paused = true;
+    });
+    slot.addEventListener("focusin", () => {
+      setSelected(index);
+      paused = true;
+    });
+  });
+
+  root.addEventListener("mouseleave", () => {
+    paused = false;
+  });
+
+  root.addEventListener(
+    "wheel",
+    (event) => {
+      event.preventDefault();
+      const slotIndex = slotFromEventTarget(event.target);
+      setSelected(slotIndex);
+
+      window.clearTimeout(wheelIdleTimer);
+      wheelIdleTimer = window.setTimeout(() => {
+        wheelLocked = false;
+      }, 180);
+
+      if (wheelLocked || animating) return;
+      wheelLocked = true;
+      advanceSlot(slotIndex, event.deltaY > 0 ? 1 : -1);
+      startTimer();
+    },
+    { passive: false }
+  );
+
+  let touchY = null;
+  let touchSlot = 0;
+  let touchHandled = false;
+  root.addEventListener(
+    "touchstart",
+    (event) => {
+      touchY = event.touches[0]?.clientY ?? null;
+      touchSlot = slotFromEventTarget(event.target);
+      setSelected(touchSlot);
+      touchHandled = false;
+      paused = true;
+    },
+    { passive: true }
+  );
+  root.addEventListener(
+    "touchend",
+    (event) => {
+      if (touchY == null || touchHandled) return;
+      const endY = event.changedTouches[0]?.clientY ?? touchY;
+      const delta = touchY - endY;
+      if (Math.abs(delta) > 28) {
+        touchHandled = true;
+        advanceSlot(touchSlot, delta > 0 ? 1 : -1);
+        startTimer();
+      }
+      touchY = null;
+      paused = false;
+    },
+    { passive: true }
+  );
+
+  window.addEventListener("resize", () => {
+    measure();
+    tracks.forEach((_, slot) => applySlotTransform(slot, false));
+  });
+
+  startTimer();
+}
+
+initAboutStatsRotator();
+
+function applyStaticI18n() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const key = el.getAttribute("data-i18n");
+    if (!key) return;
+    const value = t(key);
+    if (typeof value === "string") el.textContent = value;
+  });
+
+  document.querySelectorAll("[data-i18n-html]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-html");
+    if (!key) return;
+    const value = t(key);
+    if (typeof value === "string") el.innerHTML = value;
+  });
+
+  document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-aria");
+    if (!key) return;
+    const value = t(key);
+    if (typeof value === "string") el.setAttribute("aria-label", value);
+  });
+
+  document.querySelectorAll("[data-i18n-title]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-title");
+    if (!key) return;
+    const value = t(key);
+    if (typeof value === "string") el.setAttribute("title", value);
+  });
+
+  document.querySelectorAll("[data-i18n-alt]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-alt");
+    if (!key) return;
+    const value = t(key);
+    if (typeof value === "string") el.setAttribute("alt", value);
+  });
+}
+
+function syncLangSwitchButtons() {
+  document.querySelectorAll("[data-set-lang]").forEach((btn) => {
+    const lang = btn.getAttribute("data-set-lang");
+    const active = lang === currentLang;
+    btn.classList.toggle("is-active", active);
+    btn.setAttribute("aria-pressed", String(active));
+  });
+}
+
+function syncMailLinks() {
+  const subject = encodeURIComponent(t("hero.emailSubject"));
+  const body = encodeURIComponent(t("hero.emailBody"));
+  const heroMail = document.getElementById("hero-email-link");
+  if (heroMail) {
+    heroMail.href = `mailto:fabioramosnic@gmail.com?subject=${subject}&body=${body}`;
+  }
+  const footerMail = document.getElementById("footer-email-link");
+  if (footerMail) {
+    footerMail.href = `mailto:fabioramosnic@gmail.com?subject=${subject}`;
+  }
+}
+
+function syncDocumentMeta() {
+  document.documentElement.lang = currentLang;
+  document.title = t("meta.title");
+  const description = t("meta.description");
+  const metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) metaDesc.setAttribute("content", description);
+  const ogTitle = document.querySelector('meta[property="og:title"]');
+  if (ogTitle) ogTitle.setAttribute("content", t("meta.title"));
+  const ogDesc = document.querySelector('meta[property="og:description"]');
+  if (ogDesc) ogDesc.setAttribute("content", description);
+  const twTitle = document.querySelector('meta[name="twitter:title"]');
+  if (twTitle) twTitle.setAttribute("content", t("meta.title"));
+  const twDesc = document.querySelector('meta[name="twitter:description"]');
+  if (twDesc) twDesc.setAttribute("content", description);
+
+  document.querySelectorAll("[data-testimonial-lang]").forEach((card) => {
+    card.setAttribute("lang", currentLang);
+  });
+}
+
+function setLanguage(lang, { persist = true } = {}) {
+  if (lang !== "en" && lang !== "es") return;
+  currentLang = lang;
+
+  if (persist) {
+    try {
+      localStorage.setItem(LANG_STORAGE_KEY, lang);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  syncDocumentMeta();
+  syncLangSwitchButtons();
+  applyStaticI18n();
+  syncMailLinks();
+  syncExperienceExpandPanel();
+  renderprojects();
+  renderCerts();
+  refreshAboutStats?.();
+  initTestimonials();
+
+  if (projectModal?.open) {
+    closeProjectModal();
+  }
+}
+
+document.querySelectorAll("[data-set-lang]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const lang = btn.getAttribute("data-set-lang");
+    if (lang) setLanguage(lang);
+  });
+});
+
+setLanguage(currentLang, { persist: false });
