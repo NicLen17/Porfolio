@@ -22,9 +22,3 @@ npm-debug.log*
 .cache/
 .temp/
 .tmp/
-
-# Typst local previews
-cv/preview/
-
-# Package lock noise from ad-hoc installs (optional local tooling)
-package-lock.json
