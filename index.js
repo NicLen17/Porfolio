@@ -49,6 +49,10 @@ function ensureFollowerLoop() {
 
 function updateTileHoverFromPoint(clientX, clientY) {
   const stack = document.elementsFromPoint(clientX, clientY);
+  if (stack[0]?.closest?.(".hero-anim-switch")) {
+    clearTileHover();
+    return;
+  }
   const hit = stack.find((el) => el.classList?.contains("tile"));
   if (hit === lastHoveredTile) return;
   if (lastHoveredTile) lastHoveredTile.classList.remove("tile--hover");
@@ -86,6 +90,321 @@ document.addEventListener("visibilitychange", () => {
 for (let i = 0; i < 1399; i++) {
   container.appendChild(tile.cloneNode());
 }
+
+const TILE_COLS = 40;
+const HERO_ANIM_KEY = "portfolio-hero-anim";
+const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+const tileNodes = Array.from(container.querySelectorAll(".tile"));
+const tileRows = Math.ceil(tileNodes.length / TILE_COLS);
+const tileCenterCol = (TILE_COLS - 1) / 2;
+const tileCenterRow = (tileRows - 1) / 2;
+const tileMeta = tileNodes.map((el, i) => {
+  const col = i % TILE_COLS;
+  const row = Math.floor(i / TILE_COLS);
+  return {
+    el,
+    dist: Math.hypot(col - tileCenterCol, row - tileCenterRow),
+  };
+});
+const tileMaxDist = tileMeta.reduce((max, item) => Math.max(max, item.dist), 0);
+const idleLit = new Set();
+const heroAnimSwitch = document.querySelector(".hero-anim-switch");
+const heroAnimReplayBtn = document.querySelector('[data-hero-anim="replay"]');
+const heroAnimStopBtn = document.querySelector('[data-hero-anim="stop"]');
+
+let heroAnimStopped = false;
+let heroShouldPlayIntro = true;
+let heroAnimPlaying = "intro";
+let heroAnimGen = 0;
+let heroAnimRaf = 0;
+let heroAnimTimer = 0;
+let heroInView = true;
+
+try {
+  localStorage.removeItem(HERO_ANIM_KEY);
+} catch {
+  /* ignore */
+}
+
+function clearIdleLit() {
+  idleLit.forEach((el) => el.classList.remove("tile--idle"));
+  idleLit.clear();
+}
+
+function setIdleLit(nextSet) {
+  idleLit.forEach((el) => {
+    if (!nextSet.has(el)) el.classList.remove("tile--idle");
+  });
+  nextSet.forEach((el) => {
+    if (!idleLit.has(el)) el.classList.add("tile--idle");
+  });
+  idleLit.clear();
+  nextSet.forEach((el) => idleLit.add(el));
+}
+
+function prefersReducedMotion() {
+  return reducedMotionQuery.matches;
+}
+
+function canRunHeroIdle() {
+  return !heroAnimStopped && !prefersReducedMotion() && document.visibilityState === "visible" && heroInView;
+}
+
+function syncHeroAnimSwitch() {
+  if (heroAnimReplayBtn) {
+    heroAnimReplayBtn.classList.toggle("is-playing", !heroAnimStopped && heroAnimPlaying === "intro");
+  }
+  if (heroAnimStopBtn) {
+    heroAnimStopBtn.classList.toggle("is-active", heroAnimStopped);
+    heroAnimStopBtn.setAttribute("aria-pressed", String(heroAnimStopped));
+  }
+}
+
+function stopHeroIdleTimers() {
+  if (heroAnimTimer) {
+    clearTimeout(heroAnimTimer);
+    heroAnimTimer = 0;
+  }
+  if (heroAnimRaf) {
+    cancelAnimationFrame(heroAnimRaf);
+    heroAnimRaf = 0;
+  }
+}
+
+function delayHeroIdle(ms, gen) {
+  return new Promise((resolve) => {
+    heroAnimTimer = setTimeout(() => {
+      heroAnimTimer = 0;
+      resolve(gen === heroAnimGen);
+    }, ms);
+  });
+}
+
+function animateHeroIdle(duration, update, gen) {
+  return new Promise((resolve) => {
+    const start = performance.now();
+    const tick = (now) => {
+      if (gen !== heroAnimGen) {
+        resolve(false);
+        return;
+      }
+      const elapsed = now - start;
+      const t = Math.min(1, elapsed / duration);
+      update(t, elapsed);
+      if (t < 1) {
+        heroAnimRaf = requestAnimationFrame(tick);
+      } else {
+        heroAnimRaf = 0;
+        resolve(true);
+      }
+    };
+    heroAnimRaf = requestAnimationFrame(tick);
+  });
+}
+
+async function playRippleIntro(gen) {
+  const done = await animateHeroIdle(
+    2800,
+    (t) => {
+      const eased = 1 - (1 - t) * (1 - t);
+      const radius = eased * (tileMaxDist + 2.4);
+      const next = new Set();
+      for (const item of tileMeta) {
+        if (Math.abs(item.dist - radius) <= 1.45) next.add(item.el);
+      }
+      setIdleLit(next);
+    },
+    gen
+  );
+  if (done) clearIdleLit();
+  return done;
+}
+
+const heroCopyEl = document.querySelector(".hero-panel");
+let sparklePool = tileMeta;
+
+function inflateRect(rect, padX, padY) {
+  return {
+    left: rect.left - padX,
+    right: rect.right + padX,
+    top: rect.top - padY,
+    bottom: rect.bottom + padY,
+  };
+}
+
+function rectsOverlap(a, b) {
+  return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+}
+
+function refreshSparklePool() {
+  const heroRect = heroCopyEl?.getBoundingClientRect();
+  const readable =
+    heroRect && heroRect.width > 0 && heroRect.height > 0
+      ? inflateRect(
+          heroRect,
+          Math.max(40, heroRect.width * 0.06),
+          Math.max(32, heroRect.height * 0.08)
+        )
+      : null;
+
+  sparklePool = tileMeta.filter((item) => {
+    if (item.dist >= tileMaxDist * 0.62) return false;
+    if (!readable) return true;
+    const tileRect = item.el.getBoundingClientRect();
+    if (tileRect.width <= 0 || tileRect.height <= 0) return false;
+    return !rectsOverlap(tileRect, readable);
+  });
+
+  if (sparklePool.length < 24) {
+    sparklePool = tileMeta.filter(
+      (item) => item.dist >= tileMaxDist * 0.28 && item.dist < tileMaxDist * 0.7
+    );
+  }
+}
+
+function pickSparkleTile() {
+  const pool = sparklePool.length ? sparklePool : tileMeta;
+  return pool[(Math.random() * pool.length) | 0];
+}
+
+function playSparkleIdle(gen) {
+  refreshSparklePool();
+  const litUntil = new Map();
+  let nextSpawnAt = 0;
+  const spawnEvery = 60;
+  const start = performance.now();
+
+  return new Promise((resolve) => {
+    const tick = (now) => {
+      if (gen !== heroAnimGen) {
+        resolve(false);
+        return;
+      }
+      const elapsed = now - start;
+      while (nextSpawnAt <= elapsed) {
+        const ttl = 400 + Math.random() * 500;
+        if (nextSpawnAt + ttl > elapsed) {
+          const count = 2 + ((Math.random() * 3) | 0);
+          for (let i = 0; i < count; i += 1) {
+            const item = pickSparkleTile();
+            litUntil.set(item.el, nextSpawnAt + ttl);
+          }
+        }
+        nextSpawnAt += spawnEvery;
+      }
+      const next = new Set();
+      litUntil.forEach((until, el) => {
+        if (until > elapsed) next.add(el);
+        else litUntil.delete(el);
+      });
+      setIdleLit(next);
+      heroAnimRaf = requestAnimationFrame(tick);
+    };
+    heroAnimRaf = requestAnimationFrame(tick);
+  });
+}
+
+async function runHeroAnimSequence(gen, { playIntro }) {
+  if (playIntro) {
+    heroAnimPlaying = "intro";
+    syncHeroAnimSwitch();
+    const finishedIntro = await playRippleIntro(gen);
+    if (!finishedIntro || gen !== heroAnimGen) return;
+    const stillWaiting = await delayHeroIdle(350, gen);
+    if (!stillWaiting) return;
+  }
+
+  heroAnimPlaying = "idle";
+  syncHeroAnimSwitch();
+  await playSparkleIdle(gen);
+}
+
+function restartHeroAnim({ playIntro } = {}) {
+  heroAnimGen += 1;
+  stopHeroIdleTimers();
+  clearIdleLit();
+  if (playIntro != null) heroShouldPlayIntro = playIntro;
+  syncHeroAnimSwitch();
+  if (!canRunHeroIdle()) return;
+
+  const gen = heroAnimGen;
+  const intro = heroShouldPlayIntro;
+  heroShouldPlayIntro = false;
+  heroAnimPlaying = intro ? "intro" : "idle";
+  syncHeroAnimSwitch();
+
+  heroAnimTimer = setTimeout(() => {
+    heroAnimTimer = 0;
+    if (gen !== heroAnimGen) return;
+    runHeroAnimSequence(gen, { playIntro: intro });
+  }, intro ? 160 : 80);
+}
+
+function stopHeroAnim() {
+  heroAnimStopped = true;
+  heroAnimGen += 1;
+  stopHeroIdleTimers();
+  clearIdleLit();
+  heroAnimPlaying = "stopped";
+  syncHeroAnimSwitch();
+}
+
+function replayHeroIntro() {
+  heroAnimStopped = false;
+  restartHeroAnim({ playIntro: true });
+}
+
+heroAnimReplayBtn?.addEventListener("click", replayHeroIntro);
+heroAnimStopBtn?.addEventListener("click", stopHeroAnim);
+
+if (heroAnimSwitch) {
+  const heroAnimIo = new IntersectionObserver(
+    (entries) => {
+      const visible = Boolean(entries[0]?.isIntersecting);
+      if (visible === heroInView) return;
+      heroInView = visible;
+      if (heroInView) restartHeroAnim();
+      else {
+        heroAnimGen += 1;
+        stopHeroIdleTimers();
+        clearIdleLit();
+      }
+    },
+    { threshold: 0.12 }
+  );
+  heroAnimIo.observe(document.querySelector(".main-content"));
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") restartHeroAnim();
+  else {
+    heroAnimGen += 1;
+    stopHeroIdleTimers();
+    clearIdleLit();
+  }
+});
+
+const onReducedMotionChange = () => restartHeroAnim();
+if (typeof reducedMotionQuery.addEventListener === "function") {
+  reducedMotionQuery.addEventListener("change", onReducedMotionChange);
+} else if (typeof reducedMotionQuery.addListener === "function") {
+  reducedMotionQuery.addListener(onReducedMotionChange);
+}
+
+let sparklePoolResizeTimer = 0;
+window.addEventListener("resize", () => {
+  if (sparklePoolResizeTimer) clearTimeout(sparklePoolResizeTimer);
+  sparklePoolResizeTimer = setTimeout(() => {
+    sparklePoolResizeTimer = 0;
+    if (heroAnimPlaying === "idle" && !heroAnimStopped) refreshSparklePool();
+  }, 150);
+});
+
+syncHeroAnimSwitch();
+heroAnimTimer = setTimeout(() => {
+  heroAnimTimer = 0;
+  restartHeroAnim({ playIntro: true });
+}, 1100);
 
 const heroObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
@@ -156,8 +475,7 @@ function detectInitialLang() {
   } catch {
     /* ignore */
   }
-  const browser = (navigator.language || "").toLowerCase();
-  return browser.startsWith("es") ? "es" : "en";
+  return "en";
 }
 
 let currentLang = detectInitialLang();
@@ -219,6 +537,10 @@ function localizeCert(cert) {
 }
 
 const PROJECT_VERCEL_ADDED_AT = {
+  "lomas-gym": 1787095253205,
+  "mix-potrero": 1787077136217,
+  tecnoleg: 1786762848479,
+  "caw-education-landing": 1783340832826,
   "la-leyenda": 1786057992000,
   "bullet-hell-example": 1780945476668,
   "la-congreso": 1780657175106,
@@ -342,70 +664,77 @@ const projects = [
     featured: true,
     featuredOrder: 2,
     role: "Principal Software Engineer · Co-Founder · CAW Tech",
-    tagline: "Multi-tenant SaaS for event spaces, maps, reservations and virtual fairs",
-    status: "MVP · Preparing for adoption",
+    tagline: "B2B2C multi-tenant SaaS for cultural fairs, artisan markets and entrepreneur events",
+    status: "MVP · Seed · Validated prototype",
     statusKind: "mvp",
     description:
-      "Multi-tenant event-space SaaS with visual map builder, interactive stand reservation, event websites and exhibitor catalogs.",
+      "Multi-tenant SaaS that replaces Excel, WhatsApp and paper maps with interactive fair maps, reservations, waitlists, virtual fairs and analytics.",
     descriptionLong:
-      "ExpoLogic is a SaaS/multi-tenant platform for managing spaces — initially targeting fairs and events. It combines organizer dashboards, event website generation, a visual map builder, interactive spatial inventory and reservation, exhibitor catalogs and a virtual-fair experience. The product concept is designed to bring capabilities typically found in more expensive event-management platforms to municipalities and smaller organizers — an uncommon approach in the local market.",
+      "ExpoLogic is a B2B2C multi-tenant SaaS that centralizes cultural fairs, artisan markets and entrepreneur events — professionalizing access to commercial spaces in the popular economy through digital inclusion. Organizers get a real-time operations panel; exhibitors reserve stands in a few clicks; visitors explore the fair online 24/7 before and after the physical event. Built for a market of 3,500+ active fairs and 50K+ recurrent exhibitors in Argentina, with field validation of ~50 interviews in Tucumán.",
     technologies: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "Tailwind CSS", "Vercel"],
     metrics: [
-      { value: "SaaS", label: "Multi-tenant hub" },
-      { value: "Map", label: "Visual builder" },
-      { value: "Reserve", label: "Spatial inventory" },
+      { value: "~50", label: "Field interviews" },
+      { value: "3.5K+", label: "Active fairs (AR)" },
+      { value: "50K+", label: "Recurrent exhibitors" },
       { value: "Semi", label: "Emprende U" },
     ],
     caseStudy: [
       {
         title: "The problem",
-        body: "Professional event/space management software is often expensive, complex and inaccessible to municipalities and smaller organizers who still need modern public websites, maps and reservation flows.",
+        body: "Organizers run Excel, WhatsApp and paper floor plans — up to ~20 days of management per event. Exhibitors face uncertainty, queues and late confirmations with no traceability. Empty stands, unidentified payments and zero audit trails hurt municipalities. Validated in the field with ~50 interviews across Tucumán fairs.",
+      },
+      {
+        title: "3 problems · 1 solution",
+        items: [
+          "Organizer: Excel · WhatsApp · Paper → centralized real-time panel",
+          "Exhibitor: reservation uncertainty → simple two-click booking",
+          "Visitor: fair only on event day → explore the virtual fair 24/7 online",
+        ],
+      },
+      {
+        title: "The platform",
+        body: "A unique regional approach for fair operations: real-time interactive maps with mobile reservation, automated waitlists and payment audit for organizers, public event presence plus a free landing/catalog per exhibitor, and a virtual fair that stays visible before and after the event — stands, products and upcoming editions online.",
       },
       {
         title: "Multi-tenant hub",
-        body: "A central hub manages tenants/organizers. Each organizer receives their own environment to manage events, reservations, public websites, maps and exhibitors.",
+        body: "A central hub manages tenants/organizers. Each organizer receives their own environment to manage events, reservations, public websites, maps and exhibitors — plus a template engine so organizers design layouts without depending on third parties.",
         diagram:
           "CAW / Hub\n├── Tenant A / Organizer\n│   ├── Event\n│   ├── Reservations\n│   ├── Website\n│   ├── Map\n│   └── Exhibitors\n└── Tenant B / Organizer\n    ├── Event\n    ├── Reservations\n    ├── Website\n    ├── Map\n    └── Exhibitors",
       },
       {
-        title: "Website generation",
-        body: "Organizers can generate a public event website from the platform. Sites are template-driven with configurable themes/styles so organizers manage public content without manually building a site from scratch.",
+        title: "Business model",
+        items: [
+          "Per-event pricing — percentage per exhibitor above a threshold, or fixed fee by attendance",
+          "Monthly maintenance — database, hosting and event web presence",
+          "Optional setup — map build and organizer onboarding",
+          "Free for exhibitors — landing, catalog and web visibility included (social-impact B2B SaaS)",
+        ],
       },
       {
-        title: "Visual map builder",
-        body: "Organizers create geographic/event layouts, define spaces, choose stand sizes, position stands, add text and configure spatial elements. Visitors then browse the resulting map on the public event page.",
-      },
-      {
-        title: "Interactive spatial inventory",
-        body: "Visitors and exhibitors browse the map, see available spaces, select a stand — similar to selecting a seat when purchasing an airline ticket — and reserve it. Framed as interactive spatial inventory and reservation, not a simple booking form.",
-      },
-      {
-        title: "Virtual fair / catalog",
-        body: "Organizers manage exhibitors; exhibitors upload products into digital catalogs shown on the event website. The physical event connects to a persistent online exhibitor showcase — not an e-commerce marketplace.",
+        title: "Market & goals",
+        body: "Segment: B2B organizers and B2C exhibitors/feriantes. Goal: become the national standard for ephemeral space management, run NOA pilots from Tucumán, and partner with municipalities, culture secretariats and communities for regional digital inclusion.",
       },
       {
         title: "External validation",
-        body: "Presented at Emprende U and reached the semifinal stage. The product was also featured by La Gaceta in connection with the event. Prospective organizers in Tucumán have expressed interest; the product is being prepared for broader adoption.",
+        body: "Presented at Emprende U and reached the semifinal stage; featured by La Gaceta. Prospective organizers in Tucumán have expressed interest; the product is being prepared for broader adoption. One-pager: niclen17.github.io/ExpoLogic-one-pager/",
       },
       {
         title: "My role",
-        body: "Architected and developed the multi-tenant SaaS from the ground up — hub/tenant model, visual map builder, reservation flows, website generation and virtual-fair catalog experience.",
+        body: "As Principal Software Developer / Co-Founder at CAW Tech, I own SaaS architecture, product vision and end-to-end implementation of the multi-tenant hub, map builder, reservation flows and virtual-fair experience.",
       },
     ],
     highlights: [
-      "Multi-tenant hub where each organizer manages events, websites, maps and exhibitors.",
-      "Visual map builder with interactive spatial inventory and stand reservation.",
-      "Semifinalist at Emprende U; featured by La Gaceta. Preparing for adoption in Tucumán.",
+      "Replaces weeks of manual fair ops with real-time maps, reservations, waitlists and payment audit.",
+      "Free exhibitor landings + 24/7 virtual fair — B2B SaaS with social-impact positioning.",
+      "Validated with ~50 field interviews; 3.5K+ fairs / 50K+ exhibitors market; Emprende U semifinalist.",
     ],
-    url: "https://lola-mora.vercel.app",
+    url: "https://caw-expologic.vercel.app/",
     image: "./assets/Images/ExpoLogic.png",
   },
   {
     id: "caw-education",
     title: "CAW Education",
     year: 2026,
-    featured: true,
-    featuredOrder: 3,
     role: "Principal Software Engineer · Co-Founder · CAW Tech",
     tagline: "Data-driven educational operations for primary and secondary schools",
     status: "Product development",
@@ -434,14 +763,98 @@ const projects = [
       "Centralizes attendance, grades, student evolution, comparisons and alerts.",
       "Operational dashboards and KPIs for teachers, preceptors and families.",
     ],
+    url: "https://caweducation.com",
     image: "./assets/Images/cawpic.jfif",
+  },
+  {
+    id: "tecnoleg",
+    title: "Tecnoleg",
+    year: 2026,
+    featured: true,
+    featuredOrder: 3,
+    role: "Full Stack · E-commerce",
+    tagline: "Smart store for refurbished tech — catalog, checkout and operations admin",
+    status: "In production",
+    statusKind: "production",
+    description:
+      "Production smart store for accessible technology in Tucumán — storefront, cart/checkout and admin operations.",
+    descriptionLong:
+      "Tecnoleg is a production e-commerce platform for refurbished phones, notebooks and accessories. It combines a public storefront with authenticated admin tooling: catalog/provider sync, order operations, MFA-ready auth and analytics dashboards. Deployed on Vercel with a custom domain (tecnoleg.com.ar).",
+    technologies: ["Next.js", "TypeScript", "Supabase", "Tailwind CSS", "Vercel"],
+    highlights: [
+      "Production storefront with catalog, PDP, cart and checkout flows.",
+      "Admin Operate shell for inventory sync, orders and KPI dashboards.",
+      "Security hardening with MFA gate support and audit-oriented policies.",
+    ],
+    url: "https://www.tecnoleg.com.ar",
+    image: "./assets/Images/tecnoleg.png",
+  },
+  {
+    id: "lomas-gym",
+    title: "Lomas Gym",
+    year: 2026,
+    role: "Full Stack · Gym operations MVP",
+    tagline: "Digital gym ops — public landing, admin, QR member pass and check-in totem",
+    status: "MVP · Demo",
+    statusKind: "mvp",
+    description:
+      "Gym management MVP for Lomas Gym Tucumán — landing, admin panel, QR membership pass and reception check-in.",
+    descriptionLong:
+      "Lomas Gym is a Next.js MVP that digitizes neighborhood gym operations: a public marketing site with plans and location, an admin panel for members/cash/dashboard metrics, a mobile member pass with QR/status, and a reception totem for DNI/QR check-in. Phase-1 demo persistence uses localStorage before a planned Supabase backend.",
+    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "PWA", "Vercel"],
+    highlights: [
+      "Four product surfaces: landing, admin, member pass and check-in totem.",
+      "Membership and cash workflows designed for daily gym reception use.",
+      "PWA-ready demo deploy on Vercel for client validation.",
+    ],
+    url: "https://lomas-gym.vercel.app",
+    image: "./assets/Images/lomas-gym.jpg",
+  },
+  {
+    id: "mix-potrero",
+    title: "Mix Potrero",
+    year: 2026,
+    role: "Product engineer · PWA",
+    tagline: "Pickup football team builder with coin toss, scorecards and pitch cost splits",
+    status: "In production",
+    statusKind: "production",
+    description:
+      "PWA to build balanced football teams from WhatsApp lists — captains coin toss, match summary images and pitch-cost tracking.",
+    descriptionLong:
+      "Mix Potrero helps amateur football groups paste player lists, generate balanced squads (including skill ratings), flip a captains coin toss, share PNG match summaries to WhatsApp and track who paid for the pitch with La Vaquita. Built as a mobile-first Vite PWA for on-field use.",
+    technologies: ["Vite", "JavaScript", "PWA", "Vercel"],
+    highlights: [
+      "Parses free-form WhatsApp player lists into balanced team draws.",
+      "Captains coin toss, rematch shuffle and shareable PNG score summaries.",
+      "La Vaquita pitch-cost tracker with WhatsApp payment copy.",
+    ],
+    url: "https://mix-potrero.vercel.app",
+    image: "./assets/Images/mix-potrero.png",
+  },
+  {
+    id: "caw-education-landing",
+    title: "CAW Education Landing",
+    year: 2026,
+    role: "Front end · CAW Tech",
+    description:
+      "Marketing landing for CAW Education — product story, modules, FAQ and demo CTAs.",
+    descriptionLong:
+      "Official marketing site for CAW Education: hero and problem/solution narrative, feature and module grids, data-analysis positioning, education-level solutions, testimonials, FAQ and demo contact flows. Built with Next.js, Framer Motion and a CAW brand palette.",
+    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion", "Vercel"],
+    highlights: [
+      "High-conversion marketing narrative for school administrators.",
+      "Motion and brand-token polish aligned with CAW Education identity.",
+      "Production deploy with Vercel Analytics and Speed Insights.",
+    ],
+    url: "https://caweducation.com",
+    image: "./assets/Images/caw-education-landing.png",
   },
   {
     id: "sublimspace",
     title: "Sublimspace",
     year: 2026,
     featured: true,
-    featuredOrder: 4,
+    featuredOrder: 5,
     role: "Full Stack · E-commerce",
     description:
       "Wholesale and retail commerce for customized products — catalog, coupons, and sales analytics.",
@@ -461,7 +874,7 @@ const projects = [
     title: "CAW Tech",
     year: 2026,
     featured: true,
-    featuredOrder: 5,
+    featuredOrder: 4,
     role: "Co-founder · Principal Software Engineer",
     description:
       "Company marketing site — services, product positioning, and high-conversion contact funnels.",
@@ -537,14 +950,14 @@ const projects = [
     year: 2026,
     role: "Full stack · CAW Tech",
     description:
-      "Volleyball league landing and discovery — fixtures, branding, and fan-facing information.",
+      "Public landing for the Bolivian volleyball club that runs on Volley Manager — brand, info and athlete registration CTAs.",
     descriptionLong:
-      "CBA VolleyStar is a public-facing league presence for fixtures, club highlights, and tournament information. The site emphasizes fast loads on mobile, clear schedules, and brand consistency for regional volleyball audiences.",
+      "CBA VolleyStar is the public-facing site of the professional volleyball club in Bolivia for which we built Volley Manager. It acts as the club’s open web presence — branding, fixtures and fan information — and as a direct CTA funnel into Volley Manager for player registration and onboarding into the production operations system.",
     technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Vercel"],
     highlights: [
-      "Fan-first information architecture for schedules and league updates.",
-      "Responsive layouts tuned for match-day traffic from mobile devices.",
-      "Deployed with preview and production workflows on Vercel.",
+      "Landing for the Bolivia club that uses Volley Manager in production.",
+      "Public CTA / registration path that connects athletes straight into Volley Manager.",
+      "Mobile-first club branding and match-day information architecture.",
     ],
     url: "https://cba-volleystar.vercel.app",
     image: "./assets/Images/CBA.jpeg",
@@ -607,15 +1020,16 @@ const projects = [
     id: "reaction-app",
     title: "Reaction",
     year: 2026,
-    role: "Side project · Real-time UI",
+    role: "Product · Sports / physical training PWA",
     description:
-      "Interactive reaction board — low-latency UI experiment with modern React patterns.",
+      "PWA for physical trainers — react to visual and sound stimuli, including combined trigger modes.",
     descriptionLong:
-      "Reaction is a compact real-time experience exploring optimistic UI, event streams, and playful interaction design. Built as a sandbox for testing deployment speed and component architecture on Vercel.",
-    technologies: ["Next.js", "TypeScript", "React", "Vercel"],
+      "Reaction was built for physical trainers and sports performance work: athletes respond to visual cues (colors, countdowns, directions) and sound stimuli, including mixed combinations such as colors + numbers, directions + numbers, or directions + colors — all also implementable with audio. The landing documents game modes — Colors, Directions, Actions and Mixed (command + reaction) — each with its own instructions. Delivered as an installable PWA so high-level trainers can run sessions from a phone without app-store friction.",
+    technologies: ["Next.js", "TypeScript", "React", "PWA", "Vercel"],
     highlights: [
-      "Fast iteration sandbox for UI and interaction prototypes.",
-      "Production deploy with alpha channel on Vercel.",
+      "Stimulus training for colors, countdowns, directions and sound — combinable triggers.",
+      "Modes: Colors, Directions, Actions and Mixed (command + reaction) with clear instructions.",
+      "Installable PWA for on-court / gym use by physical trainers.",
     ],
     url: "https://reaction-app-alpha.vercel.app/",
     image: "./assets/Images/Reaction.webp",
@@ -624,16 +1038,16 @@ const projects = [
     id: "bullet-hell-example",
     title: "Bullet Hell Example",
     year: 2026,
-    role: "Side project · Game demo",
+    role: "Side project · Prompt challenge game",
     description:
-      "Browser bullet hell prototype — dense patterns, real-time collision, and canvas-driven gameplay.",
+      "Browser bullet hell minigame built with several developers in under 3 prompts — dense patterns and canvas combat.",
     descriptionLong:
-      "An interactive bullet hell demo exploring canvas rendering, pattern scripting, and frame-budget gameplay in the browser. Built as a technical sandbox for input latency, entity pooling, and deployable game loops on Vercel.",
+      "Bullet Hell Example came from a collaborative challenge: several developers teamed up to ship a playable minigame in fewer than three prompts. The result is a classic bullet hell — survive escalating waves of projectiles, dodge dense pattern scripts, and chase high scores in a browser canvas loop. Beyond the fun, it was a stress test of prompt-driven collaboration, entity pooling, collision detection and deployable real-time game loops on Vercel.",
     technologies: ["Next.js", "TypeScript", "React", "Canvas", "Vercel"],
     highlights: [
-      "Real-time bullet patterns with collision detection on canvas.",
-      "Performance-minded loop suitable for arcade-style intensity.",
-      "Production deploy on Vercel for shareable demos.",
+      "Team challenge: playable minigame shipped in under 3 prompts with several developers.",
+      "Classic bullet hell loop — waves, pattern scripting, collision and score chase on canvas.",
+      "Shareable Vercel deploy of a prompt-collaboration experiment.",
     ],
     url: "https://bullet-hell-example.vercel.app",
     image: "./assets/Images/bullet-hell.png",
@@ -680,14 +1094,16 @@ const projects = [
     year: 2024,
     role: "Freelance · Marketing site",
     description:
-      "Vehicle listings marketing site with discovery filters and contact flows.",
+      "Demo clone of a vehicle listings marketing site — discovery filters and contact flows (not the live client project).",
     descriptionLong:
-      "CAW Motors showcases second-hand inventory with search-friendly listing pages, vehicle detail views, and direct contact funnels. SEO and performance were prioritized for local discovery and mobile shoppers.",
-    technologies: ["React", "JavaScript", "HTML", "CSS"],
+      "Public demo clone kept for portfolio security: mirrors a second-hand vehicle marketing site with search-friendly listing pages, vehicle detail views, and contact funnels. This is not the production client deployment — SEO and performance patterns from the original engagement are represented here without exposing the live business site.",
+    technologies: ["React", "JavaScript", "HTML", "CSS", "Vercel"],
     highlights: [
+      "Portfolio security clone — not the live client project.",
       "Inventory browsing with clear CTAs to seller contact.",
-      "Structured metadata for search and social sharing.",
+      "Structured metadata patterns for search and social sharing.",
     ],
+    url: "https://consecionaria.vercel.app",
     image: "./assets/Images/CAW-3.webp",
   },
   {
@@ -696,14 +1112,16 @@ const projects = [
     year: 2023,
     role: "Freelance · SMB storefront",
     description:
-      "Catalog and responsive storefront for personalized mates and regional accessories.",
+      "Demo clone of a personalized mates storefront — catalog and responsive commerce flows (not the live shop).",
     descriptionLong:
-      "CEBAMATE is a SMB e-commerce presence for customized mate products: category browsing, product detail pages, and WhatsApp or form-based ordering aligned with local buying habits.",
-    technologies: ["HTML", "CSS", "JavaScript"],
+      "Public demo clone kept for portfolio security: represents an SMB e-commerce presence for customized mate products with category browsing, product detail pages, and WhatsApp/form-style ordering. This is not the real client storefront — shared as a sanitized replica of the work delivered.",
+    technologies: ["HTML", "CSS", "JavaScript", "Vercel"],
     highlights: [
-      "Visual catalog aligned with artisan product photography.",
+      "Portfolio security clone — not the live client project.",
+      "Visual catalog patterns aligned with artisan product photography.",
       "Conversion paths adapted to regional purchase behavior.",
     ],
+    url: "https://ceba-mate.vercel.app",
     image: "./assets/Images/CEBAMATE 1.webp",
   },
   {
@@ -712,14 +1130,16 @@ const projects = [
     year: 2023,
     role: "Freelance · Clothing retail",
     description:
-      "Clothing storefront with product discovery, sizing context, and contact checkout.",
+      "Demo clone of a clothing retail storefront — discovery, sizing context and contact checkout (not the live brand site).",
     descriptionLong:
-      "Fashion retail site highlighting collections, size guidance, and inquiry-based purchasing. Built for a local brand prioritizing visual merchandising over heavy cart complexity.",
-    technologies: ["HTML", "CSS", "JavaScript"],
+      "Public demo clone kept for portfolio security: mirrors a fashion retail site with collections, size guidance, and inquiry-based purchasing. This is not the production brand website — published as a sanitized replica of the visual merchandising work delivered for the client.",
+    technologies: ["HTML", "CSS", "JavaScript", "Vercel"],
     highlights: [
+      "Portfolio security clone — not the live client project.",
       "Collection-first navigation with emphasis on imagery.",
-      "Lightweight stack for fast updates by the client team.",
+      "Lightweight stack patterns for fast client-side updates.",
     ],
+    url: "https://indumentaria-taurie.vercel.app",
     image: "./assets/Images/TAURIE.webp",
   },
   {
@@ -731,11 +1151,12 @@ const projects = [
       "Barber shop site — service menu, gallery, and appointment inquiry flows.",
     descriptionLong:
       "Brand site for a barber shop combining service pricing, style gallery, and booking inquiries. Tone and typography reflect the shop’s premium positioning while keeping mobile booking one tap away.",
-    technologies: ["HTML", "CSS", "JavaScript"],
+    technologies: ["HTML", "CSS", "JavaScript", "Vercel"],
     highlights: [
       "Service menu with clear pricing and duration cues.",
       "Gallery and social proof blocks for local SEO.",
     ],
+    url: "https://moustache-gentlemen.vercel.app",
     image: "./assets/Images/PELUQUERIA 1.webp",
   },
   {
@@ -747,11 +1168,12 @@ const projects = [
       "Digital invitation with RSVP-style registration and event details.",
     descriptionLong:
       "A celebratory landing page with schedule, location, dress code, and RSVP capture. Optimized for shareability on messaging apps and single-evening traffic spikes.",
-    technologies: ["HTML", "CSS", "JavaScript"],
+    technologies: ["HTML", "CSS", "JavaScript", "Vercel"],
     highlights: [
       "Share-friendly layout for WhatsApp and Instagram traffic.",
       "RSVP capture with lightweight client validation.",
     ],
+    url: "https://mateo-github-io.vercel.app",
     image: "./assets/Images/18MAURO.webp",
   },
   {
@@ -763,11 +1185,12 @@ const projects = [
       "Quinceañera invitation with RSVP flow and themed visual design.",
     descriptionLong:
       "Similar event-landing pattern for a quinceañera: hero storytelling, venue details, gift registry links, and confirmed guest counts via RSVP forms.",
-    technologies: ["HTML", "CSS", "JavaScript"],
+    technologies: ["HTML", "CSS", "JavaScript", "Vercel"],
     highlights: [
       "Themed art direction consistent with the celebration palette.",
       "Guest list capture with mobile-first form UX.",
     ],
+    url: "https://15-catalina.vercel.app",
     image: "./assets/Images/15CATA.webp",
   },
   {
@@ -776,14 +1199,16 @@ const projects = [
     year: 2022,
     role: "Freelance · Product showcase",
     description:
-      "Showcase for 3D-printed collectibles — catalog browse and inquiry flows.",
+      "Demo clone of a 3D-print collectibles showcase — catalog browse and inquiry flows (not the live brand site).",
     descriptionLong:
-      "Product gallery for 3D-printed figures with category filters and inquiry CTAs. Designed to highlight print quality photography and maker brand story.",
-    technologies: ["HTML", "CSS", "JavaScript"],
+      "Public demo clone kept for portfolio security: represents a product gallery for 3D-printed figures with category filters and inquiry CTAs. This is not the real client website — shared as a sanitized replica of the visual-first catalog work delivered.",
+    technologies: ["HTML", "CSS", "JavaScript", "Vercel"],
     highlights: [
-      "Visual-first catalog for collectible lines.",
+      "Portfolio security clone — not the live client project.",
+      "Visual-first catalog patterns for collectible lines.",
       "Inquiry funnel without over-engineered checkout.",
     ],
+    url: "https://zetaross.vercel.app",
     image: "./assets/Images/ZETAROSS.webp",
   },
   {
@@ -795,11 +1220,12 @@ const projects = [
       "Institutional site for food technicians highlighting dairy production scope and quality.",
     descriptionLong:
       "KEIS presents technical credentials, production capabilities, and quality standards for food-sector stakeholders. Information architecture favors trust signals and clear service descriptions.",
-    technologies: ["HTML", "CSS", "JavaScript"],
+    technologies: ["HTML", "CSS", "JavaScript", "Vercel"],
     highlights: [
       "Credibility-focused layout for B2B visitors.",
       "Structured service and certification storytelling.",
     ],
+    url: "https://planta-productora-queso.vercel.app",
     image: "./assets/Images/KEIS.webp",
   },
   {
@@ -843,14 +1269,14 @@ function renderProjectCard(p) {
     : `<div class="project-card__media project-card__media--gradient project-card__grad--${gi}"><div class="project-card__shine" aria-hidden="true"></div>${scrim}${bar}</div>`;
 
   return `
-    <button type="button" class="project-card" data-project-id="${escapeHtml(project.id)}" aria-label="${escapeHtml(t("projects.viewDetailsFor"))} ${title}">
+    <a href="#project/${escapeHtml(project.id)}" class="project-card" data-project-id="${escapeHtml(project.id)}" aria-label="${escapeHtml(t("projects.viewDetailsFor"))} ${title}">
       ${media}
       <div class="project-card__body">
         <p class="project-card__desc">${escapeHtml(project.description)}</p>
         <div class="project-card__tags">${tagsHtml}</div>
         <p class="project-card__hint">${escapeHtml(t("projects.viewDetails"))}</p>
       </div>
-    </button>
+    </a>
   `;
 }
 
@@ -876,47 +1302,53 @@ function getSortedProjects() {
   return sorted;
 }
 
-const projectModal = document.getElementById("project-modal");
-const projectModalClose = document.getElementById("project-modal-close");
-const projectModalMedia = document.getElementById("project-modal-media");
-const projectModalTitle = document.getElementById("project-modal-title");
-const projectModalTagline = document.getElementById("project-modal-tagline");
-const projectModalYear = document.getElementById("project-modal-year");
-const projectModalStatus = document.getElementById("project-modal-status");
-const projectModalRole = document.getElementById("project-modal-role");
-const projectModalDesc = document.getElementById("project-modal-desc");
-const projectModalMetrics = document.getElementById("project-modal-metrics");
-const projectModalCase = document.getElementById("project-modal-case");
-const projectModalHighlights = document.getElementById("project-modal-highlights");
-const projectModalTechMetrics = document.getElementById("project-modal-tech-metrics");
-const projectModalTags = document.getElementById("project-modal-tags");
-const projectModalActions = document.getElementById("project-modal-actions");
+const projectPage = document.getElementById("project-page");
+const projectPageMedia = document.getElementById("project-page-media");
+const projectPageTitle = document.getElementById("project-page-title");
+const projectPageTagline = document.getElementById("project-page-tagline");
+const projectPageYear = document.getElementById("project-page-year");
+const projectPageStatus = document.getElementById("project-page-status");
+const projectPageRole = document.getElementById("project-page-role");
+const projectPageDesc = document.getElementById("project-page-desc");
+const projectPageMetrics = document.getElementById("project-page-metrics");
+const projectPageCase = document.getElementById("project-page-case");
+const projectPageHighlights = document.getElementById("project-page-highlights");
+const projectPageTechMetrics = document.getElementById("project-page-tech-metrics");
+const projectPageTags = document.getElementById("project-page-tags");
+const projectPageActions = document.getElementById("project-page-actions");
+
+let activeProjectId = null;
 
 function shouldShowProjectUrl(project) {
   return Boolean(project.url && project.year >= 2025);
 }
 
-function renderModalMedia(project) {
-  if (!projectModalMedia) return;
+function getProjectIdFromHash(hash = window.location.hash) {
+  const match = hash.match(/^#project\/([a-z0-9-]+)/i);
+  return match ? match[1] : null;
+}
+
+function renderProjectMedia(project) {
+  if (!projectPageMedia) return;
   const gi = hashToGradientIndex(project.id);
   if (project.image) {
-    projectModalMedia.hidden = false;
-    projectModalMedia.className = "project-modal__media";
-    projectModalMedia.innerHTML = `<img loading="lazy" src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)} — ${escapeHtml(t("projects.screenshotAlt"))}" />`;
+    projectPageMedia.hidden = false;
+    projectPageMedia.className = "project-page__media";
+    projectPageMedia.innerHTML = `<img loading="lazy" src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)} — ${escapeHtml(t("projects.screenshotAlt"))}" />`;
     return;
   }
-  projectModalMedia.hidden = false;
-  projectModalMedia.className = `project-modal__media project-modal__media--gradient project-card__grad--${gi}`;
-  projectModalMedia.innerHTML = "";
+  projectPageMedia.hidden = false;
+  projectPageMedia.className = `project-page__media project-page__media--gradient project-card__grad--${gi}`;
+  projectPageMedia.innerHTML = "";
 }
 
 function renderMetricCards(items) {
   return (items ?? [])
     .map(
       (metric) => `
-        <div class="project-modal__metric">
-          <span class="project-modal__metric-value">${escapeHtml(metric.value)}</span>
-          <span class="project-modal__metric-label">${escapeHtml(metric.label)}</span>
+        <div class="project-page__metric">
+          <span class="project-page__metric-value">${escapeHtml(metric.value)}</span>
+          <span class="project-page__metric-label">${escapeHtml(metric.label)}</span>
         </div>`
     )
     .join("");
@@ -926,19 +1358,19 @@ function renderCaseStudy(sections) {
   return (sections ?? [])
     .map((section) => {
       const items = Array.isArray(section.items)
-        ? `<ul class="project-modal__case-list">${section.items
+        ? `<ul class="project-page__case-list">${section.items
             .map((item) => `<li>${escapeHtml(item)}</li>`)
             .join("")}</ul>`
         : "";
       const body = section.body
-        ? `<p class="project-modal__case-body">${escapeHtml(section.body)}</p>`
+        ? `<p class="project-page__case-body">${escapeHtml(section.body)}</p>`
         : "";
       const diagram = section.diagram
-        ? `<pre class="project-modal__diagram">${escapeHtml(section.diagram)}</pre>`
+        ? `<pre class="project-page__diagram">${escapeHtml(section.diagram)}</pre>`
         : "";
       return `
-        <article class="project-modal__case-block">
-          <h3 class="project-modal__case-title">${escapeHtml(section.title)}</h3>
+        <article class="project-page__case-block">
+          <h2 class="project-page__case-title">${escapeHtml(section.title)}</h2>
           ${body}
           ${items}
           ${diagram}
@@ -947,104 +1379,128 @@ function renderCaseStudy(sections) {
     .join("");
 }
 
-function openProjectModal(projectId) {
-  const raw = projects.find((item) => item.id === projectId);
-  const project = raw ? localizeProject(raw) : null;
-  if (!project || !projectModal) return;
+function renderProjectPageLink(project) {
+  if (!projectPageActions) return;
+  projectPageActions.innerHTML = "";
+  if (!shouldShowProjectUrl(project)) return;
 
-  renderModalMedia(project);
-  projectModalTitle.textContent = project.title;
-  projectModalYear.textContent = String(project.year);
-  projectModalRole.textContent = project.role ?? "";
-  projectModalRole.hidden = !project.role;
+  const link = document.createElement("a");
+  link.className = "project-page__link";
+  link.href = project.url;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.innerHTML = `${escapeHtml(t("projects.visitLive"))} <span aria-hidden="true">↗</span>`;
+  projectPageActions.append(link);
+}
 
-  if (projectModalTagline) {
-    projectModalTagline.textContent = project.tagline ?? "";
-    projectModalTagline.hidden = !project.tagline;
+function fillProjectPage(project) {
+  renderProjectMedia(project);
+  if (projectPageTitle) projectPageTitle.textContent = project.title;
+  if (projectPageYear) projectPageYear.textContent = String(project.year);
+  if (projectPageRole) {
+    projectPageRole.textContent = project.role ?? "";
+    projectPageRole.hidden = !project.role;
   }
 
-  if (projectModalStatus) {
-    projectModalStatus.textContent = project.status ?? "";
-    projectModalStatus.hidden = !project.status;
-    projectModalStatus.className = "project-modal__status";
-    if (project.statusKind === "mvp") projectModalStatus.classList.add("project-modal__status--mvp");
-    if (project.statusKind === "dev") projectModalStatus.classList.add("project-modal__status--dev");
+  if (projectPageTagline) {
+    projectPageTagline.textContent = project.tagline ?? "";
+    projectPageTagline.hidden = !project.tagline;
   }
 
-  projectModalDesc.textContent = project.descriptionLong ?? project.description;
+  if (projectPageStatus) {
+    projectPageStatus.textContent = project.status ?? "";
+    projectPageStatus.hidden = !project.status;
+    projectPageStatus.className = "project-page__status";
+    if (project.statusKind === "mvp") projectPageStatus.classList.add("project-page__status--mvp");
+    if (project.statusKind === "dev") projectPageStatus.classList.add("project-page__status--dev");
+  }
 
-  if (projectModalMetrics) {
+  if (projectPageDesc) {
+    projectPageDesc.textContent = project.descriptionLong ?? project.description;
+  }
+
+  if (projectPageMetrics) {
     const hasMetrics = Array.isArray(project.metrics) && project.metrics.length > 0;
-    projectModalMetrics.hidden = !hasMetrics;
-    projectModalMetrics.innerHTML = hasMetrics ? renderMetricCards(project.metrics) : "";
+    projectPageMetrics.hidden = !hasMetrics;
+    projectPageMetrics.innerHTML = hasMetrics ? renderMetricCards(project.metrics) : "";
   }
 
-  if (projectModalCase) {
+  if (projectPageCase) {
     const hasCase = Array.isArray(project.caseStudy) && project.caseStudy.length > 0;
-    projectModalCase.hidden = !hasCase;
-    projectModalCase.innerHTML = hasCase ? renderCaseStudy(project.caseStudy) : "";
+    projectPageCase.hidden = !hasCase;
+    projectPageCase.innerHTML = hasCase ? renderCaseStudy(project.caseStudy) : "";
   }
 
-  const showHighlights = !(Array.isArray(project.caseStudy) && project.caseStudy.length > 0);
-  projectModalHighlights.innerHTML = showHighlights
-    ? (project.highlights ?? []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")
-    : "";
-  projectModalHighlights.hidden = !showHighlights || !project.highlights?.length;
+  if (projectPageHighlights) {
+    const showHighlights = !(Array.isArray(project.caseStudy) && project.caseStudy.length > 0);
+    projectPageHighlights.innerHTML = showHighlights
+      ? (project.highlights ?? []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")
+      : "";
+    projectPageHighlights.hidden = !showHighlights || !project.highlights?.length;
+  }
 
-  if (projectModalTechMetrics) {
+  if (projectPageTechMetrics) {
     const hasTech = Array.isArray(project.techMetrics) && project.techMetrics.length > 0;
-    projectModalTechMetrics.hidden = !hasTech;
-    projectModalTechMetrics.innerHTML = hasTech
-      ? `<h3 class="project-modal__tech-metrics-title">${escapeHtml(
+    projectPageTechMetrics.hidden = !hasTech;
+    projectPageTechMetrics.innerHTML = hasTech
+      ? `<h2 class="project-page__tech-metrics-title">${escapeHtml(
           t("projects.techScale")
-        )}</h3><div class="project-modal__tech-metrics-grid">${renderMetricCards(
+        )}</h2><div class="project-page__tech-metrics-grid">${renderMetricCards(
           project.techMetrics
         )}</div>`
       : "";
   }
 
-  const techList = project.technologies ?? [];
-  projectModalTags.innerHTML = techList
-    .map((tech) => `<span class="accent-pill">${escapeHtml(tech)}</span>`)
-    .join("");
+  if (projectPageTags) {
+    const techList = project.technologies ?? [];
+    projectPageTags.innerHTML = techList
+      .map((tech) => `<span class="accent-pill">${escapeHtml(tech)}</span>`)
+      .join("");
+  }
 
-  renderProjectModalLink(project);
-  document.documentElement.classList.add("is-modal-open");
-  follower?.classList.add("mouse-follower--hidden");
+  renderProjectPageLink(project);
+}
 
-  if (typeof projectModal.showModal === "function") {
-    projectModal.showModal();
+function openProjectPage(projectId, { scroll = true } = {}) {
+  const raw = projects.find((item) => item.id === projectId);
+  const project = raw ? localizeProject(raw) : null;
+  if (!project || !projectPage) {
+    closeProjectPage();
+    if (getProjectIdFromHash()) {
+      history.replaceState(null, "", `${window.location.pathname}${window.location.search}#projects`);
+    }
+    return;
+  }
+
+  activeProjectId = project.id;
+  fillProjectPage(project);
+  projectPage.hidden = false;
+  document.documentElement.classList.add("is-project-page");
+  document.title = `${project.title} — Fabio Ramos`;
+  setActiveNav("projects");
+
+  if (scroll) {
+    window.scrollTo({ top: 0, behavior: "auto" });
   }
 }
 
-function renderProjectModalLink(project) {
-  if (!projectModalActions) return;
-  projectModalActions.innerHTML = "";
-  if (!shouldShowProjectUrl(project)) return;
-
-  const link = document.createElement("a");
-  link.className = "project-modal__link";
-  link.href = project.url;
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
-  link.innerHTML = `${escapeHtml(t("projects.visitLive"))} <span aria-hidden="true">↗</span>`;
-  projectModalActions.append(link);
-}
-
-function closeProjectModal() {
-  if (projectModal?.open) {
-    projectModal.close();
+function closeProjectPage() {
+  const wasOpen = Boolean(activeProjectId);
+  activeProjectId = null;
+  if (projectPage) projectPage.hidden = true;
+  document.documentElement.classList.remove("is-project-page");
+  if (wasOpen) {
+    syncDocumentMeta();
   }
-  document.documentElement.classList.remove("is-modal-open");
-  follower?.classList.remove("mouse-follower--hidden");
 }
 
-function bindProjectCardClicks(root = projectsContainer) {
-  root.querySelectorAll("[data-project-id]").forEach((card) => {
-    card.addEventListener("click", () => {
-      openProjectModal(card.getAttribute("data-project-id"));
-    });
-  });
+function syncProjectRouteFromHash() {
+  const projectId = getProjectIdFromHash();
+  if (projectId) {
+    openProjectPage(projectId);
+    return;
+  }
+  closeProjectPage();
 }
 
 function syncProjectsExpandPanel(extraItems) {
@@ -1062,9 +1518,6 @@ function syncProjectsExpandPanel(extraItems) {
         })
         .join("")}</div>`
     : "";
-  if (projectsMore.firstElementChild) {
-    bindProjectCardClicks(projectsMore);
-  }
 }
 
 function renderprojects() {
@@ -1072,7 +1525,6 @@ function renderprojects() {
   const featured = sorted.slice(0, PROJECT_PREVIEW_COUNT);
   const extra = sorted.slice(PROJECT_PREVIEW_COUNT);
   projectsContainer.innerHTML = featured.map(renderProjectCard).join("");
-  bindProjectCardClicks();
   syncProjectsExpandPanel(extra);
 
   if (projectsToggle) {
@@ -1081,6 +1533,10 @@ function renderprojects() {
       ? t("projects.showFewer")
       : t("projects.viewAll");
     projectsToggle.setAttribute("aria-expanded", String(projectsExpanded));
+  }
+
+  if (activeProjectId) {
+    openProjectPage(activeProjectId, { scroll: false });
   }
 }
 
@@ -1097,20 +1553,11 @@ projectsToggle?.addEventListener("click", () => {
 });
 
 renderprojects();
+window.addEventListener("hashchange", syncProjectRouteFromHash);
 
-projectModalClose?.addEventListener("click", closeProjectModal);
-projectModal?.addEventListener("cancel", (event) => {
-  event.preventDefault();
-  closeProjectModal();
-});
-projectModal?.addEventListener("click", (event) => {
-  if (event.target === projectModal) {
-    closeProjectModal();
-  }
-});
-projectModal?.addEventListener("close", () => {
-  document.documentElement.classList.remove("is-modal-open");
-  follower?.classList.remove("mouse-follower--hidden");
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape" || !activeProjectId) return;
+  window.location.hash = "projects";
 });
 
 const certifications = [
@@ -1419,6 +1866,11 @@ function setActiveNav(sectionId) {
 }
 
 function syncActiveNav() {
+  if (activeProjectId) {
+    setActiveNav("projects");
+    return;
+  }
+
   // Marker just below the fixed header
   const marker = 96;
   let activeId = null;
@@ -1442,6 +1894,7 @@ function syncActiveNav() {
 window.addEventListener("scroll", syncActiveNav, { passive: true });
 window.addEventListener("resize", syncActiveNav);
 syncActiveNav();
+syncProjectRouteFromHash();
 
 const footerYear = document.getElementById("footer-year");
 if (footerYear) {
@@ -1926,10 +2379,6 @@ function setLanguage(lang, { persist = true } = {}) {
   renderCerts();
   refreshAboutStats?.();
   initTestimonials();
-
-  if (projectModal?.open) {
-    closeProjectModal();
-  }
 }
 
 document.querySelectorAll("[data-set-lang]").forEach((btn) => {

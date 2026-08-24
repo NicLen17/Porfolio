@@ -3,7 +3,7 @@ window.PORTFOLIO_I18N = {
     meta: {
       title: "Fabio Ramos — Senior Full Stack Software Engineer",
       description:
-        "Fabio Ramos — Senior Full Stack Software Engineer specializing in TypeScript, React, Next.js and Node.js. Builds B2B products and enterprise systems with experience in SQL, APIs and legacy modernization.",
+        "Fabio Ramos — Senior Full Stack Software Engineer specializing in TypeScript, React, Next.js and Supabase. Builds B2B products and enterprise systems with experience in SQL, APIs and legacy modernization.",
     },
     nav: {
       about: "About",
@@ -25,17 +25,20 @@ window.PORTFOLIO_I18N = {
     hero: {
       location: "Based in Tucumán, Argentina",
       role: "Senior Full Stack Software Engineer",
-      stack: "TypeScript · React · Next.js · Node.js · SQL",
+      stack: "TypeScript · React · Next.js · Supabase · SQL",
       focus: "Product Engineering · Software Architecture · Enterprise Systems",
       viewWork: "View featured work",
       downloadResume: "Download Resume",
       emailSubject: "Hello Fabio",
       emailBody: "I'm reaching out from your portfolio.",
+      animGroup: "Background animation",
+      animReplay: "Replay intro",
+      animStop: "Stop animations",
     },
     about: {
       eyebrow: "About",
       title: "Ownership, architecture, and production impact",
-      p1: "Senior Full Stack Software Engineer with 5+ years building software across modern web applications, B2B products and enterprise systems. I work primarily with TypeScript, React, Next.js and Node.js, complemented by SQL, APIs and backend engineering.",
+      p1: "Senior Full Stack Software Engineer with 5+ years building software across modern web applications, B2B products and enterprise systems. I work primarily with TypeScript, React, Next.js and Supabase, complemented by SQL, APIs and relational data.",
       p2: "Today I own architecture and end-to-end product delivery at CAW Tech as Principal Software Engineer and Co-Founder. Previously I maintained and adapted banking systems at CENSYS and completed a competitive frontend internship at Globant. What differentiates my profile is the combination of modern product engineering and SaaS ownership with enterprise systems and legacy modernization — protecting transactional integrity while shipping real-world production platforms.",
       p3: "I look for Senior Software Engineering and Full Stack roles where technical ownership, system design and measurable business impact matter — with a path toward technical leadership and architecture.",
       achievementsTitle: "Achievements & extras.",
@@ -43,7 +46,7 @@ window.PORTFOLIO_I18N = {
       a2: "Selected from hundreds of profiles for Globant's intensive <strong>SSR-level Web UI bootcamp</strong>.",
       a3: "International scholarship — <strong>Digital Companies &amp; E-Business Revolution</strong> at California State University, Northridge.",
       a4: "Maintained and adapted <strong>banking modules</strong> for Argentine banks; SQL &amp; stored procedures up to <strong>60% faster</strong> on financial reports.",
-      a5: "Architected <strong>Volley Manager</strong> as a production SaaS/PWA for a professional volleyball club (~700 athletes, ~600 daily access events); <strong>ExpoLogic</strong> reached Emprende U semifinals.",
+      a5: "Architected <strong>Volley Manager</strong> as a production SaaS/PWA for a professional volleyball club in Bolivia — ~700 athletes, ~15 staff and ~600 daily access events, with payments and access control in daily use.",
       a6: "Mentored new developers end-to-end while shipping in distributed Agile teams under production pressure.",
       fact1: "Argentina-based Software Engineer",
       fact2: "Side-project tinkerer · prototypes that become products",
@@ -92,7 +95,7 @@ window.PORTFOLIO_I18N = {
         b1: "Own architecture decisions and end-to-end delivery across CAW products on Next.js, TypeScript and Supabase — design, backend/database choices, frontend architecture, integrations and release practices.",
         b2: "Volley Manager: production SaaS/PWA for a professional volleyball club in Bolivia — ~700 athletes, ~15 staff and ~600 daily access/check-in events, including payments with Banco Económico and access control (QR + consent-based facial recognition).",
         b3: "Built domain-specific coaching tools: interactive volleyball scouting court, AI-assisted club information and a voice-based scouting workflow designed for coaches.",
-        b4: "ExpoLogic: multi-tenant event-space SaaS with visual map builder, interactive spatial inventory/reservation, event website generation and virtual-fair exhibitor catalogs — Emprende U semifinalist; featured by La Gaceta.",
+        b4: "ExpoLogic: B2B2C multi-tenant SaaS for cultural fairs and artisan markets — real-time interactive maps, stand reservations/waitlists, event websites, free exhibitor landings and a 24/7 virtual fair; field-validated (~50 interviews) for a 3.5K+ fairs / 50K+ exhibitors market in Argentina; Emprende U semifinalist, featured by La Gaceta.",
         b5: "CAW Education: designed a data-driven education platform for schools.",
       },
       censys: {
@@ -125,8 +128,8 @@ window.PORTFOLIO_I18N = {
         muted: "· Tucumán · Hybrid",
         period: "January 2023 — May 2024",
         summary:
-          "Freelance delivery under TecnoLine — end-to-end ownership of 12+ production apps, from requirements and UX through MERN implementation to cloud deploy. Delivered in parallel with CENSYS for a period. Direct client management across e-commerce, SPAs, and administrative systems.",
-        b1: "Shipped 12+ web apps — e-commerce, SPAs, and admin systems — with conversion-focused UX.",
+          "Freelance delivery under TecnoLine — end-to-end ownership of 12+ deployed web apps, from requirements and UX through MERN implementation to cloud deploy. Delivered in parallel with CENSYS for a period. Direct client management across e-commerce, SPAs, and administrative systems.",
+        b1: "Deployed 12+ web apps — e-commerce, SPAs, and admin systems — with conversion-focused UX.",
         b2: "Integrated APIs, payment gateways, and external services; tuned SEO, accessibility, and PageSpeed.",
         b3: "Owned full lifecycle: analysis, build, deploy on Vercel/Render, and ongoing client support.",
       },
@@ -160,7 +163,7 @@ window.PORTFOLIO_I18N = {
       screenshotAlt: "project screenshot",
       technologies: "Technologies",
       visitLive: "Visit live project",
-      closeModal: "Close project details",
+      backToProjects: "Back to projects",
       techScale: "Technical scale",
     },
     speaking: {
@@ -247,7 +250,7 @@ window.PORTFOLIO_I18N = {
       { num: "15+", label: "Certifications and courses completed" },
       { num: "60%", label: "Faster financial report SQL · CENSYS" },
       { num: "~20%", label: "Faster initial load · Globant" },
-      { num: "12+", label: "Production web apps · TecnoLine" },
+      { num: "12+", label: "Deployed web apps · TecnoLine" },
     ],
     certDates: {
       "May 2025": "May 2025",
@@ -272,7 +275,7 @@ window.PORTFOLIO_I18N = {
     meta: {
       title: "Fabio Ramos — Ingeniero de Software Full Stack Senior",
       description:
-        "Fabio Ramos — Ingeniero de Software Full Stack Senior. Especializado en TypeScript, React, Next.js y Node.js. Construye productos B2B y sistemas enterprise, con experiencia en SQL, APIs y modernización de sistemas legacy.",
+        "Fabio Ramos — Ingeniero de Software Full Stack Senior. Especializado en TypeScript, React, Next.js y Supabase. Construye productos B2B y sistemas enterprise, con experiencia en SQL, APIs y modernización de sistemas legacy.",
     },
     nav: {
       about: "Sobre mí",
@@ -294,17 +297,20 @@ window.PORTFOLIO_I18N = {
     hero: {
       location: "Desde Tucumán, Argentina",
       role: "Ingeniero de Software Full Stack Senior",
-      stack: "TypeScript · React · Next.js · Node.js · SQL",
+      stack: "TypeScript · React · Next.js · Supabase · SQL",
       focus: "Ingeniería de producto · Arquitectura de software · Sistemas enterprise",
       viewWork: "Ver proyectos destacados",
       downloadResume: "Descargar CV",
       emailSubject: "Hola Fabio",
       emailBody: "Te escribo desde tu portfolio.",
+      animGroup: "Animación de fondo",
+      animReplay: "Reproducir intro",
+      animStop: "Detener animaciones",
     },
     about: {
       eyebrow: "Sobre mí",
       title: "Ownership técnico, arquitectura e impacto en producción",
-      p1: "Ingeniero de Software Full Stack Senior con más de 5 años construyendo software: aplicaciones web modernas, productos B2B y sistemas enterprise. Trabajo sobre todo con TypeScript, React, Next.js y Node.js, complementado con SQL, APIs e ingeniería backend.",
+      p1: "Ingeniero de Software Full Stack Senior con más de 5 años construyendo software: aplicaciones web modernas, productos B2B y sistemas enterprise. Trabajo sobre todo con TypeScript, React, Next.js y Supabase, complementado con SQL, APIs y datos relacionales.",
       p2: "Hoy lidero arquitectura y entrega end-to-end de producto en CAW Tech como Principal Software Engineer y Cofundador. Antes mantuve y adapté sistemas bancarios en CENSYS y completé un internship competitivo de frontend en Globant. Lo que marca la diferencia en mi perfil es unir ingeniería de producto moderna y ownership de SaaS con sistemas enterprise y modernización legacy: proteger la integridad transaccional y llevar plataformas reales a producción.",
       p3: "Busco roles Senior de Software Engineering y Full Stack donde importen el ownership técnico, el diseño de sistemas y el impacto de negocio medible — con camino hacia liderazgo técnico y arquitectura.",
       achievementsTitle: "Logros y extras.",
@@ -312,7 +318,7 @@ window.PORTFOLIO_I18N = {
       a2: "Seleccionado entre cientos de perfiles para el bootcamp intensivo <strong>Web UI nivel SSR</strong> de Globant.",
       a3: "Beca internacional — <strong>Digital Companies &amp; E-Business Revolution</strong> en California State University, Northridge.",
       a4: "Mantuve y adapté <strong>módulos bancarios</strong> para bancos argentinos; SQL y stored procedures hasta un <strong>60% más rápidos</strong> en reportes financieros.",
-      a5: "Arquitecturé <strong>Volley Manager</strong> como SaaS/PWA en producción para un club profesional de vóley (~700 atletas, ~600 accesos diarios); <strong>ExpoLogic</strong> llegó a semifinales de Emprende U.",
+      a5: "Arquitecturé <strong>Volley Manager</strong> como SaaS/PWA en producción para un club profesional de vóley en Bolivia — ~700 atletas, ~15 staff y ~600 accesos diarios, con pagos y control de acceso en uso cotidiano.",
       a6: "Mentoreé desarrolladores nuevos de punta a punta mientras entregábamos en equipos Agile distribuidos, bajo presión de producción.",
       fact1: "Ingeniero de Software desde Argentina",
       fact2: "Side projects que pasan de prototipo a producto",
@@ -361,7 +367,7 @@ window.PORTFOLIO_I18N = {
         b1: "Ownership de decisiones de arquitectura y entrega end-to-end en productos CAW con Next.js, TypeScript y Supabase — diseño, backend/base de datos, arquitectura frontend, integraciones y prácticas de release.",
         b2: "Volley Manager: SaaS/PWA en producción para un club profesional de vóley en Bolivia — ~700 atletas, ~15 staff y ~600 eventos diarios de acceso/check-in, con pagos vía Banco Económico y control de acceso (QR + reconocimiento facial con consentimiento).",
         b3: "Herramientas de coaching de dominio: cancha interactiva de scouting, información del club asistida por IA y un flujo de scouting por voz pensado para entrenadores.",
-        b4: "ExpoLogic: SaaS multi-tenant de espacios para eventos con constructor visual de mapas, inventario espacial interactivo/reservas, generación de sitios y catálogos de feria virtual — semifinalista en Emprende U; cubierto por La Gaceta.",
+        b4: "ExpoLogic: SaaS B2B2C multi-tenant para ferias culturales y mercados artesanales — mapas interactivos en tiempo real, reservas/lista de espera, sitios del evento, landings gratis para expositores y feria virtual 24/7; validado en campo (~50 entrevistas) para un mercado de 3.5K+ ferias / 50K+ expositores en Argentina; semifinalista Emprende U, cubierto por La Gaceta.",
         b5: "CAW Education: diseñé una plataforma educativa orientada a datos para escuelas.",
       },
       censys: {
@@ -394,8 +400,8 @@ window.PORTFOLIO_I18N = {
         muted: "· Tucumán · Híbrido",
         period: "Enero 2023 — Mayo 2024",
         summary:
-          "Entrega freelance bajo TecnoLine — ownership end-to-end de más de 12 apps en producción, desde requerimientos y UX hasta implementación MERN y deploy en la nube. En paralelo con CENSYS durante un período. Gestión directa con clientes en e-commerce, SPAs y sistemas administrativos.",
-        b1: "Llevé a producción más de 12 apps web — e-commerce, SPAs y sistemas admin — con UX orientada a conversión.",
+          "Entrega freelance bajo TecnoLine — ownership end-to-end de más de 12 apps web desplegadas, desde requerimientos y UX hasta implementación MERN y deploy en la nube. En paralelo con CENSYS durante un período. Gestión directa con clientes en e-commerce, SPAs y sistemas administrativos.",
+        b1: "Desplegué más de 12 apps web — e-commerce, SPAs y sistemas admin — con UX orientada a conversión.",
         b2: "Integré APIs, pasarelas de pago y servicios externos; traté SEO, accesibilidad y PageSpeed como prioridad.",
         b3: "Ownership del ciclo completo: análisis, build, deploy en Vercel/Render y soporte continuo al cliente.",
       },
@@ -429,7 +435,7 @@ window.PORTFOLIO_I18N = {
       screenshotAlt: "captura del proyecto",
       technologies: "Tecnologías",
       visitLive: "Ver proyecto en vivo",
-      closeModal: "Cerrar detalle del proyecto",
+      backToProjects: "Volver a proyectos",
       techScale: "Escala técnica",
     },
     speaking: {
@@ -517,7 +523,7 @@ window.PORTFOLIO_I18N = {
       { num: "15+", label: "Certificaciones y cursos completados" },
       { num: "60%", label: "SQL más rápido en reportes · CENSYS" },
       { num: "~20%", label: "Carga inicial más rápida · Globant" },
-      { num: "12+", label: "Apps web en producción · TecnoLine" },
+      { num: "12+", label: "Apps web desplegadas · TecnoLine" },
     ],
     certDates: {
       "May 2025": "Mayo 2025",
@@ -733,58 +739,67 @@ window.PORTFOLIO_PROJECT_I18N = {
   },
   expologic: {
     role: "Principal Software Engineer · Cofundador · CAW Tech",
-    tagline: "SaaS multi-tenant para espacios de eventos, mapas, reservas y ferias virtuales",
-    status: "MVP · Preparándose para adopción",
+    tagline: "SaaS B2B2C multi-tenant para ferias culturales, mercados artesanales y eventos de emprendedores",
+    status: "MVP · Seed · Prototipo validado",
     description:
-      "SaaS multi-tenant de espacios para eventos con constructor visual de mapas, reserva interactiva de stands, sitios del evento y catálogos de expositores.",
+      "SaaS multi-tenant que reemplaza Excel, WhatsApp y mapas en papel con mapas interactivos, reservas, lista de espera, feria virtual y analytics.",
     descriptionLong:
-      "ExpoLogic es una plataforma SaaS/multi-tenant para gestionar espacios — inicialmente orientada a ferias y eventos. Combina dashboards de organizadores, generación de sitios del evento, un constructor visual de mapas, inventario espacial interactivo y reservas, catálogos de expositores y una experiencia de feria virtual. El concepto busca acercar capacidades típicas de plataformas de gestión de eventos más costosas a municipios y organizadores más chicos — un enfoque poco común en el mercado local.",
+      "ExpoLogic es un SaaS B2B2C multi-tenant que centraliza ferias culturales, mercados artesanales y eventos de emprendedores — profesionaliza el acceso a espacios comerciales de la economía popular mediante inclusión digital. Los organizadores tienen un panel operativo en tiempo real; los expositores reservan stands en pocos clics; los visitantes exploran la feria online 24/7 antes y después del evento físico. Pensado para un mercado de 3.500+ ferias activas y 50K+ expositores recurrentes en Argentina, con validación de campo de ~50 entrevistas en Tucumán.",
     metrics: [
-      { value: "SaaS", label: "Hub multi-tenant" },
-      { value: "Mapa", label: "Constructor visual" },
-      { value: "Reserva", label: "Inventario espacial" },
+      { value: "~50", label: "Entrevistas en campo" },
+      { value: "3.5K+", label: "Ferias activas (AR)" },
+      { value: "50K+", label: "Expositores recurrentes" },
       { value: "Semi", label: "Emprende U" },
     ],
     caseStudy: [
       {
         title: "El problema",
-        body: "El software profesional de gestión de eventos/espacios suele ser caro, complejo e inaccesible para municipios y organizadores más chicos que igual necesitan sitios públicos modernos, mapas y flujos de reserva.",
+        body: "Los organizadores viven en Excel, WhatsApp y planos en papel — hasta ~20 días de gestión por evento. Los feriantes enfrentan incertidumbre, filas y confirmaciones tardías sin trazabilidad. Stands vacíos, pagos no identificados y cero auditoría afectan a municipios. Validado en campo con ~50 entrevistas en ferias de Tucumán.",
+      },
+      {
+        title: "3 problemas · 1 solución",
+        items: [
+          "Organizador: Excel · WhatsApp · Papel → panel centralizado en tiempo real",
+          "Emprendedor: incertidumbre al reservar → reserva sencilla en dos clics",
+          "Visitante: feria solo el día del evento → explorá la feria virtual 24/7 online",
+        ],
+      },
+      {
+        title: "La plataforma",
+        body: "Enfoque único en la región para operación ferial: mapas interactivos en tiempo real con reserva mobile, lista de espera automatizada y auditoría de cobros, presencia web del evento más landing/catálogo gratis por expositor, y feria virtual visible antes y después del evento — stands, productos y próximas ediciones online.",
       },
       {
         title: "Hub multi-tenant",
-        body: "Un hub central gestiona tenants/organizadores. Cada organizador recibe su propio entorno para administrar eventos, reservas, sitios públicos, mapas y expositores.",
+        body: "Un hub central gestiona tenants/organizadores. Cada organizador recibe su entorno para eventos, reservas, sitios, mapas y expositores — más un motor de plantillas para diseñar layouts sin depender de terceros.",
         diagram:
           "CAW / Hub\n├── Tenant A / Organizador\n│   ├── Evento\n│   ├── Reservas\n│   ├── Sitio web\n│   ├── Mapa\n│   └── Expositores\n└── Tenant B / Organizador\n    ├── Evento\n    ├── Reservas\n    ├── Sitio web\n    ├── Mapa\n    └── Expositores",
       },
       {
-        title: "Generación de sitios",
-        body: "Los organizadores pueden generar un sitio público del evento desde la plataforma. Los sitios son template-driven con temas/estilos configurables para gestionar el contenido público sin armar el sitio a mano.",
+        title: "Modelo de negocio",
+        items: [
+          "Pago por evento — porcentaje por emprendedor si supera umbral, o tarifa fija según asistencia",
+          "Mensualidad de mantenimiento — base de datos, hosting y presencia web del evento",
+          "Setup opcional — armado del mapa y onboarding del organizador",
+          "Gratis para feriantes — landing, catálogo y visibilidad web incluidos (SaaS B2B de impacto social)",
+        ],
       },
       {
-        title: "Constructor visual de mapas",
-        body: "Los organizadores crean layouts geográficos/del evento, definen espacios, eligen tamaños de stands, posicionan stands, agregan texto y configuran elementos espaciales. Los visitantes ven el mapa resultante en la página pública.",
-      },
-      {
-        title: "Inventario espacial interactivo",
-        body: "Visitantes y expositores recorren el mapa, ven espacios disponibles, eligen un stand — similar a elegir un asiento al comprar un pasaje aéreo — y lo reservan. Se plantea como inventario espacial interactivo y reserva, no como un formulario simple de booking.",
-      },
-      {
-        title: "Feria virtual / catálogo",
-        body: "Los organizadores gestionan expositores; los expositores cargan productos en catálogos digitales que se muestran en el sitio del evento. El evento físico se conecta a un showcase online persistente — no a un marketplace de e-commerce.",
+        title: "Mercado y objetivos",
+        body: "Segmento: organizadores B2B y expositores/feriantes B2C. Objetivo: ser el estándar nacional para gestión de espacios efímeros, pilotos en el NOA desde Tucumán, y alianzas con municipios, secretarías de cultura y comunidades para inclusión digital regional.",
       },
       {
         title: "Validación externa",
-        body: "Presentado en Emprende U, llegó a semifinales. También fue cubierto por La Gaceta en el contexto del evento. Hay organizadores prospectivos en Tucumán interesados; el producto se prepara para una adopción más amplia.",
+        body: "Presentado en Emprende U, llegó a semifinales; cubierto por La Gaceta. Hay organizadores prospectivos en Tucumán; el producto se prepara para una adopción más amplia. One-pager: niclen17.github.io/ExpoLogic-one-pager/",
       },
       {
         title: "Mi rol",
-        body: "Arquitecturé y desarrollé el SaaS multi-tenant desde cero — modelo hub/tenant, constructor visual de mapas, flujos de reserva, generación de sitios y experiencia de catálogo / feria virtual.",
+        body: "Como Principal Software Developer / Cofundador en CAW Tech, asumo arquitectura SaaS, visión de producto e implementación end-to-end del hub multi-tenant, constructor de mapas, reservas y feria virtual.",
       },
     ],
     highlights: [
-      "Hub multi-tenant donde cada organizador gestiona eventos, sitios, mapas y expositores.",
-      "Constructor visual de mapas con inventario espacial interactivo y reserva de stands.",
-      "Semifinalista en Emprende U; cubierto por La Gaceta. Preparándose para adopción en Tucumán.",
+      "Reemplaza semanas de gestión manual por mapas en tiempo real, reservas, waitlists y auditoría de cobros.",
+      "Landings gratis para expositores + feria virtual 24/7 — SaaS B2B con posicionamiento de impacto social.",
+      "Validado con ~50 entrevistas; mercado 3.5K+ ferias / 50K+ expositores; semifinalista Emprende U.",
     ],
   },
   "caw-education": {
@@ -813,6 +828,60 @@ window.PORTFOLIO_PROJECT_I18N = {
       "Diseñé una plataforma educativa orientada a datos para escuelas primarias y secundarias.",
       "Centraliza asistencia, notas, evolución del alumno, comparaciones y alertas.",
       "Dashboards operativos y KPIs para docentes, preceptores y familias.",
+    ],
+  },
+  tecnoleg: {
+    role: "Full Stack · E-commerce",
+    tagline: "Smart store de tech reacondicionada — catálogo, checkout y admin operativo",
+    status: "En producción",
+    description:
+      "Smart store en producción de tecnología accesible en Tucumán — storefront, carrito/checkout y operaciones admin.",
+    descriptionLong:
+      "Tecnoleg es una plataforma e-commerce en producción para celulares reacondicionados, notebooks y accesorios. Combina un storefront público con tooling admin autenticado: sync de catálogo/proveedores, operaciones de pedidos, auth con MFA y dashboards de analítica. Desplegado en Vercel con dominio custom (tecnoleg.com.ar).",
+    highlights: [
+      "Storefront en producción con catálogo, PDP, carrito y checkout.",
+      "Shell Operate de admin para sync de inventario, pedidos y KPIs.",
+      "Hardening de seguridad con soporte de MFA y políticas orientadas a auditoría.",
+    ],
+  },
+  "lomas-gym": {
+    role: "Full Stack · MVP de operación de gimnasio",
+    tagline: "Ops digitales de gym — landing pública, admin, pase QR y tótem de check-in",
+    status: "MVP · Demo",
+    description:
+      "MVP de gestión para Lomas Gym Tucumán — landing, panel admin, pase de socio con QR y check-in de recepción.",
+    descriptionLong:
+      "Lomas Gym es un MVP en Next.js que digitaliza la operación de un gimnasio de barrio: sitio público con planes y ubicación, panel admin para socios/caja/métricas, pase móvil con QR/estado de cuota y tótem de recepción para check-in por DNI/QR. La persistencia de la fase 1 usa localStorage antes de un backend planeado en Supabase.",
+    highlights: [
+      "Cuatro superficies de producto: landing, admin, pase de socio y tótem de check-in.",
+      "Flujos de membresía y caja pensados para el uso diario en recepción.",
+      "Demo PWA en Vercel para validación con el cliente.",
+    ],
+  },
+  "mix-potrero": {
+    role: "Product engineer · PWA",
+    tagline: "Armador de equipos de fútbol con moneda, resumen del partido y vaquita de cancha",
+    status: "En producción",
+    description:
+      "PWA para armar equipos de fútbol parejos desde listas de WhatsApp — sorteo de capitanes, imágenes de resumen y control del costo de cancha.",
+    descriptionLong:
+      "Mix Potrero ayuda a grupos de fútbol amateur a pegar listas de jugadores, generar equipos balanceados (incluyendo ratings), tirar la moneda de capitanes, compartir resúmenes PNG por WhatsApp y controlar quién pagó la cancha con La Vaquita. Hecha como PWA mobile-first en Vite para uso en el potrero.",
+    highlights: [
+      "Parsea listas libres de WhatsApp en sorteos de equipos balanceados.",
+      "Moneda de capitanes, re-mezcla y resúmenes PNG compartibles.",
+      "Tracker La Vaquita del costo de cancha con copia para WhatsApp.",
+    ],
+  },
+  "caw-education-landing": {
+    role: "Front end · CAW Tech",
+    description:
+      "Landing de marketing de CAW Education — historia de producto, módulos, FAQ y CTAs de demo.",
+    descriptionLong:
+      "Sitio oficial de marketing de CAW Education: hero y narrativa problema/solución, grids de features y módulos, posicionamiento de análisis de datos, soluciones por nivel educativo, testimonios, FAQ y flujos de contacto para demo. Construido con Next.js, Framer Motion y la paleta de marca CAW.",
+    highlights: [
+      "Narrativa de marketing de alta conversión para administradores escolares.",
+      "Motion y tokens de marca alineados a la identidad de CAW Education.",
+      "Deploy en producción con Vercel Analytics y Speed Insights.",
     ],
   },
   sublimspace: {
@@ -878,13 +947,13 @@ window.PORTFOLIO_PROJECT_I18N = {
   "cba-volleystar": {
     role: "Full stack · CAW Tech",
     description:
-      "Landing y discovery de liga de vóley — fixtures, branding e información para fans.",
+      "Landing pública del club de vóley boliviano que opera con Volley Manager — marca, info y CTAs de registro de atletas.",
     descriptionLong:
-      "CBA VolleyStar es la presencia pública de una liga: fixtures, highlights de clubes e información de torneos. Prioriza cargas rápidas en mobile, calendarios claros y consistencia de marca para audiencias regionales de vóley.",
+      "CBA VolleyStar es el sitio público del club profesional de vóley en Bolivia para el que desarrollamos Volley Manager. Funciona como presencia abierta del club — branding, fixtures e información para fans — y como funnel directo de CTA hacia Volley Manager para registro e onboarding de jugadores en el sistema operativo de producción.",
     highlights: [
-      "Arquitectura de información pensada en fans para calendarios y novedades.",
-      "Layouts responsive afinados para tráfico de día de partido desde el celular.",
-      "Deploy con workflows de preview y producción en Vercel.",
+      "Landing del club de Bolivia que usa Volley Manager en producción.",
+      "CTA / registro público que conecta atletas directamente con Volley Manager.",
+      "Arquitectura de información mobile-first para marca del club y día de partido.",
     ],
   },
   terradeco: {
@@ -924,26 +993,27 @@ window.PORTFOLIO_PROJECT_I18N = {
     ],
   },
   "reaction-app": {
-    role: "Side project · UI en tiempo real",
+    role: "Producto · PWA para entrenamiento físico / deporte",
     description:
-      "Tablero interactivo de reacciones — experimento de UI de baja latencia con patrones React modernos.",
+      "PWA para preparadores físicos — reaccionar a estímulos visuales y sonoros, incluyendo modos combinados.",
     descriptionLong:
-      "Reaction es una experiencia compacta en tiempo real que explora UI optimista, streams de eventos y diseño de interacción lúdico. Sandbox para probar velocidad de deploy y arquitectura de componentes en Vercel.",
+      "Reaction fue pensada para preparadores físicos y el área deportiva: los atletas responden a estímulos visuales (colores, countdowns, direcciones) y sonoros, incluyendo combinaciones como colores + números, direcciones + números o direcciones + colores — todo también implementable con audio. La landing documenta los modos — Colores, Direcciones, Acciones y Mixed (comando + reacción) — cada uno con sus instrucciones. Entregada como PWA instalable para que entrenadores de alto nivel corran sesiones desde el celular sin fricción de app store.",
     highlights: [
-      "Sandbox de iteración rápida para UI y prototipos de interacción.",
-      "Deploy en producción con canal alpha en Vercel.",
+      "Entrenamiento por estímulos de colores, countdowns, direcciones y sonido — triggers combinables.",
+      "Modos: Colores, Direcciones, Acciones y Mixed (comando + reacción) con instrucciones claras.",
+      "PWA instalable para uso en cancha / gym por preparadores físicos.",
     ],
   },
   "bullet-hell-example": {
-    role: "Side project · Demo de juego",
+    role: "Side project · Juego de challenge por prompts",
     description:
-      "Prototipo browser de bullet hell — patrones densos, colisión en tiempo real y gameplay en canvas.",
+      "Minijuego browser de bullet hell armado con varios developers en menos de 3 prompts — patrones densos y combate en canvas.",
     descriptionLong:
-      "Demo interactiva de bullet hell que explora render en canvas, scripting de patrones y gameplay con presupuesto de frame en el browser. Sandbox técnico para latencia de input, pooling de entidades y game loops desplegables en Vercel.",
+      "Bullet Hell Example nació de un challenge colaborativo: varios developers se juntaron para entregar un minijuego jugable en menos de tres prompts. El resultado es un bullet hell clásico — sobreviví a oleadas de proyectiles, esquivá patrones densos y perseguí high scores en un loop de canvas en el browser. Más allá del juego, fue un stress test de colaboración prompt-driven, pooling de entidades, colisión y game loops en tiempo real desplegables en Vercel.",
     highlights: [
-      "Patrones de balas en tiempo real con detección de colisión en canvas.",
-      "Loop pensado en performance para intensidad arcade.",
-      "Deploy en Vercel para demos compartibles.",
+      "Challenge en equipo: minijuego jugable en menos de 3 prompts con varios developers.",
+      "Loop clásico de bullet hell — oleadas, scripting de patrones, colisión y score en canvas.",
+      "Deploy compartible en Vercel de un experimento de colaboración por prompts.",
     ],
   },
   "la-congreso": {
@@ -973,34 +1043,37 @@ window.PORTFOLIO_PROJECT_I18N = {
   "caw-motors": {
     role: "Freelance · Sitio de marketing",
     description:
-      "Sitio de marketing de vehículos con filtros de discovery y flujos de contacto.",
+      "Clon demo de un sitio de vehículos — filtros de discovery y flujos de contacto (no es el proyecto live del cliente).",
     descriptionLong:
-      "CAW Motors muestra inventario de usados con listados amigables para búsqueda, fichas de vehículo y funnels de contacto directo. SEO y performance priorizados para discovery local y compradores mobile.",
+      "Clon demo público por seguridad del portfolio: refleja un sitio de marketing de vehículos usados con listados amigables para búsqueda, fichas de vehículo y funnels de contacto. No es el deploy de producción del cliente — representa los patrones de SEO y performance del trabajo original sin exponer el sitio real del negocio.",
     highlights: [
+      "Clon de seguridad del portfolio — no es el proyecto live del cliente.",
       "Browsing de inventario con CTAs claros al contacto del vendedor.",
-      "Metadata estructurada para búsqueda y social sharing.",
+      "Patrones de metadata estructurada para búsqueda y social sharing.",
     ],
   },
   cebamate: {
     role: "Freelance · Storefront PyME",
     description:
-      "Catálogo y storefront responsive para mates personalizados y accesorios regionales.",
+      "Clon demo de un storefront de mates personalizados — catálogo y flujos responsive (no es la tienda live).",
     descriptionLong:
-      "CEBAMATE es la presencia e-commerce de una PyME de mates personalizados: browsing por categorías, fichas de producto y pedidos por WhatsApp o formulario alineados a hábitos locales de compra.",
+      "Clon demo público por seguridad del portfolio: representa la presencia e-commerce de una PyME de mates personalizados con browsing por categorías, fichas de producto y pedidos estilo WhatsApp/formulario. No es el storefront real del cliente — se comparte como réplica sanitizada del trabajo entregado.",
     highlights: [
-      "Catálogo visual alineado a fotografía artesanal.",
+      "Clon de seguridad del portfolio — no es el proyecto live del cliente.",
+      "Patrones de catálogo visual alineados a fotografía artesanal.",
       "Caminos de conversión adaptados al comportamiento de compra regional.",
     ],
   },
   "indumentaria-taurie": {
     role: "Freelance · Retail de indumentaria",
     description:
-      "Storefront de ropa con discovery de producto, contexto de talles y checkout por contacto.",
+      "Clon demo de un storefront de ropa — discovery, talles y checkout por contacto (no es el sitio live de la marca).",
     descriptionLong:
-      "Sitio de retail fashion con colecciones, guía de talles y compra por consulta. Hecho para una marca local que prioriza merchandising visual sobre un carrito complejo.",
+      "Clon demo público por seguridad del portfolio: refleja un sitio de retail fashion con colecciones, guía de talles y compra por consulta. No es el website de producción de la marca — publicado como réplica sanitizada del trabajo de merchandising visual entregado.",
     highlights: [
+      "Clon de seguridad del portfolio — no es el proyecto live del cliente.",
       "Navegación collection-first con énfasis en la imagen.",
-      "Stack liviano para actualizaciones rápidas del equipo cliente.",
+      "Patrones de stack liviano para actualizaciones rápidas del cliente.",
     ],
   },
   "moustache-gentleman": {
@@ -1041,11 +1114,12 @@ window.PORTFOLIO_PROJECT_I18N = {
   zetaross: {
     role: "Freelance · Showcase de producto",
     description:
-      "Showcase de coleccionables impresos en 3D — catálogo y flujos de consulta.",
+      "Clon demo de un showcase de coleccionables 3D — catálogo y flujos de consulta (no es el sitio live de la marca).",
     descriptionLong:
-      "Galería de producto para figuras impresas en 3D con filtros por categoría y CTAs de consulta. Diseñada para destacar fotografía de calidad de impresión y la historia de la marca maker.",
+      "Clon demo público por seguridad del portfolio: representa una galería de figuras impresas en 3D con filtros por categoría y CTAs de consulta. No es el website real del cliente — se comparte como réplica sanitizada del trabajo de catálogo visual entregado.",
     highlights: [
-      "Catálogo visual-first para líneas coleccionables.",
+      "Clon de seguridad del portfolio — no es el proyecto live del cliente.",
+      "Patrones de catálogo visual-first para líneas coleccionables.",
       "Funnel de consulta sin checkout sobre-ingenierizado.",
     ],
   },
