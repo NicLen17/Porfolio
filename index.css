@@ -63,6 +63,12 @@ html {
   .hero-anim-switch {
     display: none;
   }
+  .hero-panel.hidden,
+  .hero-panel.show {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 }
 
 html {
@@ -172,13 +178,18 @@ html.is-project-page .site-footer {
 
 .hidden {
   opacity: 0;
-  transform: translateX(-100%);
-  transition: all 1s;
+  transform: translateY(2.8rem);
+  transition: opacity 1s cubic-bezier(0.22, 1, 0.36, 1), transform 1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .show {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateY(0);
+}
+
+#container.hidden,
+#container.show {
+  transition: none;
 }
 
 * {
@@ -459,6 +470,19 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.048);
   transition: background-color 1500ms, box-shadow 1500ms;
   background-color: transparent;
+}
+
+#container.is-anim-frozen .tile {
+  transition: none;
+}
+
+#container.is-pulsing .tile {
+  transition-duration: 200ms;
+}
+
+#container.is-pulsing .tile.tile--idle,
+#container.is-pulsing .tile.tile--hover {
+  transition-duration: 0ms;
 }
 
 .tile:hover,

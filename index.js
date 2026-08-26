@@ -87,31 +87,27 @@ document.addEventListener("visibilitychange", () => {
   if (document.visibilityState !== "visible") clearTileHover();
 });
 
-for (let i = 0; i < 1399; i++) {
-  container.appendChild(tile.cloneNode());
-}
-
 const TILE_COLS = 40;
+const TILE_EXTRA_COUNT = 1399;
 const HERO_ANIM_KEY = "portfolio-hero-anim";
+const INTRO_MS = 2800;
+const SPARKLE_EVERY_MS = 240;
+const WAVE_RINGS = 3;
+const WAVE_MAX_DIST_RATIO = 0.66;
+const HERO_PAUSE_SCROLL_Y = 28;
 const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-const tileNodes = Array.from(container.querySelectorAll(".tile"));
-const tileRows = Math.ceil(tileNodes.length / TILE_COLS);
-const tileCenterCol = (TILE_COLS - 1) / 2;
-const tileCenterRow = (tileRows - 1) / 2;
-const tileMeta = tileNodes.map((el, i) => {
-  const col = i % TILE_COLS;
-  const row = Math.floor(i / TILE_COLS);
-  return {
-    el,
-    dist: Math.hypot(col - tileCenterCol, row - tileCenterRow),
-  };
-});
-const tileMaxDist = tileMeta.reduce((max, item) => Math.max(max, item.dist), 0);
 const idleLit = new Set();
 const heroAnimSwitch = document.querySelector(".hero-anim-switch");
 const heroAnimReplayBtn = document.querySelector('[data-hero-anim="replay"]');
 const heroAnimStopBtn = document.querySelector('[data-hero-anim="stop"]');
+const heroBgEl = document.getElementById("container");
+const heroTextEl = document.getElementById("content");
 
+let tileMeta = [];
+let waveTiles = [];
+let sparklePool = [];
+let tileMaxDist = 1;
+let tilesReady = false;
 let heroAnimStopped = false;
 let heroShouldPlayIntro = true;
 let heroAnimPlaying = "intro";
@@ -119,6 +115,8 @@ let heroAnimGen = 0;
 let heroAnimRaf = 0;
 let heroAnimTimer = 0;
 let heroInView = true;
+let heroScrollPaused = false;
+let heroScrollRaf = 0;
 
 try {
   localStorage.removeItem(HERO_ANIM_KEY);
@@ -147,7 +145,83 @@ function prefersReducedMotion() {
 }
 
 function canRunHeroIdle() {
-  return !heroAnimStopped && !prefersReducedMotion() && document.visibilityState === "visible" && heroInView;
+  return (
+    tilesReady &&
+    !heroAnimStopped &&
+    !heroScrollPaused &&
+    !prefersReducedMotion() &&
+    document.visibilityState === "visible" &&
+    heroInView
+  );
+}
+
+function afterPaint(fn) {
+  requestAnimationFrame(() => requestAnimationFrame(fn));
+}
+
+function shouldPlayWaveIntro() {
+  return followerMedia.matches;
+}
+
+function warmHeroTilePaints() {
+  if (!tileMeta.length) return;
+
+  const marked = [];
+  const seen = new Set();
+  const mark = (el) => {
+    if (!el || seen.has(el)) return;
+    seen.add(el);
+    marked.push(el);
+  };
+
+  for (let i = 0; i < waveTiles.length; i += 1) {
+    if (waveTiles[i].dist <= 2.4) mark(waveTiles[i].el);
+  }
+  for (let i = 0; i < tileMeta.length && marked.length < 28; i += 1) {
+    const nth = i + 1;
+    if (nth % 4 === 0 || nth % 7 === 0 || nth % 11 === 1) mark(tileMeta[i].el);
+  }
+
+  container.classList.add("is-anim-frozen");
+  for (let i = 0; i < marked.length; i += 1) marked[i].classList.add("tile--idle");
+  void container.offsetWidth;
+  for (let i = 0; i < marked.length; i += 1) marked[i].classList.remove("tile--idle");
+  void container.offsetWidth;
+  container.classList.remove("is-anim-frozen");
+}
+
+function indexTiles() {
+  const tileNodes = Array.from(container.querySelectorAll(".tile"));
+  const tileRows = Math.ceil(tileNodes.length / TILE_COLS);
+  const tileCenterCol = (TILE_COLS - 1) / 2;
+  const tileCenterRow = (tileRows - 1) / 2;
+  let maxDist = 0;
+  tileMeta = tileNodes.map((el, i) => {
+    const col = i % TILE_COLS;
+    const row = Math.floor(i / TILE_COLS);
+    const dist = Math.hypot(col - tileCenterCol, row - tileCenterRow);
+    if (dist > maxDist) maxDist = dist;
+    return {
+      el,
+      dist,
+    };
+  });
+  tileMaxDist = maxDist || 1;
+  waveTiles = tileMeta.filter((item) => item.dist <= tileMaxDist * WAVE_MAX_DIST_RATIO);
+  sparklePool = tileMeta.filter(
+    (item) => item.dist >= tileMaxDist * 0.22 && item.dist < tileMaxDist * 0.62
+  );
+  tilesReady = true;
+}
+
+function populateTiles(onDone) {
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < TILE_EXTRA_COUNT; i += 1) {
+    frag.appendChild(tile.cloneNode(false));
+  }
+  container.appendChild(frag);
+  indexTiles();
+  afterPaint(onDone);
 }
 
 function syncHeroAnimSwitch() {
@@ -171,95 +245,40 @@ function stopHeroIdleTimers() {
   }
 }
 
-function delayHeroIdle(ms, gen) {
-  return new Promise((resolve) => {
-    heroAnimTimer = setTimeout(() => {
-      heroAnimTimer = 0;
-      resolve(gen === heroAnimGen);
-    }, ms);
-  });
+function freezeHeroTiles() {
+  heroAnimGen += 1;
+  stopHeroIdleTimers();
+  container.classList.add("is-anim-frozen");
+  container.classList.remove("is-pulsing");
+  clearIdleLit();
 }
 
-function animateHeroIdle(duration, update, gen) {
-  return new Promise((resolve) => {
-    const start = performance.now();
-    const tick = (now) => {
-      if (gen !== heroAnimGen) {
-        resolve(false);
-        return;
-      }
-      const elapsed = now - start;
-      const t = Math.min(1, elapsed / duration);
-      update(t, elapsed);
-      if (t < 1) {
-        heroAnimRaf = requestAnimationFrame(tick);
-      } else {
-        heroAnimRaf = 0;
-        resolve(true);
-      }
-    };
-    heroAnimRaf = requestAnimationFrame(tick);
-  });
+function unfreezeHeroTiles() {
+  container.classList.remove("is-anim-frozen");
 }
 
-async function playRippleIntro(gen) {
-  const done = await animateHeroIdle(
-    2800,
-    (t) => {
-      const eased = 1 - (1 - t) * (1 - t);
-      const radius = eased * (tileMaxDist + 2.4);
-      const next = new Set();
-      for (const item of tileMeta) {
-        if (Math.abs(item.dist - radius) <= 1.45) next.add(item.el);
-      }
-      setIdleLit(next);
-    },
-    gen
-  );
-  if (done) clearIdleLit();
-  return done;
+function pauseHeroTiles({ consumeIntro = false } = {}) {
+  freezeHeroTiles();
+  if (consumeIntro) heroShouldPlayIntro = false;
+  if (heroAnimStopped) return;
+  if (consumeIntro) heroAnimPlaying = "idle";
+  syncHeroAnimSwitch();
 }
 
-const heroCopyEl = document.querySelector(".hero-panel");
-let sparklePool = tileMeta;
-
-function inflateRect(rect, padX, padY) {
-  return {
-    left: rect.left - padX,
-    right: rect.right + padX,
-    top: rect.top - padY,
-    bottom: rect.bottom + padY,
-  };
-}
-
-function rectsOverlap(a, b) {
-  return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
-}
-
-function refreshSparklePool() {
-  const heroRect = heroCopyEl?.getBoundingClientRect();
-  const readable =
-    heroRect && heroRect.width > 0 && heroRect.height > 0
-      ? inflateRect(
-          heroRect,
-          Math.max(40, heroRect.width * 0.06),
-          Math.max(32, heroRect.height * 0.08)
-        )
-      : null;
-
-  sparklePool = tileMeta.filter((item) => {
-    if (item.dist >= tileMaxDist * 0.62) return false;
-    if (!readable) return true;
-    const tileRect = item.el.getBoundingClientRect();
-    if (tileRect.width <= 0 || tileRect.height <= 0) return false;
-    return !rectsOverlap(tileRect, readable);
-  });
-
-  if (sparklePool.length < 24) {
-    sparklePool = tileMeta.filter(
-      (item) => item.dist >= tileMaxDist * 0.28 && item.dist < tileMaxDist * 0.7
-    );
+function collectRippleRing(front) {
+  const next = new Set();
+  const frontRing = Math.round(front);
+  const maxBehind = (WAVE_RINGS - 1) * 2;
+  for (let i = 0; i < waveTiles.length; i += 1) {
+    const dist = waveTiles[i].dist;
+    const ring = Math.round(dist);
+    if (ring > frontRing) continue;
+    const behind = frontRing - ring;
+    if (behind % 2 !== 0) continue;
+    if (behind > maxBehind) continue;
+    next.add(waveTiles[i].el);
   }
+  return next;
 }
 
 function pickSparkleTile() {
@@ -267,11 +286,9 @@ function pickSparkleTile() {
   return pool[(Math.random() * pool.length) | 0];
 }
 
-function playSparkleIdle(gen) {
-  refreshSparklePool();
+function playHeroTiles(gen, playIntro) {
   const litUntil = new Map();
-  let nextSpawnAt = 0;
-  const spawnEvery = 60;
+  let nextSpawnAt = playIntro ? INTRO_MS : 0;
   const start = performance.now();
 
   return new Promise((resolve) => {
@@ -280,23 +297,37 @@ function playSparkleIdle(gen) {
         resolve(false);
         return;
       }
+
       const elapsed = now - start;
-      while (nextSpawnAt <= elapsed) {
-        const ttl = 400 + Math.random() * 500;
-        if (nextSpawnAt + ttl > elapsed) {
-          const count = 2 + ((Math.random() * 3) | 0);
-          for (let i = 0; i < count; i += 1) {
-            const item = pickSparkleTile();
-            litUntil.set(item.el, nextSpawnAt + ttl);
-          }
-        }
-        nextSpawnAt += spawnEvery;
+      let next = new Set();
+      if (playIntro && elapsed < INTRO_MS) {
+        container.classList.add("is-pulsing");
+        const t = Math.min(1, elapsed / INTRO_MS);
+        const eased = 1 - (1 - t) * (1 - t);
+        next = collectRippleRing(eased * (tileMaxDist * WAVE_MAX_DIST_RATIO + 2.4));
+      } else if (playIntro && heroAnimPlaying === "intro") {
+        container.classList.remove("is-pulsing");
+        heroAnimPlaying = "idle";
+        syncHeroAnimSwitch();
       }
-      const next = new Set();
-      litUntil.forEach((until, el) => {
-        if (until > elapsed) next.add(el);
-        else litUntil.delete(el);
-      });
+
+      if (!playIntro || elapsed >= INTRO_MS) {
+        while (nextSpawnAt <= elapsed) {
+          const ttl = 520 + Math.random() * 680;
+          if (nextSpawnAt + ttl > elapsed) {
+            const count = 1 + ((Math.random() * 2) | 0);
+            for (let i = 0; i < count; i += 1) {
+              litUntil.set(pickSparkleTile().el, nextSpawnAt + ttl);
+            }
+          }
+          nextSpawnAt += SPARKLE_EVERY_MS;
+        }
+        litUntil.forEach((until, el) => {
+          if (until > elapsed) next.add(el);
+          else litUntil.delete(el);
+        });
+      }
+
       setIdleLit(next);
       heroAnimRaf = requestAnimationFrame(tick);
     };
@@ -304,31 +335,17 @@ function playSparkleIdle(gen) {
   });
 }
 
-async function runHeroAnimSequence(gen, { playIntro }) {
-  if (playIntro) {
-    heroAnimPlaying = "intro";
-    syncHeroAnimSwitch();
-    const finishedIntro = await playRippleIntro(gen);
-    if (!finishedIntro || gen !== heroAnimGen) return;
-    const stillWaiting = await delayHeroIdle(350, gen);
-    if (!stillWaiting) return;
-  }
-
-  heroAnimPlaying = "idle";
-  syncHeroAnimSwitch();
-  await playSparkleIdle(gen);
-}
-
 function restartHeroAnim({ playIntro } = {}) {
   heroAnimGen += 1;
   stopHeroIdleTimers();
   clearIdleLit();
+  unfreezeHeroTiles();
   if (playIntro != null) heroShouldPlayIntro = playIntro;
   syncHeroAnimSwitch();
   if (!canRunHeroIdle()) return;
 
   const gen = heroAnimGen;
-  const intro = heroShouldPlayIntro;
+  const intro = heroShouldPlayIntro && shouldPlayWaveIntro();
   heroShouldPlayIntro = false;
   heroAnimPlaying = intro ? "intro" : "idle";
   syncHeroAnimSwitch();
@@ -336,22 +353,50 @@ function restartHeroAnim({ playIntro } = {}) {
   heroAnimTimer = setTimeout(() => {
     heroAnimTimer = 0;
     if (gen !== heroAnimGen) return;
-    runHeroAnimSequence(gen, { playIntro: intro });
+    playHeroTiles(gen, intro);
   }, intro ? 160 : 80);
 }
 
 function stopHeroAnim() {
   heroAnimStopped = true;
-  heroAnimGen += 1;
-  stopHeroIdleTimers();
-  clearIdleLit();
+  freezeHeroTiles();
   heroAnimPlaying = "stopped";
   syncHeroAnimSwitch();
+  requestAnimationFrame(() => {
+    if (!heroScrollPaused) unfreezeHeroTiles();
+  });
 }
 
 function replayHeroIntro() {
   heroAnimStopped = false;
-  restartHeroAnim({ playIntro: true });
+  heroScrollPaused = window.scrollY > HERO_PAUSE_SCROLL_Y;
+  restartHeroAnim({ playIntro: shouldPlayWaveIntro() });
+}
+
+function syncHeroPerspective() {
+  if (!heroBgEl || !heroTextEl) return;
+  const flatten = window.scrollY > 1;
+  heroBgEl.classList.toggle("container", !flatten);
+  heroBgEl.classList.toggle("container-flat", flatten);
+  heroTextEl.classList.toggle("content", !flatten);
+  heroTextEl.classList.toggle("content-flat", flatten);
+}
+
+function syncHeroScrollPause() {
+  const shouldPause = window.scrollY > HERO_PAUSE_SCROLL_Y;
+  if (shouldPause === heroScrollPaused) return;
+  heroScrollPaused = shouldPause;
+  if (shouldPause) pauseHeroTiles({ consumeIntro: true });
+  else if (canRunHeroIdle()) restartHeroAnim();
+}
+
+function onHeroScroll() {
+  if (heroScrollRaf) return;
+  heroScrollRaf = requestAnimationFrame(() => {
+    heroScrollRaf = 0;
+    syncHeroPerspective();
+    syncHeroScrollPause();
+  });
 }
 
 heroAnimReplayBtn?.addEventListener("click", replayHeroIntro);
@@ -364,11 +409,7 @@ if (heroAnimSwitch) {
       if (visible === heroInView) return;
       heroInView = visible;
       if (heroInView) restartHeroAnim();
-      else {
-        heroAnimGen += 1;
-        stopHeroIdleTimers();
-        clearIdleLit();
-      }
+      else pauseHeroTiles();
     },
     { threshold: 0.12 }
   );
@@ -377,11 +418,7 @@ if (heroAnimSwitch) {
 
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") restartHeroAnim();
-  else {
-    heroAnimGen += 1;
-    stopHeroIdleTimers();
-    clearIdleLit();
-  }
+  else pauseHeroTiles();
 });
 
 const onReducedMotionChange = () => restartHeroAnim();
@@ -391,20 +428,33 @@ if (typeof reducedMotionQuery.addEventListener === "function") {
   reducedMotionQuery.addListener(onReducedMotionChange);
 }
 
-let sparklePoolResizeTimer = 0;
-window.addEventListener("resize", () => {
-  if (sparklePoolResizeTimer) clearTimeout(sparklePoolResizeTimer);
-  sparklePoolResizeTimer = setTimeout(() => {
-    sparklePoolResizeTimer = 0;
-    if (heroAnimPlaying === "idle" && !heroAnimStopped) refreshSparklePool();
-  }, 150);
-});
-
 syncHeroAnimSwitch();
-heroAnimTimer = setTimeout(() => {
-  heroAnimTimer = 0;
-  restartHeroAnim({ playIntro: true });
-}, 1100);
+heroScrollPaused = window.scrollY > HERO_PAUSE_SCROLL_Y;
+syncHeroPerspective();
+
+function waitForHeroCopy(fn) {
+  const panel = document.querySelector(".hero-panel");
+  if (!panel || prefersReducedMotion()) {
+    fn();
+    return;
+  }
+
+  const opacity = Number(getComputedStyle(panel).opacity);
+  const remaining = panel.classList.contains("show")
+    ? Math.max(80, Math.round((1 - Math.min(1, opacity)) * 1000) + 80)
+    : 1080;
+
+  heroAnimTimer = setTimeout(() => {
+    heroAnimTimer = 0;
+    fn();
+  }, remaining);
+}
+
+function startInitialIntro() {
+  waitForHeroCopy(() => {
+    restartHeroAnim({ playIntro: shouldPlayWaveIntro() });
+  });
+}
 
 const heroObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
@@ -414,7 +464,21 @@ const heroObserver = new IntersectionObserver((entries) => {
   });
 });
 
-document.querySelectorAll(".hidden").forEach((el) => heroObserver.observe(el));
+document.querySelectorAll(".hidden").forEach((el) => {
+  if (el === container) return;
+  heroObserver.observe(el);
+});
+
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    populateTiles(() => {
+      warmHeroTilePaints();
+      container.classList.add("show");
+      heroObserver.observe(container);
+      afterPaint(startInitialIntro);
+    });
+  });
+});
 
 const revealObserver = new IntersectionObserver(
   (entries) => {
@@ -429,23 +493,7 @@ const revealObserver = new IntersectionObserver(
 
 document.querySelectorAll(".js-reveal").forEach((el) => revealObserver.observe(el));
 
-window.addEventListener("scroll", () => {
-  const background = document.getElementById("container");
-  const text = document.getElementById("content");
-  const scrollPositionF = 1;
-
-  if (window.scrollY > scrollPositionF) {
-    background.classList.remove("container");
-    background.classList.add("container-flat");
-    text.classList.remove("content");
-    text.classList.add("content-flat");
-  } else {
-    background.classList.remove("container-flat");
-    background.classList.add("container");
-    text.classList.add("content");
-    text.classList.remove("content-flat");
-  }
-});
+window.addEventListener("scroll", onHeroScroll, { passive: true });
 
 function hashToGradientIndex(str) {
   let hash = 0;
