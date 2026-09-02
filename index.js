@@ -94,6 +94,8 @@ const INTRO_MS = 2800;
 const SPARKLE_EVERY_MS = 240;
 const WAVE_RINGS = 3;
 const WAVE_MAX_DIST_RATIO = 0.66;
+const WAVE_FRONT_OVERSHOOT = 2.4;
+const WAVE_TAIL_MS = 360;
 const HERO_PAUSE_SCROLL_Y = 28;
 const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 const idleLit = new Set();
@@ -288,8 +290,11 @@ function pickSparkleTile() {
 
 function playHeroTiles(gen, playIntro) {
   const litUntil = new Map();
-  let nextSpawnAt = playIntro ? INTRO_MS : 0;
+  const introEndMs = playIntro ? INTRO_MS + WAVE_TAIL_MS : 0;
+  let nextSpawnAt = introEndMs;
   const start = performance.now();
+  const waveExtent = tileMaxDist * WAVE_MAX_DIST_RATIO + WAVE_FRONT_OVERSHOOT;
+  const waveTailTravel = (WAVE_RINGS - 1) * 2 + 2;
 
   return new Promise((resolve) => {
     const tick = (now) => {
@@ -300,18 +305,23 @@ function playHeroTiles(gen, playIntro) {
 
       const elapsed = now - start;
       let next = new Set();
-      if (playIntro && elapsed < INTRO_MS) {
+      if (playIntro && elapsed < introEndMs) {
         container.classList.add("is-pulsing");
-        const t = Math.min(1, elapsed / INTRO_MS);
-        const eased = 1 - (1 - t) * (1 - t);
-        next = collectRippleRing(eased * (tileMaxDist * WAVE_MAX_DIST_RATIO + 2.4));
+        if (elapsed < INTRO_MS) {
+          const t = Math.min(1, elapsed / INTRO_MS);
+          const eased = 1 - (1 - t) * (1 - t);
+          next = collectRippleRing(eased * waveExtent);
+        } else {
+          const tail = Math.min(1, (elapsed - INTRO_MS) / WAVE_TAIL_MS);
+          next = collectRippleRing(waveExtent + tail * waveTailTravel);
+        }
       } else if (playIntro && heroAnimPlaying === "intro") {
         container.classList.remove("is-pulsing");
         heroAnimPlaying = "idle";
         syncHeroAnimSwitch();
       }
 
-      if (!playIntro || elapsed >= INTRO_MS) {
+      if (!playIntro || elapsed >= introEndMs) {
         while (nextSpawnAt <= elapsed) {
           const ttl = 520 + Math.random() * 680;
           if (nextSpawnAt + ttl > elapsed) {
@@ -585,6 +595,10 @@ function localizeCert(cert) {
 }
 
 const PROJECT_VERCEL_ADDED_AT = {
+  "fut-camara": 1788372000000,
+  "la-diagonal": 1788364000000,
+  "legacy-ux-helper": 1788358000000,
+  "utility-tool": 1788349000000,
   "lomas-gym": 1787095253205,
   "mix-potrero": 1787077136217,
   tecnoleg: 1786762848479,
@@ -703,7 +717,7 @@ const projects = [
       "Administrative, financial, attendance and access-control workflows — including Banco Económico payments.",
       "Interactive volleyball scouting court, AI-assisted club context and voice-based scouting for coaches.",
     ],
-    image: "./assets/Images/VolleyManager.png",
+    image: "./assets/media/VolleyManager.webp",
   },
   {
     id: "expologic",
@@ -777,7 +791,7 @@ const projects = [
       "Validated with ~50 field interviews; 3.5K+ fairs / 50K+ exhibitors market; Emprende U semifinalist.",
     ],
     url: "https://caw-expologic.vercel.app/",
-    image: "./assets/Images/ExpoLogic.png",
+    image: "./assets/media/ExpoLogic.webp",
   },
   {
     id: "caw-education",
@@ -812,7 +826,7 @@ const projects = [
       "Operational dashboards and KPIs for teachers, preceptors and families.",
     ],
     url: "https://caweducation.com",
-    image: "./assets/Images/cawpic.jfif",
+    image: "./assets/media/cawpic.webp",
   },
   {
     id: "tecnoleg",
@@ -835,7 +849,153 @@ const projects = [
       "Security hardening with MFA gate support and audit-oriented policies.",
     ],
     url: "https://www.tecnoleg.com.ar",
-    image: "./assets/Images/tecnoleg.png",
+    image: "./assets/media/tecnoleg.webp",
+  },
+  {
+    id: "legacy-ux-helper",
+    title: "Legacy UX Helper",
+    year: 2026,
+    featured: true,
+    featuredOrder: 6,
+    role: "Product engineer · Chrome extension",
+    tagline: "Highlight actionable controls in legacy web UIs — 100% local, no layout shift",
+    status: "Local tool",
+    statusKind: "production",
+    description:
+      "Chrome extension that outlines clickable elements in legacy interfaces without changing the page layout.",
+    descriptionLong:
+      "Legacy UX Helper is a Manifest V3 Chrome extension for operators working on dense, non-semantic enterprise screens. It highlights buttons, links, inputs, ARIA controls, onclick leftovers and clickable tables — without mutating the DOM or shifting layout. Three modes (All / Legacy only / Hover guide), training labels, accessibility presets and JSON import/export stay on the machine: chrome.storage.local only, no host permissions, no analytics.",
+    technologies: ["JavaScript", "Chrome Extension", "Manifest V3", "CSS"],
+    caseStudy: [
+      {
+        title: "The problem",
+        body: "Legacy ERPs and banking UIs hide what is actually clickable — cursor:pointer on tables, inline onclick, missing labels. New operators waste time hunting controls, and modernization work starts without a map of the real interaction surface.",
+      },
+      {
+        title: "The tool",
+        body: "A local overlay that classifies interactive nodes and draws type-colored outlines. Modes isolate non-semantic leftovers or follow the pointer so trainers can walk a screen without painting the whole page.",
+      },
+      {
+        title: "Privacy constraint",
+        body: "Built for environments that cannot send page contents off-device. Permissions are storage, activeTab and scripting. No tabs API, no domain rules, no cloud sync.",
+      },
+      {
+        title: "My role",
+        body: "Designed and shipped the extension end-to-end: content script, popup, options, settings schema, icon pipeline and Chrome Web Store packaging notes.",
+      },
+    ],
+    highlights: [
+      "Three highlight modes plus training labels for onboarding on legacy screens.",
+      "Zero layout shift — CSS overlay only; HTML is never rewritten.",
+      "100% local: chrome.storage.local, no host permissions, no telemetry.",
+    ],
+    repo: "https://github.com/NicLen17/legacy-ux-helper",
+    image: "./assets/media/legacy-ux-helper.webp",
+  },
+  {
+    id: "utility-tool",
+    title: "Utility Tool",
+    year: 2026,
+    role: "Product engineer · Local-first suite",
+    tagline: "Images, video, audio, PDFs and developer tools — processed on your machine",
+    status: "Local-first product",
+    statusKind: "production",
+    description:
+      "Local-first utility suite for media, PDFs and developer tools — no cloud uploads, no subscriptions.",
+    descriptionLong:
+      "Utility Tool replaces web compressors and converters that impose size caps, daily limits and third-party uploads. It runs as a Next.js 16 app on localhost: Sharp for images, FFmpeg for video/audio, pdf-lib for PDFs, plus QR generation and a developer toolbox (JSON, JWT, regex, hashes, SVG optimize). Favorites and recents stay in localStorage. Vercel is a non-goal — FFmpeg and large files belong on the machine, not on a serverless timeout.",
+    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "Sharp", "FFmpeg"],
+    caseStudy: [
+      {
+        title: "The problem",
+        body: "Everyday convert/compress sites upload files to someone else's server, then gate basic features behind subscriptions. That is the wrong trust model for personal photos, client PDFs and internal recordings.",
+      },
+      {
+        title: "The product",
+        body: "A categorized desktop-in-the-browser: batch image compress/convert/resize, watermark and EXIF strip, video/audio transcode, PDF merge/split, QR/vCard, and a command-palette developer drawer.",
+      },
+      {
+        title: "Why not Vercel",
+        body: "Heavy media needs system FFmpeg, large request bodies and long timeouts. Shipping localhost (or a VPS/Docker box) keeps files private and the feature set honest.",
+      },
+    ],
+    highlights: [
+      "Local processing with Sharp, FFmpeg and pdf-lib — files never leave the machine.",
+      "Command palette (Ctrl+K), favorites and light/dark — a suite, not a single form.",
+      "Documented as local-first: serverless deploy would break video/audio and privacy.",
+    ],
+    repo: "https://github.com/NicLen17/utility-tool",
+    image: "./assets/media/project-generic.webp",
+  },
+  {
+    id: "la-diagonal",
+    title: "La Diagonal",
+    year: 2026,
+    role: "Full Stack · Booking platform",
+    tagline: "Sports-complex booking — interactive venue map, holds, payments and admin builder",
+    status: "MVP · In development",
+    statusKind: "mvp",
+    description:
+      "Booking platform for sports complexes — public landing, interactive pitch map and an admin map builder.",
+    descriptionLong:
+      "La Diagonal is a Next.js 16 booking platform for sports venues. The first reference client is Complejo La Diagonal (Tafí Viejo, Tucumán), with a multi-site architecture ready for more complexes. Guests filter courts on an interactive map, hold a slot for 15 minutes, confirm payment (cash / deposit / transfer) and get a WhatsApp confirmation. Operators get KPI dashboards, a drag-and-drop map builder, and CRUD for courts, hours and pricing. Phase 1 uses a mock data adapter; the Supabase schema, RLS and RPCs are already documented.",
+    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "Zod", "Supabase"],
+    caseStudy: [
+      {
+        title: "The problem",
+        body: "Neighborhood complexes still take bookings over WhatsApp with no hold, no court map and no shared price rules. Double bookings and ad-hoc discounts become the operations model.",
+      },
+      {
+        title: "The platform",
+        body: "A public booking flow with URL-driven filters, a 15-minute hold, reservation lookup by code + phone, and an admin shell that lets the venue draw its own pitch map instead of waiting on a developer.",
+      },
+      {
+        title: "Architecture",
+        body: "Ports-and-adapters data layer (DATA_ADAPTER=mock|supabase). Availability, pricing and WhatsApp live in services; Postgres schema, RLS and pg_cron are specified for the production cutover.",
+      },
+    ],
+    highlights: [
+      "End-to-end booking: map, 15-min hold, payment method and WhatsApp confirmation.",
+      "Admin map builder plus courts, hours, pricing rules and KPI dashboard.",
+      "Mock adapter in place; Supabase schema and RLS documented for production.",
+    ],
+    repo: "https://github.com/NicLen17/la-diagonal",
+    image: "./assets/media/la-diagonal.webp",
+  },
+  {
+    id: "fut-camara",
+    title: "FutCam",
+    year: 2026,
+    role: "Research · Computer vision",
+    tagline: "Offline CV pipeline for amateur football — distance, sprints, heatmaps from a fixed camera",
+    status: "Research · Phase 0–1",
+    statusKind: "dev",
+    description:
+      "Offline computer-vision pipeline for amateur F5/F7/F9 match analytics from a fixed camera.",
+    descriptionLong:
+      "FutCam processes amateur football recordings (F5/F7/F9) shot with a fixed camera and aims to emit physical metrics per player: distance, speed, sprints, heatmaps and a relative rating. The current cut is Phase 0–1 — Python package, venue calibration, homography and a Typer CLI (futcam info / probe / calibrate / process). Detection is planned around RF-DETR + ByteTrack rather than YOLO; team classification (SigLIP + UMAP) and a future Next.js/Supabase surface sit on a later roadmap. Honest status: scaffold and calibration, not a production product yet.",
+    technologies: ["Python", "PyTorch", "OpenCV", "RF-DETR", "ByteTrack", "Typer"],
+    caseStudy: [
+      {
+        title: "The bet",
+        body: "Amateur 5/7/9-a-side has almost no affordable tracking. A fixed camera plus offline batch processing can produce useful physical reports without a stadium install.",
+      },
+      {
+        title: "Current slice",
+        body: "CLI-first Python package: config via Pydantic, interactive venue calibration, homography to meters, and a documented AMD ROCm / NVIDIA setup path.",
+      },
+      {
+        title: "Status",
+        body: "Phase 0–1. Process is still a stub until detection/tracking land. Published as research — ADRs explain RF-DETR over YOLO.",
+      },
+    ],
+    highlights: [
+      "Offline batch pipeline for amateur formats — not a live stadium product.",
+      "CLI + venue calibration + homography; RF-DETR / ByteTrack on the roadmap.",
+      "Phase 0–1: architecture and calibration shipped; match processing still in progress.",
+    ],
+    repo: "https://github.com/NicLen17/fut-camara",
+    image: "./assets/media/project-generic.webp",
   },
   {
     id: "lomas-gym",
@@ -856,7 +1016,7 @@ const projects = [
       "PWA-ready demo deploy on Vercel for client validation.",
     ],
     url: "https://lomas-gym.vercel.app",
-    image: "./assets/Images/lomas-gym.jpg",
+    image: "./assets/media/lomas-gym.webp",
   },
   {
     id: "mix-potrero",
@@ -877,7 +1037,7 @@ const projects = [
       "La Vaquita pitch-cost tracker with WhatsApp payment copy.",
     ],
     url: "https://mix-potrero.vercel.app",
-    image: "./assets/Images/mix-potrero.png",
+    image: "./assets/media/mix-potrero.webp",
   },
   {
     id: "caw-education-landing",
@@ -895,14 +1055,14 @@ const projects = [
       "Production deploy with Vercel Analytics and Speed Insights.",
     ],
     url: "https://caweducation.com",
-    image: "./assets/Images/caw-education-landing.png",
+    image: "./assets/media/caw-education-landing.webp",
   },
   {
     id: "sublimspace",
     title: "Sublimspace",
     year: 2026,
     featured: true,
-    featuredOrder: 5,
+    featuredOrder: 7,
     role: "Full Stack · E-commerce",
     description:
       "Wholesale and retail commerce for customized products — catalog, coupons, and sales analytics.",
@@ -915,7 +1075,7 @@ const projects = [
       "Analytics views for sales performance and inventory movement.",
     ],
     url: "https://sublimspacetuc.vercel.app",
-    image: "./assets/Images/Sublimspace.png",
+    image: "./assets/media/Sublimspace.webp",
   },
   {
     id: "caw-tech",
@@ -935,14 +1095,14 @@ const projects = [
       "Custom domain on production with continuous deploy from main branch.",
     ],
     url: "https://www.caw.com.ar",
-    image: "./assets/Images/CAW.png",
+    image: "./assets/media/CAW.webp",
   },
   {
     id: "txtgen",
     title: "TxtGen",
     year: 2025,
     featured: true,
-    featuredOrder: 6,
+    featuredOrder: 5,
     role: "Product engineer",
     description:
       "Generate downloadable structured .txt documents from configurable templates.",
@@ -955,7 +1115,7 @@ const projects = [
       "Zero-friction deploy for internal and public use.",
     ],
     url: "https://txt-gent.vercel.app/",
-    image: "./assets/Images/TxtGen.png",
+    image: "./assets/media/TxtGen.webp",
   },
   {
     id: "bootcamp-backend",
@@ -972,7 +1132,7 @@ const projects = [
       "MongoDB schemas for cohorts, enrollments, and progress tracking.",
       "Postman documentation for partner teams and students.",
     ],
-    image: "./assets/Images/BOTCAMPBACK.webp",
+    image: "./assets/media/BOTCAMPBACK.webp",
   },
   {
     id: "la-leyenda",
@@ -990,7 +1150,7 @@ const projects = [
       "Production deploy on Vercel (la-leyenda-counter-strike.vercel.app).",
     ],
     url: "https://la-leyenda-counter-strike.vercel.app",
-    image: "./assets/Images/la-leyenda.webp",
+    image: "./assets/media/la-leyenda.webp",
   },
   {
     id: "cba-volleystar",
@@ -1008,7 +1168,7 @@ const projects = [
       "Mobile-first club branding and match-day information architecture.",
     ],
     url: "https://cba-volleystar.vercel.app",
-    image: "./assets/Images/CBA.jpeg",
+    image: "./assets/media/CBA.webp",
   },
   {
     id: "terradeco",
@@ -1026,7 +1186,7 @@ const projects = [
       "Production deploy with Vercel preview pipeline.",
     ],
     url: "https://terradeco.vercel.app",
-    image: "./assets/Images/Terradeco.jpg",
+    image: "./assets/media/Terradeco.webp",
   },
   {
     id: "enduring-education",
@@ -1044,7 +1204,7 @@ const projects = [
       "Iterated UX based on educator feedback loops.",
     ],
     url: "https://enduring-education.vercel.app",
-    image: "./assets/Images/EnduringEducation.webp",
+    image: "./assets/media/EnduringEducation.webp",
   },
   {
     id: "little-bite-society",
@@ -1062,7 +1222,7 @@ const projects = [
       "Lightweight deploy suitable for frequent menu updates.",
     ],
     url: "https://little-bite-society.vercel.app",
-    image: "./assets/Images/LBS.png",
+    image: "./assets/media/LBS.webp",
   },
   {
     id: "reaction-app",
@@ -1080,7 +1240,7 @@ const projects = [
       "Installable PWA for on-court / gym use by physical trainers.",
     ],
     url: "https://reaction-app-alpha.vercel.app/",
-    image: "./assets/Images/Reaction.webp",
+    image: "./assets/media/Reaction.webp",
   },
   {
     id: "bullet-hell-example",
@@ -1098,7 +1258,7 @@ const projects = [
       "Shareable Vercel deploy of a prompt-collaboration experiment.",
     ],
     url: "https://bullet-hell-example.vercel.app",
-    image: "./assets/Images/bullet-hell.png",
+    image: "./assets/media/bullet-hell.webp",
   },
   {
     id: "la-congreso",
@@ -1116,7 +1276,7 @@ const projects = [
       "Community positioning as a permanent house for makers and workshops.",
     ],
     url: "https://la-congreso.vercel.app",
-    image: "./assets/Images/la-congreso.png",
+    image: "./assets/media/la-congreso.webp",
   },
   {
     id: "mvp-to-pro-lightning-talk",
@@ -1134,7 +1294,7 @@ const projects = [
       "Public build-in-public artifact documenting real production trade-offs.",
     ],
     url: "https://niclen17.github.io/Lightning-Talk-MVP-to-PRO/",
-    image: "./assets/Images/mvp-to-pro.jpeg",
+    image: "./assets/media/mvp-to-pro.webp",
   },
   {
     id: "caw-motors",
@@ -1152,7 +1312,7 @@ const projects = [
       "Structured metadata patterns for search and social sharing.",
     ],
     url: "https://consecionaria.vercel.app",
-    image: "./assets/Images/CAW-3.webp",
+    image: "./assets/media/CAW-3.webp",
   },
   {
     id: "cebamate",
@@ -1170,7 +1330,7 @@ const projects = [
       "Conversion paths adapted to regional purchase behavior.",
     ],
     url: "https://ceba-mate.vercel.app",
-    image: "./assets/Images/CEBAMATE 1.webp",
+    image: "./assets/media/CEBAMATE 1.webp",
   },
   {
     id: "indumentaria-taurie",
@@ -1188,7 +1348,7 @@ const projects = [
       "Lightweight stack patterns for fast client-side updates.",
     ],
     url: "https://indumentaria-taurie.vercel.app",
-    image: "./assets/Images/TAURIE.webp",
+    image: "./assets/media/TAURIE.webp",
   },
   {
     id: "moustache-gentleman",
@@ -1205,7 +1365,7 @@ const projects = [
       "Gallery and social proof blocks for local SEO.",
     ],
     url: "https://moustache-gentlemen.vercel.app",
-    image: "./assets/Images/PELUQUERIA 1.webp",
+    image: "./assets/media/PELUQUERIA 1.webp",
   },
   {
     id: "tarjeta-18-mateo",
@@ -1222,7 +1382,7 @@ const projects = [
       "RSVP capture with lightweight client validation.",
     ],
     url: "https://mateo-github-io.vercel.app",
-    image: "./assets/Images/18MAURO.webp",
+    image: "./assets/media/18MAURO.webp",
   },
   {
     id: "tarjeta-15-catalina",
@@ -1239,7 +1399,7 @@ const projects = [
       "Guest list capture with mobile-first form UX.",
     ],
     url: "https://15-catalina.vercel.app",
-    image: "./assets/Images/15CATA.webp",
+    image: "./assets/media/15CATA.webp",
   },
   {
     id: "zetaross",
@@ -1257,7 +1417,7 @@ const projects = [
       "Inquiry funnel without over-engineered checkout.",
     ],
     url: "https://zetaross.vercel.app",
-    image: "./assets/Images/ZETAROSS.webp",
+    image: "./assets/media/ZETAROSS.webp",
   },
   {
     id: "keis",
@@ -1274,7 +1434,7 @@ const projects = [
       "Structured service and certification storytelling.",
     ],
     url: "https://planta-productora-queso.vercel.app",
-    image: "./assets/Images/KEIS.webp",
+    image: "./assets/media/KEIS.webp",
   },
   {
     id: "phone-pixel",
@@ -1290,7 +1450,7 @@ const projects = [
       "Reusable components for future client storefronts.",
       "Demonstrates mobile cart and filter patterns.",
     ],
-    image: "./assets/Images/PHONEPIXEL.webp",
+    image: "./assets/media/PHONEPIXEL.webp",
   },
 ];
 
@@ -1427,18 +1587,26 @@ function renderCaseStudy(sections) {
     .join("");
 }
 
+function appendProjectAction(href, label, variant) {
+  if (!projectPageActions) return;
+  const link = document.createElement("a");
+  link.className = variant === "ghost" ? "project-page__link project-page__link--ghost" : "project-page__link";
+  link.href = href;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.innerHTML = `${escapeHtml(label)} <span aria-hidden="true">↗</span>`;
+  projectPageActions.append(link);
+}
+
 function renderProjectPageLink(project) {
   if (!projectPageActions) return;
   projectPageActions.innerHTML = "";
-  if (!shouldShowProjectUrl(project)) return;
-
-  const link = document.createElement("a");
-  link.className = "project-page__link";
-  link.href = project.url;
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
-  link.innerHTML = `${escapeHtml(t("projects.visitLive"))} <span aria-hidden="true">↗</span>`;
-  projectPageActions.append(link);
+  if (shouldShowProjectUrl(project)) {
+    appendProjectAction(project.url, t("projects.visitLive"));
+  }
+  if (project.repo) {
+    appendProjectAction(project.repo, t("projects.viewSource"), "ghost");
+  }
 }
 
 function fillProjectPage(project) {

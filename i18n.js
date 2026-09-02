@@ -163,6 +163,7 @@ window.PORTFOLIO_I18N = {
       screenshotAlt: "project screenshot",
       technologies: "Technologies",
       visitLive: "Visit live project",
+      viewSource: "View source",
       backToProjects: "Back to projects",
       techScale: "Technical scale",
     },
@@ -182,7 +183,11 @@ window.PORTFOLIO_I18N = {
       videosTitle: "Talks & clips",
       video1: "LinkedIn talk — technical advocacy clip 1",
       video2: "LinkedIn talk — technical advocacy clip 2",
+      video3: "LinkedIn talk — embedded post",
       moreLinkedIn: "More on LinkedIn",
+      moreCardTitle: "More talks on LinkedIn",
+      moreCardText: "Clips, posts and technical advocacy — open profile",
+      moreCardAria: "Open Fabio Ramos LinkedIn profile for more talks",
     },
     testimonials: {
       eyebrow: "Recommendations",
@@ -435,6 +440,7 @@ window.PORTFOLIO_I18N = {
       screenshotAlt: "captura del proyecto",
       technologies: "Tecnologías",
       visitLive: "Ver proyecto en vivo",
+      viewSource: "Ver código",
       backToProjects: "Volver a proyectos",
       techScale: "Escala técnica",
     },
@@ -454,7 +460,11 @@ window.PORTFOLIO_I18N = {
       videosTitle: "Charlas y clips",
       video1: "Charla en LinkedIn — clip de advocacy técnico 1",
       video2: "Charla en LinkedIn — clip de advocacy técnico 2",
+      video3: "Charla en LinkedIn — publicación integrada",
       moreLinkedIn: "Más en LinkedIn",
+      moreCardTitle: "Más charlas en LinkedIn",
+      moreCardText: "Clips, posts y advocacy técnico — abrí el perfil",
+      moreCardAria: "Abrir el perfil de LinkedIn de Fabio Ramos para ver más charlas",
     },
     testimonials: {
       eyebrow: "Recomendaciones",
@@ -842,6 +852,122 @@ window.PORTFOLIO_PROJECT_I18N = {
       "Storefront en producción con catálogo, PDP, carrito y checkout.",
       "Shell Operate de admin para sync de inventario, pedidos y KPIs.",
       "Hardening de seguridad con soporte de MFA y políticas orientadas a auditoría.",
+    ],
+  },
+  "legacy-ux-helper": {
+    role: "Product engineer · Extensión de Chrome",
+    tagline: "Resalta controles accionables en UIs web legacy — 100% local, sin mover el layout",
+    status: "Herramienta local",
+    description:
+      "Extensión de Chrome que delimita lo clickeable en interfaces legacy sin cambiar el layout de la página.",
+    descriptionLong:
+      "Legacy UX Helper es una extensión Chrome Manifest V3 para operadores que trabajan en pantallas enterprise densas y poco semánticas. Resalta botones, enlaces, inputs, controles ARIA, leftovers de onclick y tablas clickeables — sin mutar el DOM ni desplazar el layout. Tres modos (Todos / Solo legacy / Guía hover), etiquetas de entrenamiento, presets de accesibilidad e import/export JSON se quedan en la máquina: solo chrome.storage.local, sin host permissions ni analytics.",
+    caseStudy: [
+      {
+        title: "El problema",
+        body: "Los ERP y UIs bancarias legacy esconden qué es realmente clickeable — cursor:pointer en tablas, onclick inline, labels faltantes. Los operadores nuevos pierden tiempo buscando controles, y la modernización arranca sin un mapa de la superficie de interacción real.",
+      },
+      {
+        title: "La herramienta",
+        body: "Un overlay local que clasifica nodos interactivos y dibuja outlines por tipo. Los modos aíslan leftovers no semánticos o siguen el puntero para que un trainer recorra la pantalla sin pintar la página entera.",
+      },
+      {
+        title: "Restricción de privacidad",
+        body: "Pensada para entornos que no pueden mandar el contenido de la página fuera del dispositivo. Permisos: storage, activeTab y scripting. Sin API tabs, sin reglas por dominio, sin sync en la nube.",
+      },
+      {
+        title: "Mi rol",
+        body: "Diseñé y entregué la extensión de punta a punta: content script, popup, opciones, schema de settings, pipeline de iconos y notas de empaquetado para Chrome Web Store.",
+      },
+    ],
+    highlights: [
+      "Tres modos de resaltado más etiquetas de entrenamiento para onboarding en pantallas legacy.",
+      "Cero layout shift — solo overlay CSS; el HTML nunca se reescribe.",
+      "100% local: chrome.storage.local, sin host permissions ni telemetría.",
+    ],
+  },
+  "utility-tool": {
+    role: "Product engineer · Suite local-first",
+    tagline: "Imágenes, video, audio, PDFs y tools de developer — procesados en tu máquina",
+    status: "Producto local-first",
+    description:
+      "Suite local-first de utilidades para media, PDFs y tools de developer — sin subidas a la nube ni suscripciones.",
+    descriptionLong:
+      "Utility Tool reemplaza compresores y convertidores web que imponen topes de tamaño, límites diarios y subidas a terceros. Corre como app Next.js 16 en localhost: Sharp para imágenes, FFmpeg para video/audio, pdf-lib para PDFs, más generación de QR y un toolbox de developer (JSON, JWT, regex, hashes, optimizar SVG). Favoritos y recientes viven en localStorage. Vercel no es el objetivo — FFmpeg y archivos grandes pertenecen a la máquina, no a un timeout serverless.",
+    caseStudy: [
+      {
+        title: "El problema",
+        body: "Los sitios de convertir/comprimir suben archivos al servidor de otro y después encierran funciones básicas detrás de una suscripción. Es el modelo de confianza equivocado para fotos personales, PDFs de clientes y grabaciones internas.",
+      },
+      {
+        title: "El producto",
+        body: "Un escritorio en el browser por categorías: compress/convert/resize de imágenes en batch, marca de agua y strip de EXIF, transcode de video/audio, unir/partir PDF, QR/vCard y un drawer de developer con command palette.",
+      },
+      {
+        title: "Por qué no Vercel",
+        body: "El media pesado necesita FFmpeg de sistema, bodies grandes y timeouts largos. Shippear localhost (o un VPS/Docker) mantiene los archivos privados y el feature set honesto.",
+      },
+    ],
+    highlights: [
+      "Procesamiento local con Sharp, FFmpeg y pdf-lib — los archivos no salen de la máquina.",
+      "Command palette (Ctrl+K), favoritos y claro/oscuro — una suite, no un formulario suelto.",
+      "Documentado como local-first: un deploy serverless rompería video/audio y la privacidad.",
+    ],
+  },
+  "la-diagonal": {
+    role: "Full Stack · Plataforma de reservas",
+    tagline: "Reservas de complejo deportivo — mapa interactivo, holds, pagos y builder de admin",
+    status: "MVP · En desarrollo",
+    description:
+      "Plataforma de reservas para complejos deportivos — landing pública, mapa de canchas y builder admin del predio.",
+    descriptionLong:
+      "La Diagonal es una plataforma de reservas en Next.js 16 para predios deportivos. El primer cliente de referencia es Complejo La Diagonal (Tafí Viejo, Tucumán), con arquitectura multi-sede lista para más complejos. El visitante filtra canchas en un mapa interactivo, sostiene el turno 15 minutos, confirma el pago (efectivo / seña / transferencia) y recibe confirmación por WhatsApp. El operador tiene dashboards de KPIs, un builder drag-and-drop del mapa y CRUD de canchas, horarios y precios. La fase 1 usa un adapter mock; el schema de Supabase, RLS y RPCs ya está documentado.",
+    caseStudy: [
+      {
+        title: "El problema",
+        body: "Los complejos de barrio siguen tomando reservas por WhatsApp, sin hold, sin mapa de canchas y sin reglas de precio compartidas. El doble booking y el descuento ad-hoc se vuelven el modelo operativo.",
+      },
+      {
+        title: "La plataforma",
+        body: "Un flujo público de reserva con filtros en la URL, hold de 15 minutos, consulta por código + teléfono, y un admin que deja al predio dibujar su propio mapa en vez de esperar a un developer.",
+      },
+      {
+        title: "Arquitectura",
+        body: "Capa de datos ports-and-adapters (DATA_ADAPTER=mock|supabase). Availability, pricing y WhatsApp viven en services; el schema de Postgres, RLS y pg_cron están especificados para el corte a producción.",
+      },
+    ],
+    highlights: [
+      "Reserva end-to-end: mapa, hold de 15 min, método de pago y confirmación por WhatsApp.",
+      "Builder de mapa en admin más canchas, horarios, reglas de precio y dashboard de KPIs.",
+      "Adapter mock en su lugar; schema y RLS de Supabase documentados para producción.",
+    ],
+  },
+  "fut-camara": {
+    role: "Research · Computer vision",
+    tagline: "Pipeline de CV offline para fútbol amateur — distancia, sprints y heatmaps con cámara fija",
+    status: "Research · Fase 0–1",
+    description:
+      "Pipeline offline de computer vision para analítica de partidos amateur F5/F7/F9 con cámara fija.",
+    descriptionLong:
+      "FutCam procesa grabaciones de fútbol amateur (F5/F7/F9) con cámara fija y apunta a emitir métricas físicas por jugador: distancia, velocidad, sprints, heatmaps y un rating relativo. El corte actual es Fase 0–1 — paquete Python, calibración de predio, homografía y una CLI Typer (futcam info / probe / calibrate / process). La detección está planteada con RF-DETR + ByteTrack en vez de YOLO; la clasificación de equipos (SigLIP + UMAP) y una superficie futura en Next.js/Supabase quedan en un roadmap posterior. Status honesto: scaffold y calibración, todavía no es un producto en producción.",
+    caseStudy: [
+      {
+        title: "La apuesta",
+        body: "El F5/F7/F9 amateur casi no tiene tracking accesible. Una cámara fija más procesamiento batch offline puede producir reportes físicos útiles sin una instalación de estadio.",
+      },
+      {
+        title: "El corte actual",
+        body: "Paquete Python CLI-first: config con Pydantic, calibración interactiva de predio, homografía a metros y un path documentado de setup AMD ROCm / NVIDIA.",
+      },
+      {
+        title: "Estado",
+        body: "Fase 0–1. Process sigue siendo un stub hasta que aterricen detección y tracking. Publicado como research — los ADR explican RF-DETR por sobre YOLO.",
+      },
+    ],
+    highlights: [
+      "Pipeline batch offline para formatos amateur — no es un producto live de estadio.",
+      "CLI + calibración de predio + homografía; RF-DETR / ByteTrack en el roadmap.",
+      "Fase 0–1: arquitectura y calibración entregadas; el procesamiento de partido sigue en curso.",
     ],
   },
   "lomas-gym": {

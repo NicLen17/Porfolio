@@ -1724,20 +1724,53 @@ button {
   border: 0;
 }
 
-.speaking-videos__more {
-  margin: 1.5rem 0 0;
+.speaking-video--more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
   text-align: center;
-  font-size: 0.875rem;
-}
-
-.speaking-videos__more a {
-  color: var(--accent);
   text-decoration: none;
-  font-weight: 500;
+  color: inherit;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(16, 185, 129, 0.16), transparent 52%),
+    #0a0a0a;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 
-.speaking-videos__more a:hover {
-  text-decoration: underline;
+.speaking-video--more:hover {
+  border-color: var(--accent-border);
+  box-shadow: 0 16px 40px rgba(16, 185, 129, 0.12);
+  transform: translateY(-2px);
+}
+
+.speaking-video--more__icon {
+  width: 3rem;
+  height: 3rem;
+}
+
+.speaking-video--more__title {
+  margin: 0;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 650;
+  color: #fff;
+}
+
+.speaking-video--more__text {
+  margin: 0;
+  max-width: 16rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: #a1a1aa;
+}
+
+.speaking-video--more__cta {
+  color: var(--accent);
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 #speaking.is-visible .speaking-goal,
@@ -1750,8 +1783,13 @@ button {
   animation-delay: 80ms;
 }
 
-#speaking.is-visible .speaking-goal:nth-child(3) {
+#speaking.is-visible .speaking-goal:nth-child(3),
+#speaking.is-visible .speaking-video:nth-child(3) {
   animation-delay: 160ms;
+}
+
+#speaking.is-visible .speaking-video:nth-child(4) {
+  animation-delay: 220ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2662,6 +2700,9 @@ button {
 }
 
 .project-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
   margin-top: 2rem;
 }
 
@@ -2687,4 +2728,17 @@ button {
 .project-page__link:hover {
   filter: brightness(1.08);
   transform: translateY(-1px);
+}
+
+.project-page__link--ghost {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.project-page__link--ghost:hover {
+  filter: none;
+  border-color: var(--accent-border);
+  color: #a7f3d0;
+  background: rgba(255, 255, 255, 0.04);
 }
