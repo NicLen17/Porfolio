@@ -91,26 +91,19 @@ const TILE_COLS = 40;
 const TILE_EXTRA_COUNT = 1399;
 const HERO_ANIM_KEY = "portfolio-hero-anim";
 const INTRO_MS = 2800;
-const SPARKLE_EVERY_MS = 240;
-const WAVE_RINGS = 3;
-const WAVE_MAX_DIST_RATIO = 0.66;
+const WAVE_BAND = 1.45;
 const WAVE_FRONT_OVERSHOOT = 2.4;
-const WAVE_TAIL_MS = 360;
 const HERO_PAUSE_SCROLL_Y = 28;
 const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 const idleLit = new Set();
 const heroAnimSwitch = document.querySelector(".hero-anim-switch");
 const heroAnimReplayBtn = document.querySelector('[data-hero-anim="replay"]');
-const heroAnimStopBtn = document.querySelector('[data-hero-anim="stop"]');
 const heroBgEl = document.getElementById("container");
 const heroTextEl = document.getElementById("content");
 
 let tileMeta = [];
-let waveTiles = [];
-let sparklePool = [];
 let tileMaxDist = 1;
 let tilesReady = false;
-let heroAnimStopped = false;
 let heroShouldPlayIntro = true;
 let heroAnimPlaying = "intro";
 let heroAnimGen = 0;
@@ -146,10 +139,9 @@ function prefersReducedMotion() {
   return reducedMotionQuery.matches;
 }
 
-function canRunHeroIdle() {
+function canRunHeroPulse() {
   return (
     tilesReady &&
-    !heroAnimStopped &&
     !heroScrollPaused &&
     !prefersReducedMotion() &&
     document.visibilityState === "visible" &&
@@ -163,33 +155,6 @@ function afterPaint(fn) {
 
 function shouldPlayWaveIntro() {
   return followerMedia.matches;
-}
-
-function warmHeroTilePaints() {
-  if (!tileMeta.length) return;
-
-  const marked = [];
-  const seen = new Set();
-  const mark = (el) => {
-    if (!el || seen.has(el)) return;
-    seen.add(el);
-    marked.push(el);
-  };
-
-  for (let i = 0; i < waveTiles.length; i += 1) {
-    if (waveTiles[i].dist <= 2.4) mark(waveTiles[i].el);
-  }
-  for (let i = 0; i < tileMeta.length && marked.length < 28; i += 1) {
-    const nth = i + 1;
-    if (nth % 4 === 0 || nth % 7 === 0 || nth % 11 === 1) mark(tileMeta[i].el);
-  }
-
-  container.classList.add("is-anim-frozen");
-  for (let i = 0; i < marked.length; i += 1) marked[i].classList.add("tile--idle");
-  void container.offsetWidth;
-  for (let i = 0; i < marked.length; i += 1) marked[i].classList.remove("tile--idle");
-  void container.offsetWidth;
-  container.classList.remove("is-anim-frozen");
 }
 
 function indexTiles() {
@@ -209,10 +174,6 @@ function indexTiles() {
     };
   });
   tileMaxDist = maxDist || 1;
-  waveTiles = tileMeta.filter((item) => item.dist <= tileMaxDist * WAVE_MAX_DIST_RATIO);
-  sparklePool = tileMeta.filter(
-    (item) => item.dist >= tileMaxDist * 0.22 && item.dist < tileMaxDist * 0.62
-  );
   tilesReady = true;
 }
 
@@ -228,11 +189,7 @@ function populateTiles(onDone) {
 
 function syncHeroAnimSwitch() {
   if (heroAnimReplayBtn) {
-    heroAnimReplayBtn.classList.toggle("is-playing", !heroAnimStopped && heroAnimPlaying === "intro");
-  }
-  if (heroAnimStopBtn) {
-    heroAnimStopBtn.classList.toggle("is-active", heroAnimStopped);
-    heroAnimStopBtn.setAttribute("aria-pressed", String(heroAnimStopped));
+    heroAnimReplayBtn.classList.toggle("is-playing", heroAnimPlaying === "intro");
   }
 }
 
@@ -251,7 +208,6 @@ function freezeHeroTiles() {
   heroAnimGen += 1;
   stopHeroIdleTimers();
   container.classList.add("is-anim-frozen");
-  container.classList.remove("is-pulsing");
   clearIdleLit();
 }
 
@@ -261,88 +217,55 @@ function unfreezeHeroTiles() {
 
 function pauseHeroTiles({ consumeIntro = false } = {}) {
   freezeHeroTiles();
-  if (consumeIntro) heroShouldPlayIntro = false;
-  if (heroAnimStopped) return;
-  if (consumeIntro) heroAnimPlaying = "idle";
+  if (consumeIntro) {
+    heroShouldPlayIntro = false;
+    heroAnimPlaying = "done";
+  }
   syncHeroAnimSwitch();
 }
 
-function collectRippleRing(front) {
-  const next = new Set();
-  const frontRing = Math.round(front);
-  const maxBehind = (WAVE_RINGS - 1) * 2;
-  for (let i = 0; i < waveTiles.length; i += 1) {
-    const dist = waveTiles[i].dist;
-    const ring = Math.round(dist);
-    if (ring > frontRing) continue;
-    const behind = frontRing - ring;
-    if (behind % 2 !== 0) continue;
-    if (behind > maxBehind) continue;
-    next.add(waveTiles[i].el);
-  }
-  return next;
-}
-
-function pickSparkleTile() {
-  const pool = sparklePool.length ? sparklePool : tileMeta;
-  return pool[(Math.random() * pool.length) | 0];
-}
-
-function playHeroTiles(gen, playIntro) {
-  const litUntil = new Map();
-  const introEndMs = playIntro ? INTRO_MS + WAVE_TAIL_MS : 0;
-  let nextSpawnAt = introEndMs;
-  const start = performance.now();
-  const waveExtent = tileMaxDist * WAVE_MAX_DIST_RATIO + WAVE_FRONT_OVERSHOOT;
-  const waveTailTravel = (WAVE_RINGS - 1) * 2 + 2;
-
+function animateHeroIdle(duration, update, gen) {
   return new Promise((resolve) => {
+    const start = performance.now();
     const tick = (now) => {
       if (gen !== heroAnimGen) {
         resolve(false);
         return;
       }
-
       const elapsed = now - start;
-      let next = new Set();
-      if (playIntro && elapsed < introEndMs) {
-        container.classList.add("is-pulsing");
-        if (elapsed < INTRO_MS) {
-          const t = Math.min(1, elapsed / INTRO_MS);
-          const eased = 1 - (1 - t) * (1 - t);
-          next = collectRippleRing(eased * waveExtent);
-        } else {
-          const tail = Math.min(1, (elapsed - INTRO_MS) / WAVE_TAIL_MS);
-          next = collectRippleRing(waveExtent + tail * waveTailTravel);
-        }
-      } else if (playIntro && heroAnimPlaying === "intro") {
-        container.classList.remove("is-pulsing");
-        heroAnimPlaying = "idle";
-        syncHeroAnimSwitch();
+      const t = Math.min(1, elapsed / duration);
+      update(t, elapsed);
+      if (t < 1) {
+        heroAnimRaf = requestAnimationFrame(tick);
+      } else {
+        heroAnimRaf = 0;
+        resolve(true);
       }
-
-      if (!playIntro || elapsed >= introEndMs) {
-        while (nextSpawnAt <= elapsed) {
-          const ttl = 520 + Math.random() * 680;
-          if (nextSpawnAt + ttl > elapsed) {
-            const count = 1 + ((Math.random() * 2) | 0);
-            for (let i = 0; i < count; i += 1) {
-              litUntil.set(pickSparkleTile().el, nextSpawnAt + ttl);
-            }
-          }
-          nextSpawnAt += SPARKLE_EVERY_MS;
-        }
-        litUntil.forEach((until, el) => {
-          if (until > elapsed) next.add(el);
-          else litUntil.delete(el);
-        });
-      }
-
-      setIdleLit(next);
-      heroAnimRaf = requestAnimationFrame(tick);
     };
     heroAnimRaf = requestAnimationFrame(tick);
   });
+}
+
+async function playRippleIntro(gen) {
+  const done = await animateHeroIdle(
+    INTRO_MS,
+    (t) => {
+      const eased = 1 - (1 - t) * (1 - t);
+      const radius = eased * (tileMaxDist + WAVE_FRONT_OVERSHOOT);
+      const next = new Set();
+      for (let i = 0; i < tileMeta.length; i += 1) {
+        if (Math.abs(tileMeta[i].dist - radius) <= WAVE_BAND) next.add(tileMeta[i].el);
+      }
+      setIdleLit(next);
+    },
+    gen
+  );
+  if (done) {
+    clearIdleLit();
+    heroAnimPlaying = "done";
+    syncHeroAnimSwitch();
+  }
+  return done;
 }
 
 function restartHeroAnim({ playIntro } = {}) {
@@ -351,34 +274,27 @@ function restartHeroAnim({ playIntro } = {}) {
   clearIdleLit();
   unfreezeHeroTiles();
   if (playIntro != null) heroShouldPlayIntro = playIntro;
-  syncHeroAnimSwitch();
-  if (!canRunHeroIdle()) return;
+
+  const intro = heroShouldPlayIntro && shouldPlayWaveIntro();
+  if (!intro || !canRunHeroPulse()) {
+    heroAnimPlaying = "done";
+    syncHeroAnimSwitch();
+    return;
+  }
 
   const gen = heroAnimGen;
-  const intro = heroShouldPlayIntro && shouldPlayWaveIntro();
   heroShouldPlayIntro = false;
-  heroAnimPlaying = intro ? "intro" : "idle";
+  heroAnimPlaying = "intro";
   syncHeroAnimSwitch();
 
   heroAnimTimer = setTimeout(() => {
     heroAnimTimer = 0;
     if (gen !== heroAnimGen) return;
-    playHeroTiles(gen, intro);
-  }, intro ? 160 : 80);
-}
-
-function stopHeroAnim() {
-  heroAnimStopped = true;
-  freezeHeroTiles();
-  heroAnimPlaying = "stopped";
-  syncHeroAnimSwitch();
-  requestAnimationFrame(() => {
-    if (!heroScrollPaused) unfreezeHeroTiles();
-  });
+    playRippleIntro(gen);
+  }, 160);
 }
 
 function replayHeroIntro() {
-  heroAnimStopped = false;
   heroScrollPaused = window.scrollY > HERO_PAUSE_SCROLL_Y;
   restartHeroAnim({ playIntro: shouldPlayWaveIntro() });
 }
@@ -386,9 +302,9 @@ function replayHeroIntro() {
 function syncHeroPerspective() {
   if (!heroBgEl || !heroTextEl) return;
   const flatten = window.scrollY > 1;
-  heroBgEl.classList.toggle("container", !flatten);
+  heroBgEl.classList.add("container");
   heroBgEl.classList.toggle("container-flat", flatten);
-  heroTextEl.classList.toggle("content", !flatten);
+  heroTextEl.classList.add("content");
   heroTextEl.classList.toggle("content-flat", flatten);
 }
 
@@ -397,7 +313,7 @@ function syncHeroScrollPause() {
   if (shouldPause === heroScrollPaused) return;
   heroScrollPaused = shouldPause;
   if (shouldPause) pauseHeroTiles({ consumeIntro: true });
-  else if (canRunHeroIdle()) restartHeroAnim();
+  else if (heroShouldPlayIntro) restartHeroAnim();
 }
 
 function onHeroScroll() {
@@ -410,7 +326,6 @@ function onHeroScroll() {
 }
 
 heroAnimReplayBtn?.addEventListener("click", replayHeroIntro);
-heroAnimStopBtn?.addEventListener("click", stopHeroAnim);
 
 if (heroAnimSwitch) {
   const heroAnimIo = new IntersectionObserver(
@@ -418,8 +333,11 @@ if (heroAnimSwitch) {
       const visible = Boolean(entries[0]?.isIntersecting);
       if (visible === heroInView) return;
       heroInView = visible;
-      if (heroInView) restartHeroAnim();
-      else pauseHeroTiles();
+      if (heroInView) {
+        if (heroShouldPlayIntro) restartHeroAnim();
+      } else {
+        pauseHeroTiles();
+      }
     },
     { threshold: 0.12 }
   );
@@ -427,8 +345,11 @@ if (heroAnimSwitch) {
 }
 
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible") restartHeroAnim();
-  else pauseHeroTiles();
+  if (document.visibilityState === "visible") {
+    if (heroShouldPlayIntro) restartHeroAnim();
+  } else {
+    pauseHeroTiles();
+  }
 });
 
 const onReducedMotionChange = () => restartHeroAnim();
@@ -482,7 +403,6 @@ document.querySelectorAll(".hidden").forEach((el) => {
 requestAnimationFrame(() => {
   requestAnimationFrame(() => {
     populateTiles(() => {
-      warmHeroTilePaints();
       container.classList.add("show");
       heroObserver.observe(container);
       afterPaint(startInitialIntro);
@@ -575,6 +495,14 @@ function localizeProject(project) {
     techMetrics: es.techMetrics ?? project.techMetrics,
     caseStudy: es.caseStudy ?? project.caseStudy,
     myRole: es.myRole ?? project.myRole,
+    outcomes: es.outcomes ?? project.outcomes,
+    gallery: Array.isArray(project.gallery)
+      ? project.gallery.map((item, index) => ({
+          ...item,
+          caption: es.gallery?.[index]?.caption ?? item.caption,
+          frameLabel: es.gallery?.[index]?.frameLabel ?? item.frameLabel,
+        }))
+      : project.gallery,
   };
 }
 
@@ -602,7 +530,7 @@ const PROJECT_VERCEL_ADDED_AT = {
   "lomas-gym": 1787095253205,
   "mix-potrero": 1787077136217,
   tecnoleg: 1786762848479,
-  "caw-education-landing": 1783340832826,
+  "caw-education": 1783340832826,
   "la-leyenda": 1786057992000,
   "bullet-hell-example": 1780945476668,
   "la-congreso": 1780657175106,
@@ -615,7 +543,6 @@ const PROJECT_VERCEL_ADDED_AT = {
   "sublimspace": 1764598034846,
   "expologic": 1764114884350,
   "little-bite-society": 1762882384069,
-  "caw-education": 1758499439618,
   "enduring-education": 1752118627457,
   "txtgen": 1750771534132,
   "bootcamp-backend": 1727912956755,
@@ -657,16 +584,16 @@ const projects = [
     id: "volley-manager",
     title: "Volley Manager",
     year: 2026,
-    featured: true,
-    featuredOrder: 1,
+    spotlight: true,
+    spotlightOrder: 1,
     role: "Principal Software Engineer · Co-Founder · CAW Tech",
     tagline: "Production SaaS / PWA for professional volleyball club operations",
     status: "In production",
     statusKind: "production",
     description:
-      "Production SaaS/PWA powering daily operations for a professional volleyball club in Bolivia — athletes, staff, access, payments and coaching tools.",
+      "Production SaaS/PWA powering daily operations for a professional volleyball club in Bolivia, athletes, staff, access, payments and coaching tools.",
     descriptionLong:
-      "Volley Manager is a production digital operations platform for a professional volleyball club in Bolivia. It supports club administration, athlete management, attendance, alerts, notifications, financial workflows and access control — including QR access and consent-based facial recognition, with QR fallback when consent is not provided. Families can register and pay online through an integration with Banco Económico (Bolivia).",
+      "Volley Manager is a production digital operations platform for a professional volleyball club in Bolivia. It supports club administration, athlete management, attendance, alerts, notifications, financial workflows and access control, including QR access and consent-based facial recognition, with QR fallback when consent is not provided. Families can register and pay online through an integration with Banco Económico (Bolivia).",
     technologies: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "PWA", "Vercel"],
     metrics: [
       { value: "~700", label: "Athletes" },
@@ -679,7 +606,7 @@ const projects = [
     caseStudy: [
       {
         title: "The problem",
-        body: "A professional club needs a single operational system for athletes, staff and families — not a generic admin CRUD. Daily check-ins, payments, attendance and coaching workflows have to work together under real venue conditions.",
+        body: "A professional club needs a single operational system for athletes, staff and families, not a generic admin CRUD. Daily check-ins, payments, attendance and coaching workflows have to work together under real venue conditions.",
       },
       {
         title: "The platform",
@@ -697,7 +624,7 @@ const projects = [
       },
       {
         title: "Coaching & scouting",
-        body: "A domain-specific coaching module with an interactive visual volleyball court. Coaches record and manage scouting information through a spatial workflow — not a generic statistics form.",
+        body: "A domain-specific coaching module with an interactive visual volleyball court. Coaches record and manage scouting information through a spatial workflow, not a generic statistics form.",
       },
       {
         title: "AI / voice scouting",
@@ -714,17 +641,29 @@ const projects = [
     ],
     highlights: [
       "Production platform for ~700 athletes and ~15 staff with ~600 daily access/check-in events.",
-      "Administrative, financial, attendance and access-control workflows — including Banco Económico payments.",
+      "Administrative, financial, attendance and access-control workflows, including Banco Económico payments.",
       "Interactive volleyball scouting court, AI-assisted club context and voice-based scouting for coaches.",
     ],
+    outcomes: [
+      "Daily production use at a professional volleyball club",
+      "Payments and access control in the same operational loop",
+      "Coaching tools designed for the court, not a spreadsheet",
+    ],
+    gallery: [
+      { kind: "image", src: "./assets/media/VolleyManager.webp", caption: "Club operations dashboard", frameLabel: "volley-manager · production" },
+      { kind: "image", src: "./assets/media/volley-heatmap.webp", caption: "Attack heatmap · match analytics" },
+      { kind: "image", src: "./assets/media/volley-ai.webp", caption: "AI assistant for scouting & prep" },
+      { kind: "image", src: "./assets/media/volley-athlete.webp", caption: "Athlete profile · technical radar" },
+    ],
+    url: "https://volleymanager.app/",
     image: "./assets/media/VolleyManager.webp",
   },
   {
     id: "expologic",
     title: "ExpoLogic",
     year: 2026,
-    featured: true,
-    featuredOrder: 2,
+    spotlight: true,
+    spotlightOrder: 2,
     role: "Principal Software Engineer · Co-Founder · CAW Tech",
     tagline: "B2B2C multi-tenant SaaS for cultural fairs, artisan markets and entrepreneur events",
     status: "MVP · Seed · Validated prototype",
@@ -732,7 +671,7 @@ const projects = [
     description:
       "Multi-tenant SaaS that replaces Excel, WhatsApp and paper maps with interactive fair maps, reservations, waitlists, virtual fairs and analytics.",
     descriptionLong:
-      "ExpoLogic is a B2B2C multi-tenant SaaS that centralizes cultural fairs, artisan markets and entrepreneur events — professionalizing access to commercial spaces in the popular economy through digital inclusion. Organizers get a real-time operations panel; exhibitors reserve stands in a few clicks; visitors explore the fair online 24/7 before and after the physical event. Built for a market of 3,500+ active fairs and 50K+ recurrent exhibitors in Argentina, with field validation of ~50 interviews in Tucumán.",
+      "ExpoLogic is a B2B2C multi-tenant SaaS that centralizes cultural fairs, artisan markets and entrepreneur events, professionalizing access to commercial spaces in the popular economy through digital inclusion. Organizers get a real-time operations panel; exhibitors reserve stands in a few clicks; visitors explore the fair online 24/7 before and after the physical event. Built for a market of 3,500+ active fairs and 50K+ recurrent exhibitors in Argentina, with field validation of ~50 interviews in Tucumán.",
     technologies: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "Tailwind CSS", "Vercel"],
     metrics: [
       { value: "~50", label: "Field interviews" },
@@ -743,7 +682,7 @@ const projects = [
     caseStudy: [
       {
         title: "The problem",
-        body: "Organizers run Excel, WhatsApp and paper floor plans — up to ~20 days of management per event. Exhibitors face uncertainty, queues and late confirmations with no traceability. Empty stands, unidentified payments and zero audit trails hurt municipalities. Validated in the field with ~50 interviews across Tucumán fairs.",
+        body: "Organizers run Excel, WhatsApp and paper floor plans, up to ~20 days of management per event. Exhibitors face uncertainty, queues and late confirmations with no traceability. Empty stands, unidentified payments and zero audit trails hurt municipalities. Validated in the field with ~50 interviews across Tucumán fairs.",
       },
       {
         title: "3 problems · 1 solution",
@@ -755,21 +694,21 @@ const projects = [
       },
       {
         title: "The platform",
-        body: "A unique regional approach for fair operations: real-time interactive maps with mobile reservation, automated waitlists and payment audit for organizers, public event presence plus a free landing/catalog per exhibitor, and a virtual fair that stays visible before and after the event — stands, products and upcoming editions online.",
+        body: "A unique regional approach for fair operations: real-time interactive maps with mobile reservation, automated waitlists and payment audit for organizers, public event presence plus a free landing/catalog per exhibitor, and a virtual fair that stays visible before and after the event, stands, products and upcoming editions online.",
       },
       {
         title: "Multi-tenant hub",
-        body: "A central hub manages tenants/organizers. Each organizer receives their own environment to manage events, reservations, public websites, maps and exhibitors — plus a template engine so organizers design layouts without depending on third parties.",
+        body: "A central hub manages tenants/organizers. Each organizer receives their own environment to manage events, reservations, public websites, maps and exhibitors, plus a template engine so organizers design layouts without depending on third parties.",
         diagram:
           "CAW / Hub\n├── Tenant A / Organizer\n│   ├── Event\n│   ├── Reservations\n│   ├── Website\n│   ├── Map\n│   └── Exhibitors\n└── Tenant B / Organizer\n    ├── Event\n    ├── Reservations\n    ├── Website\n    ├── Map\n    └── Exhibitors",
       },
       {
         title: "Business model",
         items: [
-          "Per-event pricing — percentage per exhibitor above a threshold, or fixed fee by attendance",
-          "Monthly maintenance — database, hosting and event web presence",
-          "Optional setup — map build and organizer onboarding",
-          "Free for exhibitors — landing, catalog and web visibility included (social-impact B2B SaaS)",
+          "Per-event pricing, percentage per exhibitor above a threshold, or fixed fee by attendance",
+          "Monthly maintenance, database, hosting and event web presence",
+          "Optional setup, map build and organizer onboarding",
+          "Free for exhibitors, landing, catalog and web visibility included (social-impact B2B SaaS)",
         ],
       },
       {
@@ -787,8 +726,19 @@ const projects = [
     ],
     highlights: [
       "Replaces weeks of manual fair ops with real-time maps, reservations, waitlists and payment audit.",
-      "Free exhibitor landings + 24/7 virtual fair — B2B SaaS with social-impact positioning.",
+      "Free exhibitor landings + 24/7 virtual fair, B2B SaaS with social-impact positioning.",
       "Validated with ~50 field interviews; 3.5K+ fairs / 50K+ exhibitors market; Emprende U semifinalist.",
+    ],
+    outcomes: [
+      "Field-validated with ~50 organizer and exhibitor interviews",
+      "Emprende U semifinalist · covered by La Gaceta",
+      "Multi-tenant hub ready for regional fair pilots",
+    ],
+    gallery: [
+      { kind: "image", src: "./assets/media/ExpoLogic.webp", caption: "Marketing landing · fair OS", frameLabel: "caw-expologic.vercel.app" },
+      { kind: "image", src: "./assets/media/expologic-map.webp", caption: "Interactive stand map · live reservations" },
+      { kind: "image", src: "./assets/media/expologic-panel.webp", caption: "Organizer control panel · KPIs" },
+      { kind: "image", src: "./assets/media/expologic-reservas.webp", caption: "Reservation management · payments" },
     ],
     url: "https://caw-expologic.vercel.app/",
     image: "./assets/media/ExpoLogic.webp",
@@ -802,10 +752,19 @@ const projects = [
     status: "Product development",
     statusKind: "dev",
     description:
-      "Education platform for schools — attendance, grades, student evolution, alerts and organizational KPIs.",
+      "Education platform for schools, covering attendance, grades, alerts and KPIs, with a public landing for demos.",
     descriptionLong:
-      "CAW Education is a CAW Tech product targeted at primary and secondary schools. The platform is designed to centralize educational data such as attendance, grades, student evolution, comparisons, alerts, parent notifications, teacher and preceptor information, and academic/organizational KPIs — influenced by a Data Science for Organizations background and positioned as data-driven educational operations.",
-    technologies: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "Tailwind CSS", "Chart.js", "Vercel"],
+      "CAW Education is a CAW Tech product for primary and secondary schools. The platform centralizes educational data such as attendance, grades, student evolution, comparisons, alerts, parent notifications, teacher and preceptor information, and academic/organizational KPIs. The official marketing landing at caweducation.com is the live product story: hero, modules, FAQ and demo CTAs.",
+    technologies: [
+      "Next.js",
+      "TypeScript",
+      "Supabase",
+      "PostgreSQL",
+      "Tailwind CSS",
+      "Chart.js",
+      "Framer Motion",
+      "Vercel",
+    ],
     caseStudy: [
       {
         title: "The problem",
@@ -816,14 +775,18 @@ const projects = [
         body: "Designed to centralize student attendance, grades, evolution, comparisons, alerts, parent notifications and academic/organizational KPIs for teachers, preceptors and families.",
       },
       {
+        title: "The marketing site",
+        body: "The public landing at caweducation.com carries the product story: problem/solution narrative, module grids, education-level solutions, testimonials, FAQ and demo contact flows, built with Next.js and Framer Motion on the CAW brand palette.",
+      },
+      {
         title: "My role",
-        body: "Designed the product architecture and data-oriented workflows, applying organizational data-analysis principles to turn educational records into operational dashboards and decision-support views.",
+        body: "Designed the product architecture and data-oriented workflows, and shipped the official marketing landing that is the live call-to-action for the product.",
       },
     ],
     highlights: [
       "Designed a data-driven education platform for primary and secondary schools.",
       "Centralizes attendance, grades, student evolution, comparisons and alerts.",
-      "Operational dashboards and KPIs for teachers, preceptors and families.",
+      "Official marketing landing with demo CTAs at caweducation.com.",
     ],
     url: "https://caweducation.com",
     image: "./assets/media/cawpic.webp",
@@ -833,13 +796,13 @@ const projects = [
     title: "Tecnoleg",
     year: 2026,
     featured: true,
-    featuredOrder: 3,
+    featuredOrder: 1,
     role: "Full Stack · E-commerce",
-    tagline: "Smart store for refurbished tech — catalog, checkout and operations admin",
+    tagline: "Smart store for refurbished tech, catalog, checkout and operations admin",
     status: "In production",
     statusKind: "production",
     description:
-      "Production smart store for accessible technology in Tucumán — storefront, cart/checkout and admin operations.",
+      "Production smart store for accessible technology in Tucumán, storefront, cart/checkout and admin operations.",
     descriptionLong:
       "Tecnoleg is a production e-commerce platform for refurbished phones, notebooks and accessories. It combines a public storefront with authenticated admin tooling: catalog/provider sync, order operations, MFA-ready auth and analytics dashboards. Deployed on Vercel with a custom domain (tecnoleg.com.ar).",
     technologies: ["Next.js", "TypeScript", "Supabase", "Tailwind CSS", "Vercel"],
@@ -848,28 +811,28 @@ const projects = [
       "Admin Operate shell for inventory sync, orders and KPI dashboards.",
       "Security hardening with MFA gate support and audit-oriented policies.",
     ],
-    url: "https://www.tecnoleg.com.ar",
+    url: "https://www.tecnoleg.com.ar/",
     image: "./assets/media/tecnoleg.webp",
   },
   {
     id: "legacy-ux-helper",
     title: "Legacy UX Helper",
     year: 2026,
-    featured: true,
-    featuredOrder: 6,
+    spotlight: true,
+    spotlightOrder: 3,
     role: "Product engineer · Chrome extension",
-    tagline: "Highlight actionable controls in legacy web UIs — 100% local, no layout shift",
+    tagline: "Highlight actionable controls in legacy web UIs, 100% local, no layout shift",
     status: "Local tool",
     statusKind: "production",
     description:
       "Chrome extension that outlines clickable elements in legacy interfaces without changing the page layout.",
     descriptionLong:
-      "Legacy UX Helper is a Manifest V3 Chrome extension for operators working on dense, non-semantic enterprise screens. It highlights buttons, links, inputs, ARIA controls, onclick leftovers and clickable tables — without mutating the DOM or shifting layout. Three modes (All / Legacy only / Hover guide), training labels, accessibility presets and JSON import/export stay on the machine: chrome.storage.local only, no host permissions, no analytics.",
+      "Legacy UX Helper is a Manifest V3 Chrome extension for operators working on dense, non-semantic enterprise screens. It highlights buttons, links, inputs, ARIA controls, onclick leftovers and clickable tables, without mutating the DOM or shifting layout. Three modes (All / Legacy only / Hover guide), training labels, accessibility presets and JSON import/export stay on the machine: chrome.storage.local only, no host permissions, no analytics.",
     technologies: ["JavaScript", "Chrome Extension", "Manifest V3", "CSS"],
     caseStudy: [
       {
         title: "The problem",
-        body: "Legacy ERPs and banking UIs hide what is actually clickable — cursor:pointer on tables, inline onclick, missing labels. New operators waste time hunting controls, and modernization work starts without a map of the real interaction surface.",
+        body: "Legacy ERPs and banking UIs hide what is actually clickable, cursor:pointer on tables, inline onclick, missing labels. New operators waste time hunting controls, and modernization work starts without a map of the real interaction surface.",
       },
       {
         title: "The tool",
@@ -884,10 +847,27 @@ const projects = [
         body: "Designed and shipped the extension end-to-end: content script, popup, options, settings schema, icon pipeline and Chrome Web Store packaging notes.",
       },
     ],
+    metrics: [
+      { value: "100%", label: "On-device" },
+      { value: "0", label: "Layout shift" },
+      { value: "3", label: "Highlight modes" },
+      { value: "0", label: "Telemetry" },
+    ],
     highlights: [
       "Three highlight modes plus training labels for onboarding on legacy screens.",
-      "Zero layout shift — CSS overlay only; HTML is never rewritten.",
+      "Zero layout shift, CSS overlay only; HTML is never rewritten.",
       "100% local: chrome.storage.local, no host permissions, no telemetry.",
+    ],
+    outcomes: [
+      "Zero layout shift on dense enterprise screens",
+      "Privacy-safe: no host permissions, no page exfiltration",
+      "Built for operator onboarding on legacy ERPs",
+    ],
+    gallery: [
+      { kind: "image", src: "./assets/media/legacy-ux-helper.webp", caption: "Legacy overlay in action", frameLabel: "chrome extension · local" },
+      { kind: "placeholder", motif: "overlay", caption: "All interactive controls" },
+      { kind: "placeholder", motif: "access", caption: "Legacy-only leftovers" },
+      { kind: "placeholder", motif: "dashboard", caption: "Hover guide for trainers" },
     ],
     repo: "https://github.com/NicLen17/legacy-ux-helper",
     image: "./assets/media/legacy-ux-helper.webp",
@@ -897,13 +877,13 @@ const projects = [
     title: "Utility Tool",
     year: 2026,
     role: "Product engineer · Local-first suite",
-    tagline: "Images, video, audio, PDFs and developer tools — processed on your machine",
+    tagline: "Images, video, audio, PDFs and developer tools, processed on your machine",
     status: "Local-first product",
     statusKind: "production",
     description:
-      "Local-first utility suite for media, PDFs and developer tools — no cloud uploads, no subscriptions.",
+      "Local-first utility suite for media, PDFs and developer tools, no cloud uploads, no subscriptions.",
     descriptionLong:
-      "Utility Tool replaces web compressors and converters that impose size caps, daily limits and third-party uploads. It runs as a Next.js 16 app on localhost: Sharp for images, FFmpeg for video/audio, pdf-lib for PDFs, plus QR generation and a developer toolbox (JSON, JWT, regex, hashes, SVG optimize). Favorites and recents stay in localStorage. Vercel is a non-goal — FFmpeg and large files belong on the machine, not on a serverless timeout.",
+      "Utility Tool replaces web compressors and converters that impose size caps, daily limits and third-party uploads. It runs as a Next.js 16 app on localhost: Sharp for images, FFmpeg for video/audio, pdf-lib for PDFs, plus QR generation and a developer toolbox (JSON, JWT, regex, hashes, SVG optimize). Favorites and recents stay in localStorage. Vercel is a non-goal. FFmpeg and large files belong on the machine, not on a serverless timeout.",
     technologies: ["Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "Sharp", "FFmpeg"],
     caseStudy: [
       {
@@ -920,23 +900,23 @@ const projects = [
       },
     ],
     highlights: [
-      "Local processing with Sharp, FFmpeg and pdf-lib — files never leave the machine.",
-      "Command palette (Ctrl+K), favorites and light/dark — a suite, not a single form.",
+      "Local processing with Sharp, FFmpeg and pdf-lib, files never leave the machine.",
+      "Command palette (Ctrl+K), favorites and light/dark. A suite, not a single form.",
       "Documented as local-first: serverless deploy would break video/audio and privacy.",
     ],
     repo: "https://github.com/NicLen17/utility-tool",
-    image: "./assets/media/project-generic.webp",
+    image: "./assets/media/utility-tool.webp",
   },
   {
     id: "la-diagonal",
     title: "La Diagonal",
     year: 2026,
     role: "Full Stack · Booking platform",
-    tagline: "Sports-complex booking — interactive venue map, holds, payments and admin builder",
+    tagline: "Sports-complex booking, interactive venue map, holds, payments and admin builder",
     status: "MVP · In development",
     statusKind: "mvp",
     description:
-      "Booking platform for sports complexes — public landing, interactive pitch map and an admin map builder.",
+      "Booking platform for sports complexes, public landing, interactive pitch map and an admin map builder.",
     descriptionLong:
       "La Diagonal is a Next.js 16 booking platform for sports venues. The first reference client is Complejo La Diagonal (Tafí Viejo, Tucumán), with a multi-site architecture ready for more complexes. Guests filter courts on an interactive map, hold a slot for 15 minutes, confirm payment (cash / deposit / transfer) and get a WhatsApp confirmation. Operators get KPI dashboards, a drag-and-drop map builder, and CRUD for courts, hours and pricing. Phase 1 uses a mock data adapter; the Supabase schema, RLS and RPCs are already documented.",
     technologies: ["Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "Zod", "Supabase"],
@@ -967,13 +947,13 @@ const projects = [
     title: "FutCam",
     year: 2026,
     role: "Research · Computer vision",
-    tagline: "Offline CV pipeline for amateur football — distance, sprints, heatmaps from a fixed camera",
+    tagline: "Offline CV pipeline for amateur football, distance, sprints, heatmaps from a fixed camera",
     status: "Research · Phase 0–1",
     statusKind: "dev",
     description:
       "Offline computer-vision pipeline for amateur F5/F7/F9 match analytics from a fixed camera.",
     descriptionLong:
-      "FutCam processes amateur football recordings (F5/F7/F9) shot with a fixed camera and aims to emit physical metrics per player: distance, speed, sprints, heatmaps and a relative rating. The current cut is Phase 0–1 — Python package, venue calibration, homography and a Typer CLI (futcam info / probe / calibrate / process). Detection is planned around RF-DETR + ByteTrack rather than YOLO; team classification (SigLIP + UMAP) and a future Next.js/Supabase surface sit on a later roadmap. Honest status: scaffold and calibration, not a production product yet.",
+      "FutCam processes amateur football recordings (F5/F7/F9) shot with a fixed camera and aims to emit physical metrics per player: distance, speed, sprints, heatmaps and a relative rating. The current cut is Phase 0–1, Python package, venue calibration, homography and a Typer CLI (futcam info / probe / calibrate / process). Detection is planned around RF-DETR + ByteTrack rather than YOLO; team classification (SigLIP + UMAP) and a future Next.js/Supabase surface sit on a later roadmap. Honest status: scaffold and calibration, not a production product yet.",
     technologies: ["Python", "PyTorch", "OpenCV", "RF-DETR", "ByteTrack", "Typer"],
     caseStudy: [
       {
@@ -986,27 +966,27 @@ const projects = [
       },
       {
         title: "Status",
-        body: "Phase 0–1. Process is still a stub until detection/tracking land. Published as research — ADRs explain RF-DETR over YOLO.",
+        body: "Phase 0–1. Process is still a stub until detection/tracking land. Published as research. ADRs explain RF-DETR over YOLO.",
       },
     ],
     highlights: [
-      "Offline batch pipeline for amateur formats — not a live stadium product.",
+      "Offline batch pipeline for amateur formats, not a live stadium product.",
       "CLI + venue calibration + homography; RF-DETR / ByteTrack on the roadmap.",
       "Phase 0–1: architecture and calibration shipped; match processing still in progress.",
     ],
     repo: "https://github.com/NicLen17/fut-camara",
-    image: "./assets/media/project-generic.webp",
+    image: "./assets/media/futcam.webp",
   },
   {
     id: "lomas-gym",
     title: "Lomas Gym",
     year: 2026,
     role: "Full Stack · Gym operations MVP",
-    tagline: "Digital gym ops — public landing, admin, QR member pass and check-in totem",
+    tagline: "Digital gym ops, public landing, admin, QR member pass and check-in totem",
     status: "MVP · Demo",
     statusKind: "mvp",
     description:
-      "Gym management MVP for Lomas Gym Tucumán — landing, admin panel, QR membership pass and reception check-in.",
+      "Gym management MVP for Lomas Gym Tucumán, landing, admin panel, QR membership pass and reception check-in.",
     descriptionLong:
       "Lomas Gym is a Next.js MVP that digitizes neighborhood gym operations: a public marketing site with plans and location, an admin panel for members/cash/dashboard metrics, a mobile member pass with QR/status, and a reception totem for DNI/QR check-in. Phase-1 demo persistence uses localStorage before a planned Supabase backend.",
     technologies: ["Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "PWA", "Vercel"],
@@ -1027,7 +1007,7 @@ const projects = [
     status: "In production",
     statusKind: "production",
     description:
-      "PWA to build balanced football teams from WhatsApp lists — captains coin toss, match summary images and pitch-cost tracking.",
+      "PWA to build balanced football teams from WhatsApp lists, captains coin toss, match summary images and pitch-cost tracking.",
     descriptionLong:
       "Mix Potrero helps amateur football groups paste player lists, generate balanced squads (including skill ratings), flip a captains coin toss, share PNG match summaries to WhatsApp and track who paid for the pitch with La Vaquita. Built as a mobile-first Vite PWA for on-field use.",
     technologies: ["Vite", "JavaScript", "PWA", "Vercel"],
@@ -1040,32 +1020,12 @@ const projects = [
     image: "./assets/media/mix-potrero.webp",
   },
   {
-    id: "caw-education-landing",
-    title: "CAW Education Landing",
-    year: 2026,
-    role: "Front end · CAW Tech",
-    description:
-      "Marketing landing for CAW Education — product story, modules, FAQ and demo CTAs.",
-    descriptionLong:
-      "Official marketing site for CAW Education: hero and problem/solution narrative, feature and module grids, data-analysis positioning, education-level solutions, testimonials, FAQ and demo contact flows. Built with Next.js, Framer Motion and a CAW brand palette.",
-    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion", "Vercel"],
-    highlights: [
-      "High-conversion marketing narrative for school administrators.",
-      "Motion and brand-token polish aligned with CAW Education identity.",
-      "Production deploy with Vercel Analytics and Speed Insights.",
-    ],
-    url: "https://caweducation.com",
-    image: "./assets/media/caw-education-landing.webp",
-  },
-  {
     id: "sublimspace",
     title: "Sublimspace",
     year: 2026,
-    featured: true,
-    featuredOrder: 7,
     role: "Full Stack · E-commerce",
     description:
-      "Wholesale and retail commerce for customized products — catalog, coupons, and sales analytics.",
+      "Wholesale and retail commerce for customized products, catalog, coupons, and sales analytics.",
     descriptionLong:
       "Sublimspace runs B2B and B2C flows for personalized merchandise: variant catalogs, coupon campaigns, order tracking, and sales dashboards. The storefront balances merchandising flexibility with checkout clarity for repeat wholesale buyers and retail customers.",
     technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Vercel"],
@@ -1082,10 +1042,10 @@ const projects = [
     title: "CAW Tech",
     year: 2026,
     featured: true,
-    featuredOrder: 4,
+    featuredOrder: 2,
     role: "Co-founder · Principal Software Engineer",
     description:
-      "Company marketing site — services, product positioning, and high-conversion contact funnels.",
+      "Company marketing site, services, product positioning, and high-conversion contact funnels.",
     descriptionLong:
       "The CAW Tech site presents the studio’s product and engineering capabilities with a performance-first marketing stack. It supports lead capture, service discovery, and credibility signals for enterprise and SMB prospects evaluating custom software delivery.",
     technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Vercel"],
@@ -1101,18 +1061,38 @@ const projects = [
     id: "txtgen",
     title: "TxtGen",
     year: 2025,
-    featured: true,
-    featuredOrder: 5,
+    spotlight: true,
+    spotlightOrder: 4,
     role: "Product engineer",
+    tagline: "Structured .txt documents from configurable templates, preview, then download",
+    status: "In production",
+    statusKind: "production",
     description:
       "Generate downloadable structured .txt documents from configurable templates.",
     descriptionLong:
-      "TxtGen lets users compose repeatable text exports from templates—ideal for batch documentation, labels, and structured reports. The UI focuses on template editing, preview, and one-click downloads without server-side lock-in for simple workflows.",
+      "TxtGen lets users compose repeatable text exports from templates, ideal for batch documentation, labels, and structured reports. The UI focuses on template editing, preview, and one-click downloads without server-side lock-in for simple workflows.",
     technologies: ["React", "TypeScript", "Vite", "JavaScript", "Vercel"],
+    metrics: [
+      { value: "1-click", label: "Export" },
+      { value: "Live", label: "Template preview" },
+      { value: ".txt", label: "Deterministic output" },
+      { value: "0", label: "Server lock-in" },
+    ],
     highlights: [
       "Template builder with live preview before export.",
       "Deterministic .txt output for repeatable operational documents.",
       "Zero-friction deploy for internal and public use.",
+    ],
+    outcomes: [
+      "Template editing and live preview in the same flow",
+      "Repeatable .txt exports for operational documents",
+      "Public deploy without a backend for simple workflows",
+    ],
+    gallery: [
+      { kind: "image", src: "./assets/media/TxtGen.webp", caption: "Template workspace", frameLabel: "txt-gent.vercel.app" },
+      { kind: "placeholder", motif: "dashboard", caption: "Template editor" },
+      { kind: "placeholder", motif: "overlay", caption: "Live preview" },
+      { kind: "placeholder", motif: "store", caption: "One-click .txt export" },
     ],
     url: "https://txt-gent.vercel.app/",
     image: "./assets/media/TxtGen.webp",
@@ -1123,7 +1103,7 @@ const projects = [
     year: 2024,
     role: "Back-end · Education",
     description:
-      "Bootcamp management API — cohorts, students, and documented REST endpoints.",
+      "Bootcamp management API, cohorts, students, and documented REST endpoints.",
     descriptionLong:
       "A Node.js backend for bootcamp operations: cohort lifecycle, student records, and authenticated APIs documented in Postman. Designed for teaching environments where clarity of contracts matters as much as runtime stability.",
     technologies: ["Node.js", "Express", "MongoDB", "JavaScript", "Postman"],
@@ -1138,9 +1118,11 @@ const projects = [
     id: "la-leyenda",
     title: "La Leyenda",
     year: 2026,
+    featured: true,
+    featuredOrder: 3,
     role: "Full stack · Game / product",
     description:
-      "CS2 career simulator — narrative events, roles, daily challenges and shareable career summaries.",
+      "CS2 career simulator, narrative events, roles, daily challenges and shareable career summaries.",
     descriptionLong:
       "La Leyenda is a web career simulator inspired by El Ídolo: short matches, high-impact decisions and a shareable retirement summary. Players pick nick, region, nationality and role (Entry / AWP / IGL / Lurk / Support), resolve 200+ narrative events, close tournament splits and compare careers against legends. Built with Next.js and TypeScript; optional Supabase for daily rankings, with localStorage fallback.",
     technologies: ["Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "Supabase", "Vercel"],
@@ -1156,11 +1138,13 @@ const projects = [
     id: "cba-volleystar",
     title: "CBA VolleyStar",
     year: 2026,
+    featured: true,
+    featuredOrder: 4,
     role: "Full stack · CAW Tech",
     description:
-      "Public landing for the Bolivian volleyball club that runs on Volley Manager — brand, info and athlete registration CTAs.",
+      "Public landing for the Bolivian volleyball club that runs on Volley Manager, brand, info and athlete registration CTAs.",
     descriptionLong:
-      "CBA VolleyStar is the public-facing site of the professional volleyball club in Bolivia for which we built Volley Manager. It acts as the club’s open web presence — branding, fixtures and fan information — and as a direct CTA funnel into Volley Manager for player registration and onboarding into the production operations system.",
+      "CBA VolleyStar is the public-facing site of the professional volleyball club in Bolivia for which we built Volley Manager. It acts as the club’s open web presence, branding, fixtures and fan information, and as a direct CTA funnel into Volley Manager for player registration and onboarding into the production operations system.",
     technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Vercel"],
     highlights: [
       "Landing for the Bolivia club that uses Volley Manager in production.",
@@ -1176,7 +1160,7 @@ const projects = [
     year: 2026,
     role: "Full stack · Landing & catalog",
     description:
-      "Home décor brand site — product storytelling, catalog browsing, and contact-led sales.",
+      "Home décor brand site, product storytelling, catalog browsing, and contact-led sales.",
     descriptionLong:
       "Terradeco presents a curated home décor catalog with editorial product pages and contact-first conversion. The build focuses on visual hierarchy, fast image delivery, and clear paths for quotes and wholesale inquiries.",
     technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Vercel"],
@@ -1185,7 +1169,7 @@ const projects = [
       "Performance-minded media handling for lifestyle photography.",
       "Production deploy with Vercel preview pipeline.",
     ],
-    url: "https://terradeco.vercel.app",
+    url: "https://www.terradeco.online/",
     image: "./assets/media/Terradeco.webp",
   },
   {
@@ -1194,7 +1178,7 @@ const projects = [
     year: 2025,
     role: "Front end · Education",
     description:
-      "Digital toolkit for university educators — engagement, content, and retention-oriented UX.",
+      "Digital toolkit for university educators, engagement, content, and retention-oriented UX.",
     descriptionLong:
       "Enduring Education packages strategies and digital tools for faculty adoption: resource hubs, engagement patterns, and content structures that support retention goals. The experience is optimized for educators evaluating methods without heavy onboarding friction.",
     technologies: ["React", "TypeScript", "Vite", "Vercel"],
@@ -1212,7 +1196,7 @@ const projects = [
     year: 2025,
     role: "Front end · Food brand",
     description:
-      "Bakery brand landing — menu highlights, story-driven sections, and inquiry CTAs.",
+      "Bakery brand landing, menu highlights, story-driven sections, and inquiry CTAs.",
     descriptionLong:
       "Little Bite Society is a brand-forward landing for a bakery business: product highlights, story sections, and contact paths for orders and events. Visual design emphasizes warmth and clarity on mobile-first traffic.",
     technologies: ["React", "Vite", "CSS", "JavaScript", "Vercel"],
@@ -1230,12 +1214,12 @@ const projects = [
     year: 2026,
     role: "Product · Sports / physical training PWA",
     description:
-      "PWA for physical trainers — react to visual and sound stimuli, including combined trigger modes.",
+      "PWA for physical trainers. React to visual and sound stimuli, including combined trigger modes.",
     descriptionLong:
-      "Reaction was built for physical trainers and sports performance work: athletes respond to visual cues (colors, countdowns, directions) and sound stimuli, including mixed combinations such as colors + numbers, directions + numbers, or directions + colors — all also implementable with audio. The landing documents game modes — Colors, Directions, Actions and Mixed (command + reaction) — each with its own instructions. Delivered as an installable PWA so high-level trainers can run sessions from a phone without app-store friction.",
+      "Reaction was built for physical trainers and sports performance work: athletes respond to visual cues (colors, countdowns, directions) and sound stimuli, including mixed combinations such as colors + numbers, directions + numbers, or directions + colors, all also implementable with audio. The landing documents game modes, including Colors, Directions, Actions and Mixed (command + reaction), each with its own instructions. Delivered as an installable PWA so high-level trainers can run sessions from a phone without app-store friction.",
     technologies: ["Next.js", "TypeScript", "React", "PWA", "Vercel"],
     highlights: [
-      "Stimulus training for colors, countdowns, directions and sound — combinable triggers.",
+      "Stimulus training for colors, countdowns, directions and sound, combinable triggers.",
       "Modes: Colors, Directions, Actions and Mixed (command + reaction) with clear instructions.",
       "Installable PWA for on-court / gym use by physical trainers.",
     ],
@@ -1248,13 +1232,13 @@ const projects = [
     year: 2026,
     role: "Side project · Prompt challenge game",
     description:
-      "Browser bullet hell minigame built with several developers in under 3 prompts — dense patterns and canvas combat.",
+      "Browser bullet hell minigame built with several developers in under 3 prompts, dense patterns and canvas combat.",
     descriptionLong:
-      "Bullet Hell Example came from a collaborative challenge: several developers teamed up to ship a playable minigame in fewer than three prompts. The result is a classic bullet hell — survive escalating waves of projectiles, dodge dense pattern scripts, and chase high scores in a browser canvas loop. Beyond the fun, it was a stress test of prompt-driven collaboration, entity pooling, collision detection and deployable real-time game loops on Vercel.",
+      "Bullet Hell Example came from a collaborative challenge: several developers teamed up to ship a playable minigame in fewer than three prompts. The result is a classic bullet hell, survive escalating waves of projectiles, dodge dense pattern scripts, and chase high scores in a browser canvas loop. Beyond the fun, it was a stress test of prompt-driven collaboration, entity pooling, collision detection and deployable real-time game loops on Vercel.",
     technologies: ["Next.js", "TypeScript", "React", "Canvas", "Vercel"],
     highlights: [
       "Team challenge: playable minigame shipped in under 3 prompts with several developers.",
-      "Classic bullet hell loop — waves, pattern scripting, collision and score chase on canvas.",
+      "Classic bullet hell loop, waves, pattern scripting, collision and score chase on canvas.",
       "Shareable Vercel deploy of a prompt-collaboration experiment.",
     ],
     url: "https://bullet-hell-example.vercel.app",
@@ -1266,7 +1250,7 @@ const projects = [
     year: 2026,
     role: "Full stack · Artisan marketplace",
     description:
-      "House of crafts marketplace — multi-brand catalog, maker stories, and WhatsApp-led ordering.",
+      "House of crafts marketplace, multi-brand catalog, maker stories, and WhatsApp-led ordering.",
     descriptionLong:
       "LA Congreso is a shared retail home for artisan brands in San Miguel de Tucumán: unified catalog, entrepreneur spotlights, trend carousels, and contact flows tuned for local buying habits. The site balances editorial storytelling with product discovery across bookbinding, fragrances, textiles, and more.",
     technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Vercel"],
@@ -1284,9 +1268,9 @@ const projects = [
     year: 2026,
     role: "Talk deck · Product & UX",
     description:
-      "Slide deck on Volley Manager scouting — when a dense, expert-first UI beats minimal design.",
+      "Slide deck on Volley Manager scouting, when a dense, expert-first UI beats minimal design.",
     descriptionLong:
-      "A presentation site for a UTN lightning talk tracing three scouting interface iterations for Volley Manager: tabular MVP, spatial court mapping, and a pro-grade dense dashboard with international symbols. The narrative challenges the “less is more” default — in live sports capture, intentional visual saturation can be the fastest path for expert operators.",
+      "A presentation site for a UTN lightning talk tracing three scouting interface iterations for Volley Manager: tabular MVP, spatial court mapping, and a pro-grade dense dashboard with international symbols. The narrative challenges the “less is more” default. In live sports capture, intentional visual saturation can be the fastest path for expert operators.",
     technologies: ["HTML", "CSS", "JavaScript"],
     highlights: [
       "Three-phase product story: tabular → spatial → pro efficiency.",
@@ -1302,12 +1286,12 @@ const projects = [
     year: 2024,
     role: "Freelance · Marketing site",
     description:
-      "Demo clone of a vehicle listings marketing site — discovery filters and contact flows (not the live client project).",
+      "Demo clone of a vehicle listings marketing site, discovery filters and contact flows (not the live client project).",
     descriptionLong:
-      "Public demo clone kept for portfolio security: mirrors a second-hand vehicle marketing site with search-friendly listing pages, vehicle detail views, and contact funnels. This is not the production client deployment — SEO and performance patterns from the original engagement are represented here without exposing the live business site.",
+      "Public demo clone kept for portfolio security: mirrors a second-hand vehicle marketing site with search-friendly listing pages, vehicle detail views, and contact funnels. This is not the production client deployment. SEO and performance patterns from the original engagement are represented here without exposing the live business site.",
     technologies: ["React", "JavaScript", "HTML", "CSS", "Vercel"],
     highlights: [
-      "Portfolio security clone — not the live client project.",
+      "Portfolio security clone, not the live client project.",
       "Inventory browsing with clear CTAs to seller contact.",
       "Structured metadata patterns for search and social sharing.",
     ],
@@ -1320,12 +1304,12 @@ const projects = [
     year: 2023,
     role: "Freelance · SMB storefront",
     description:
-      "Demo clone of a personalized mates storefront — catalog and responsive commerce flows (not the live shop).",
+      "Demo clone of a personalized mates storefront, catalog and responsive commerce flows (not the live shop).",
     descriptionLong:
-      "Public demo clone kept for portfolio security: represents an SMB e-commerce presence for customized mate products with category browsing, product detail pages, and WhatsApp/form-style ordering. This is not the real client storefront — shared as a sanitized replica of the work delivered.",
+      "Public demo clone kept for portfolio security: represents an SMB e-commerce presence for customized mate products with category browsing, product detail pages, and WhatsApp/form-style ordering. This is not the real client storefront. Shared as a sanitized replica of the work delivered.",
     technologies: ["HTML", "CSS", "JavaScript", "Vercel"],
     highlights: [
-      "Portfolio security clone — not the live client project.",
+      "Portfolio security clone, not the live client project.",
       "Visual catalog patterns aligned with artisan product photography.",
       "Conversion paths adapted to regional purchase behavior.",
     ],
@@ -1338,12 +1322,12 @@ const projects = [
     year: 2023,
     role: "Freelance · Clothing retail",
     description:
-      "Demo clone of a clothing retail storefront — discovery, sizing context and contact checkout (not the live brand site).",
+      "Demo clone of a clothing retail storefront, discovery, sizing context and contact checkout (not the live brand site).",
     descriptionLong:
-      "Public demo clone kept for portfolio security: mirrors a fashion retail site with collections, size guidance, and inquiry-based purchasing. This is not the production brand website — published as a sanitized replica of the visual merchandising work delivered for the client.",
+      "Public demo clone kept for portfolio security: mirrors a fashion retail site with collections, size guidance, and inquiry-based purchasing. This is not the production brand website. Published as a sanitized replica of the visual merchandising work delivered for the client.",
     technologies: ["HTML", "CSS", "JavaScript", "Vercel"],
     highlights: [
-      "Portfolio security clone — not the live client project.",
+      "Portfolio security clone, not the live client project.",
       "Collection-first navigation with emphasis on imagery.",
       "Lightweight stack patterns for fast client-side updates.",
     ],
@@ -1356,7 +1340,7 @@ const projects = [
     year: 2023,
     role: "Freelance · Local business",
     description:
-      "Barber shop site — service menu, gallery, and appointment inquiry flows.",
+      "Barber shop site, service menu, gallery, and appointment inquiry flows.",
     descriptionLong:
       "Brand site for a barber shop combining service pricing, style gallery, and booking inquiries. Tone and typography reflect the shop’s premium positioning while keeping mobile booking one tap away.",
     technologies: ["HTML", "CSS", "JavaScript", "Vercel"],
@@ -1407,12 +1391,12 @@ const projects = [
     year: 2022,
     role: "Freelance · Product showcase",
     description:
-      "Demo clone of a 3D-print collectibles showcase — catalog browse and inquiry flows (not the live brand site).",
+      "Demo clone of a 3D-print collectibles showcase, catalog browse and inquiry flows (not the live brand site).",
     descriptionLong:
-      "Public demo clone kept for portfolio security: represents a product gallery for 3D-printed figures with category filters and inquiry CTAs. This is not the real client website — shared as a sanitized replica of the visual-first catalog work delivered.",
+      "Public demo clone kept for portfolio security: represents a product gallery for 3D-printed figures with category filters and inquiry CTAs. This is not the real client website. Shared as a sanitized replica of the visual-first catalog work delivered.",
     technologies: ["HTML", "CSS", "JavaScript", "Vercel"],
     highlights: [
-      "Portfolio security clone — not the live client project.",
+      "Portfolio security clone, not the live client project.",
       "Visual-first catalog patterns for collectible lines.",
       "Inquiry funnel without over-engineered checkout.",
     ],
@@ -1444,7 +1428,7 @@ const projects = [
     description:
       "E-commerce template demonstrating product grids, filters, and cart UX patterns.",
     descriptionLong:
-      "A reusable ecommerce template exploring product cards, category filters, and cart interactions—useful as a baseline for client proposals and rapid storefront prototypes.",
+      "A reusable ecommerce template exploring product cards, category filters, and cart interactions, useful as a baseline for client proposals and rapid storefront prototypes.",
     technologies: ["HTML", "CSS", "JavaScript"],
     highlights: [
       "Reusable components for future client storefronts.",
@@ -1454,14 +1438,26 @@ const projects = [
   },
 ];
 
-const PROJECT_PREVIEW_COUNT = 6;
+const PROJECT_PREVIEW_COUNT = 4;
 const projectsContainer = document.getElementById("projects-container");
 const projectsMore = document.getElementById("projects-more");
 const projectsToggle = document.getElementById("projects-toggle");
 let projectSortCriteria = "none";
 let projectsExpanded = false;
 
-function renderProjectCard(p) {
+function revealProjectImages(root) {
+  if (!root) return;
+  root.querySelectorAll("img").forEach((img) => {
+    img.loading = "eager";
+    img.removeAttribute("loading");
+    img.setAttribute("fetchpriority", "high");
+    if (typeof img.decode === "function") {
+      img.decode().catch(() => {});
+    }
+  });
+}
+
+function renderProjectCard(p, { eager = false } = {}) {
   const project = localizeProject(p);
   const gi = hashToGradientIndex(project.id);
   const cardTags = (project.technologies ?? []).slice(0, 6);
@@ -1472,8 +1468,10 @@ function renderProjectCard(p) {
   const bar = `<div class="project-card__bar"><h3 class="project-card__title">${title}</h3><span class="project-card__year">${project.year}</span></div>`;
   const scrim = `<div class="project-card__scrim" aria-hidden="true"></div>`;
   const altSuffix = t("projects.screenshotAlt");
+  const loading = eager ? "eager" : "lazy";
+  const fetchPriority = eager ? ` fetchpriority="high"` : "";
   const media = project.image
-    ? `<div class="project-card__media"><img loading="lazy" src="${escapeHtml(project.image)}" alt="${title} — ${escapeHtml(altSuffix)}" /><div class="project-card__shine" aria-hidden="true"></div>${scrim}${bar}</div>`
+    ? `<div class="project-card__media"><img loading="${loading}"${fetchPriority} src="${escapeHtml(project.image)}" alt="${title}, ${escapeHtml(altSuffix)}" /><div class="project-card__shine" aria-hidden="true"></div>${scrim}${bar}</div>`
     : `<div class="project-card__media project-card__media--gradient project-card__grad--${gi}"><div class="project-card__shine" aria-hidden="true"></div>${scrim}${bar}</div>`;
 
   return `
@@ -1488,8 +1486,18 @@ function renderProjectCard(p) {
   `;
 }
 
+function getCatalogProjects() {
+  return projects.filter((project) => !project.spotlight);
+}
+
+function getSpotlightProjects() {
+  return projects
+    .filter((project) => project.spotlight)
+    .sort((a, b) => (a.spotlightOrder ?? 99) - (b.spotlightOrder ?? 99));
+}
+
 function getSortedProjects() {
-  const sorted = [...projects];
+  const sorted = [...getCatalogProjects()];
   switch (projectSortCriteria) {
     case "alphabetical-asc":
       sorted.sort((a, b) => a.title.localeCompare(b.title));
@@ -1531,9 +1539,15 @@ function shouldShowProjectUrl(project) {
   return Boolean(project.url && project.year >= 2025);
 }
 
+const PROJECT_ID_ALIASES = {
+  "caw-education-landing": "caw-education",
+};
+
 function getProjectIdFromHash(hash = window.location.hash) {
   const match = hash.match(/^#project\/([a-z0-9-]+)/i);
-  return match ? match[1] : null;
+  if (!match) return null;
+  const id = match[1];
+  return PROJECT_ID_ALIASES[id] ?? id;
 }
 
 function renderProjectMedia(project) {
@@ -1542,7 +1556,7 @@ function renderProjectMedia(project) {
   if (project.image) {
     projectPageMedia.hidden = false;
     projectPageMedia.className = "project-page__media";
-    projectPageMedia.innerHTML = `<img loading="lazy" src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)} — ${escapeHtml(t("projects.screenshotAlt"))}" />`;
+    projectPageMedia.innerHTML = `<img loading="eager" fetchpriority="high" src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)}, ${escapeHtml(t("projects.screenshotAlt"))}" />`;
     return;
   }
   projectPageMedia.hidden = false;
@@ -1692,7 +1706,7 @@ function openProjectPage(projectId, { scroll = true } = {}) {
   fillProjectPage(project);
   projectPage.hidden = false;
   document.documentElement.classList.add("is-project-page");
-  document.title = `${project.title} — Fabio Ramos`;
+  document.title = `${project.title}, Fabio Ramos`;
   setActiveNav("projects");
 
   if (scroll) {
@@ -1717,6 +1731,11 @@ function syncProjectRouteFromHash() {
     return;
   }
   closeProjectPage();
+  if (window.location.hash === "#projects") {
+    revealProjectImages(document.getElementById("featured-showcase"));
+    revealProjectImages(projectsContainer);
+    if (projectsExpanded) revealProjectImages(projectsMore);
+  }
 }
 
 function syncProjectsExpandPanel(extraItems) {
@@ -1726,7 +1745,7 @@ function syncProjectsExpandPanel(extraItems) {
   projectsMore.innerHTML = extraItems.length
     ? `<div class="expand-panel__inner projects-grid">${extraItems
         .map((p, index) => {
-          const card = renderProjectCard(p).replace(
+          const card = renderProjectCard(p, { eager: projectsExpanded }).replace(
             'class="project-card"',
             `class="project-card" style="--stagger: ${index}"`
           );
@@ -1734,13 +1753,177 @@ function syncProjectsExpandPanel(extraItems) {
         })
         .join("")}</div>`
     : "";
+  if (projectsExpanded) {
+    revealProjectImages(projectsMore);
+    requestAnimationFrame(() => {
+      projectsMore.offsetHeight;
+    });
+  }
+}
+
+function padSpotlightIndex(index) {
+  return String(index + 1).padStart(2, "0");
+}
+
+function renderShotPlaceholder(motif, caption) {
+  const tiles =
+    motif === "access"
+      ? `<div class="shot-placeholder__grid"><span class="shot-placeholder__tile"></span></div>`
+      : `<div class="shot-placeholder__grid"><span class="shot-placeholder__tile"></span><span class="shot-placeholder__tile"></span><span class="shot-placeholder__tile"></span></div>`;
+
+  return `
+    <div class="shot-placeholder shot-placeholder--${escapeHtml(motif || "dashboard")}" role="img" aria-label="${escapeHtml(caption)}">
+      <span class="shot-placeholder__badge">${escapeHtml(t("featured.placeholder"))}</span>
+      <div class="shot-placeholder__ui" aria-hidden="true">
+        <span class="shot-placeholder__row shot-placeholder__row--wide"></span>
+        <span class="shot-placeholder__row shot-placeholder__row--mid"></span>
+        ${tiles}
+      </div>
+    </div>
+  `;
+}
+
+function renderGalleryMedia(item) {
+  if (item.kind === "image" && item.src) {
+    return `<img loading="eager" fetchpriority="high" src="${escapeHtml(item.src)}" alt="${escapeHtml(item.caption || "")}" />`;
+  }
+  return renderShotPlaceholder(item.motif, item.caption || t("featured.placeholder"));
+}
+
+function renderSpotlightHero(item, project) {
+  const frameLabel = item.frameLabel || project.title;
+  return `
+    <div class="device-frame">
+      <div class="device-frame__bar" aria-hidden="true">
+        <span class="device-frame__dot"></span>
+        <span class="device-frame__dot"></span>
+        <span class="device-frame__dot"></span>
+        <p class="device-frame__url">${escapeHtml(frameLabel)}</p>
+      </div>
+      <div class="device-frame__screen" data-spotlight-hero>
+        ${renderGalleryMedia(item)}
+      </div>
+    </div>
+  `;
+}
+
+function renderSpotlightCard(project, index) {
+  const localized = localizeProject(project);
+  const gallery = Array.isArray(localized.gallery) && localized.gallery.length
+    ? localized.gallery
+    : [{ kind: localized.image ? "image" : "placeholder", src: localized.image, caption: localized.title, motif: "dashboard" }];
+  const hero = gallery[0];
+  const thumbs = gallery.slice(1, 4);
+  const kpis = (localized.metrics ?? []).slice(0, 4);
+  const outcomes = localized.outcomes ?? [];
+  const statusClass = localized.statusKind === "mvp"
+    ? " spotlight__status--mvp"
+    : localized.statusKind === "dev"
+      ? " spotlight__status--dev"
+      : "";
+
+  const kpiHtml = kpis
+    .map(
+      (metric) => `
+        <li class="spotlight__kpi">
+          <span class="spotlight__kpi-value">${escapeHtml(metric.value)}</span>
+          <span class="spotlight__kpi-label">${escapeHtml(metric.label)}</span>
+        </li>`
+    )
+    .join("");
+
+  const outcomesHtml = outcomes
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join("");
+
+  const thumbsHtml = thumbs
+    .map((item, thumbIndex) => {
+      const payload = escapeHtml(JSON.stringify({
+        kind: item.kind,
+        src: item.src || "",
+        motif: item.motif || "dashboard",
+        caption: item.caption || "",
+        frameLabel: item.frameLabel || hero.frameLabel || localized.title,
+      }));
+      return `
+        <button type="button" class="spotlight__thumb" data-spotlight-thumb data-shot="${payload}" aria-pressed="false">
+          <div class="spotlight__thumb-media">${renderGalleryMedia(item)}</div>
+          <p class="spotlight__thumb-caption">${escapeHtml(item.caption || t("featured.screenshots"))}</p>
+        </button>`;
+    })
+    .join("");
+
+  return `
+    <article class="spotlight${index % 2 === 1 ? " spotlight--flip" : ""}" data-spotlight data-index="${padSpotlightIndex(index)}">
+      <div class="spotlight__copy">
+        <p class="spotlight__index">${padSpotlightIndex(index)}</p>
+        <p class="spotlight__kicker">${escapeHtml(localized.role || t("featured.eyebrow"))}</p>
+        <h3 class="spotlight__title">${escapeHtml(localized.title)}</h3>
+        <p class="spotlight__tagline">${escapeHtml(localized.tagline || localized.description)}</p>
+        <div class="spotlight__meta">
+          ${localized.status ? `<span class="spotlight__status${statusClass}">${escapeHtml(localized.status)}</span>` : ""}
+          <span class="spotlight__year">${localized.year}</span>
+        </div>
+        ${kpis.length ? `<ul class="spotlight__kpis" aria-label="${escapeHtml(t("featured.kpis"))}">${kpiHtml}</ul>` : ""}
+        ${outcomesHtml ? `<ul class="spotlight__outcomes" aria-label="${escapeHtml(t("featured.outcomes"))}">${outcomesHtml}</ul>` : ""}
+        <a class="spotlight__cta" href="#project/${escapeHtml(localized.id)}">${escapeHtml(t("featured.caseStudy"))} <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="spotlight__stage">
+        ${renderSpotlightHero(hero, localized)}
+        <div class="spotlight__thumbs" aria-label="${escapeHtml(t("featured.screenshots"))}">
+          ${thumbsHtml}
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function bindFeaturedGalleries(root) {
+  if (!root) return;
+  root.querySelectorAll("[data-spotlight]").forEach((card) => {
+    const hero = card.querySelector("[data-spotlight-hero]");
+    const url = card.querySelector(".device-frame__url");
+    const thumbs = card.querySelectorAll("[data-spotlight-thumb]");
+    thumbs.forEach((thumb) => {
+      thumb.addEventListener("click", () => {
+        let shot = {};
+        try {
+          shot = JSON.parse(thumb.getAttribute("data-shot") || "{}");
+        } catch {
+          shot = {};
+        }
+        if (hero) {
+          hero.innerHTML = renderGalleryMedia(shot);
+        }
+        if (url && shot.frameLabel) {
+          url.textContent = shot.frameLabel;
+        }
+        thumbs.forEach((item) => {
+          const active = item === thumb;
+          item.classList.toggle("is-active", active);
+          item.setAttribute("aria-pressed", String(active));
+        });
+      });
+    });
+  });
+}
+
+function renderFeatured() {
+  const root = document.getElementById("featured-showcase");
+  if (!root) return;
+  const items = getSpotlightProjects();
+  root.innerHTML = items.map((project, index) => renderSpotlightCard(project, index)).join("");
+  bindFeaturedGalleries(root);
+  revealProjectImages(root);
 }
 
 function renderprojects() {
+  renderFeatured();
   const sorted = getSortedProjects();
   const featured = sorted.slice(0, PROJECT_PREVIEW_COUNT);
   const extra = sorted.slice(PROJECT_PREVIEW_COUNT);
-  projectsContainer.innerHTML = featured.map(renderProjectCard).join("");
+  projectsContainer.innerHTML = featured.map((p) => renderProjectCard(p, { eager: true })).join("");
+  revealProjectImages(projectsContainer);
   syncProjectsExpandPanel(extra);
 
   if (projectsToggle) {
@@ -1797,7 +1980,7 @@ const certifications = [
   { id: "fullstack-rolling-2021", name: "Full Stack Web Developer", issuer: "RollingCode", date: "June 2021" },
 ];
 
-const FEATURED_CERT_COUNT = 4;
+const FEATURED_CERT_COUNT = 6;
 const certGrid = document.getElementById("certifications-grid");
 const certMore = document.getElementById("certifications-more");
 const certToggle = document.getElementById("cert-toggle");
@@ -2056,7 +2239,6 @@ const navSectionIds = [
   "speaking",
   "testimonials",
   "education",
-  "certifications",
   "contact",
 ];
 const navLinks = document.querySelectorAll(
@@ -2592,6 +2774,7 @@ function setLanguage(lang, { persist = true } = {}) {
   syncMailLinks();
   syncExperienceExpandPanel();
   renderprojects();
+  renderFeatured();
   renderCerts();
   refreshAboutStats?.();
   initTestimonials();
