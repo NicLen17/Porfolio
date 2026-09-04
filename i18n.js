@@ -946,9 +946,9 @@ window.PORTFOLIO_PROJECT_I18N = {
     ],
     gallery: [
       { caption: "Overlay legacy en uso", frameLabel: "extensión chrome · local" },
-      { caption: "Todos los controles interactivos" },
-      { caption: "Solo leftovers no semánticos" },
-      { caption: "Guía hover para trainers" },
+      { caption: "Colores y estilos de outline por tipo de control", frameLabel: "opciones · estilo visual" },
+      { caption: "Modos, presets de accesibilidad y storage local", frameLabel: "opciones · config" },
+      { caption: "Popup · activar resaltado en un clic", frameLabel: "popup de la extensión" },
     ],
   },
   "utility-tool": {
@@ -1113,9 +1113,9 @@ window.PORTFOLIO_PROJECT_I18N = {
     ],
     gallery: [
       { caption: "Workspace de templates", frameLabel: "txt-gent.vercel.app" },
-      { caption: "Editor de templates" },
-      { caption: "Preview en vivo" },
-      { caption: "Exportación .txt en un clic" },
+      { caption: "Templates, editor de campos y preview en vivo", frameLabel: "generador · dark UI" },
+      { caption: "Preview exacto del TXT antes de descargar", frameLabel: "preview.txt" },
+      { caption: "Nombrá el archivo y descargá el .txt", frameLabel: "modal de export" },
     ],
   },
   "bootcamp-backend": {
