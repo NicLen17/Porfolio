@@ -148,6 +148,7 @@ window.PORTFOLIO_I18N = {
       subtitle:
         "Products I own end-to-end, from architecture and daily operations to measurable outcomes.",
       caseStudy: "Open case study",
+      visitProject: "Visit project",
       screenshots: "Product surfaces",
       placeholder: "Placeholder",
       outcomes: "Outcomes",
@@ -260,7 +261,8 @@ window.PORTFOLIO_I18N = {
     },
     stats: [
       { num: "5+", label: "Years building software" },
-      { num: "~700", label: "Athletes on Volley Manager" },
+      { num: "700+", label: "Athletes on Volley Manager" },
+      { num: "80%", label: "Manual load reduction · Volley Manager" },
       { num: "~600", label: "Daily access events · Volley Manager" },
       { num: "4K+", label: "Monthly visitors · Volley Manager" },
       { num: "15+", label: "Certifications and courses completed" },
@@ -436,6 +438,7 @@ window.PORTFOLIO_I18N = {
       subtitle:
         "Productos que lidero de punta a punta, desde la arquitectura y la operación diaria hasta el impacto medible.",
       caseStudy: "Ver case study",
+      visitProject: "Ir al proyecto",
       screenshots: "Superficies de producto",
       placeholder: "Placeholder",
       outcomes: "Resultados",
@@ -549,7 +552,8 @@ window.PORTFOLIO_I18N = {
     },
     stats: [
       { num: "5+", label: "Años construyendo software" },
-      { num: "~700", label: "Atletas en Volley Manager" },
+      { num: "700+", label: "Atletas en Volley Manager" },
+      { num: "80%", label: "Reducción de carga manual · Volley Manager" },
       { num: "~600", label: "Accesos diarios · Volley Manager" },
       { num: "4K+", label: "Visitantes mensuales · Volley Manager" },
       { num: "15+", label: "Certificaciones y cursos completados" },
@@ -720,13 +724,16 @@ window.PORTFOLIO_PROJECT_I18N = {
     descriptionLong:
       "Volley Manager es una plataforma operativa digital en producción para un club profesional de vóley en Bolivia. Soporta administración del club, gestión de atletas, asistencia, alertas, notificaciones, flujos financieros y control de acceso, incluyendo acceso por QR y reconocimiento facial con consentimiento, con fallback a QR cuando no hay consentimiento. Las familias pueden registrarse y pagar online mediante integración con Banco Económico (Bolivia).",
     metrics: [
-      { value: "~700", label: "Atletas" },
+      { value: "700+", label: "Atletas" },
       { value: "~15", label: "Miembros de staff" },
       { value: "~600", label: "Accesos diarios" },
+      { value: "80%", label: "Reducción de carga manual" },
       { value: "4K+", label: "Visitantes / 30 días" },
       { value: "15K+", label: "Vistas de página / 30 días" },
     ],
-    techMetrics: [{ value: "100K+", label: "Requests Supabase / 7 días" }],
+    techMetrics: [
+      { value: "130K+", label: "Requests Supabase / 7 días" },
+    ],
     caseStudy: [
       {
         title: "El problema",
@@ -772,9 +779,10 @@ window.PORTFOLIO_PROJECT_I18N = {
       "Uso diario en producción en un club profesional de vóley",
       "Pagos y control de acceso en el mismo loop operativo",
       "Herramientas de coaching pensadas para la cancha, no para una planilla",
+      "Automatización que redujo ~80% de la operación manual repetitiva del club",
     ],
     gallery: [
-      { caption: "Dashboard de operación del club", frameLabel: "volley-manager · producción" },
+      { caption: "Dashboard de operación del club", frameLabel: "www.volleymanager.app" },
       { caption: "Heatmap de ataques · analítica del partido" },
       { caption: "Asistente IA para scouting y prep. física" },
       { caption: "Ficha del atleta · radar técnico" },
@@ -850,7 +858,7 @@ window.PORTFOLIO_PROJECT_I18N = {
       "Hub multi-tenant listo para pilotos regionales",
     ],
     gallery: [
-      { caption: "Landing de marketing · SO para ferias", frameLabel: "caw-expologic.vercel.app" },
+      { caption: "Landing de marketing · SO para ferias", frameLabel: "www.expologic.online" },
       { caption: "Mapa interactivo de stands · reservas en vivo" },
       { caption: "Panel de control del organizador · KPIs" },
       { caption: "Gestión de reservas · pagos" },
@@ -1112,7 +1120,7 @@ window.PORTFOLIO_PROJECT_I18N = {
       "Deploy público sin backend para flujos simples",
     ],
     gallery: [
-      { caption: "Workspace de templates", frameLabel: "txt-gent.vercel.app" },
+      { caption: "Workspace de templates", frameLabel: "www.txtgent.tech" },
       { caption: "Templates, editor de campos y preview en vivo", frameLabel: "generador · dark UI" },
       { caption: "Preview exacto del TXT antes de descargar", frameLabel: "preview.txt" },
       { caption: "Nombrá el archivo y descargá el .txt", frameLabel: "modal de export" },

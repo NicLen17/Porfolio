@@ -15,11 +15,16 @@ let leadY = 0;
 let trailX = 0;
 let trailY = 0;
 
+function isHeroIntroGated() {
+  return document.documentElement.classList.contains("is-hero-intro");
+}
+
 function isFollowerActive() {
   return (
     followerMedia.matches &&
     follower &&
-    !follower.classList.contains("mouse-follower--hidden")
+    !follower.classList.contains("mouse-follower--hidden") &&
+    !isHeroIntroGated()
   );
 }
 
@@ -75,6 +80,11 @@ document.addEventListener("mousemove", (e) => {
     ensureFollowerLoop();
   }
 
+  if (isHeroIntroGated()) {
+    clearTileHover();
+    return;
+  }
+
   if (tileHoverRaf) cancelAnimationFrame(tileHoverRaf);
   tileHoverRaf = requestAnimationFrame(() => {
     tileHoverRaf = 0;
@@ -112,12 +122,53 @@ let heroAnimTimer = 0;
 let heroInView = true;
 let heroScrollPaused = false;
 let heroScrollRaf = 0;
+let siteChromeRevealed = false;
 
 try {
   localStorage.removeItem(HERO_ANIM_KEY);
 } catch {
   /* ignore */
 }
+
+function hasDeepLinkEntry() {
+  const hash = window.location.hash;
+  return Boolean(hash && hash !== "#" && hash !== "#body");
+}
+
+function revealSiteChrome() {
+  if (siteChromeRevealed) return;
+  siteChromeRevealed = true;
+  document.documentElement.classList.remove("is-hero-intro");
+  clearTileHover();
+  if (isFollowerActive()) ensureFollowerLoop();
+}
+
+function preventIntroScroll(e) {
+  if (!isHeroIntroGated()) return;
+  e.preventDefault();
+}
+
+window.addEventListener("wheel", preventIntroScroll, { passive: false });
+window.addEventListener("touchmove", preventIntroScroll, { passive: false });
+
+function onIntroKeydown(e) {
+  if (!isHeroIntroGated()) return;
+  const key = e.key;
+  if (
+    key === "Tab" ||
+    key === " " ||
+    key === "PageDown" ||
+    key === "PageUp" ||
+    key === "Home" ||
+    key === "End" ||
+    key === "ArrowDown" ||
+    key === "ArrowUp"
+  ) {
+    e.preventDefault();
+  }
+}
+
+window.addEventListener("keydown", onIntroKeydown);
 
 function clearIdleLit() {
   idleLit.forEach((el) => el.classList.remove("tile--idle"));
@@ -190,6 +241,9 @@ function populateTiles(onDone) {
 function syncHeroAnimSwitch() {
   if (heroAnimReplayBtn) {
     heroAnimReplayBtn.classList.toggle("is-playing", heroAnimPlaying === "intro");
+  }
+  if (heroAnimPlaying === "done") {
+    revealSiteChrome();
   }
 }
 
@@ -359,6 +413,11 @@ if (typeof reducedMotionQuery.addEventListener === "function") {
   reducedMotionQuery.addListener(onReducedMotionChange);
 }
 
+if (hasDeepLinkEntry()) {
+  heroShouldPlayIntro = false;
+  heroAnimPlaying = "done";
+}
+
 syncHeroAnimSwitch();
 heroScrollPaused = window.scrollY > HERO_PAUSE_SCROLL_Y;
 syncHeroPerspective();
@@ -439,6 +498,14 @@ function escapeHtml(value) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+/** Accent-wrap ~ + % K/M and other non-alphanumeric symbols in KPI values. */
+function formatKpiValue(value) {
+  return escapeHtml(String(value ?? "")).replace(
+    /([^0-9A-Za-zÀ-ÿ]+)|([KkMmBb])(?=\+|$)/g,
+    '<span class="kpi-symbol">$&</span>'
+  );
 }
 
 const LANG_STORAGE_KEY = "portfolio-lang";
@@ -594,15 +661,18 @@ const projects = [
       "Production SaaS/PWA powering daily operations for a professional volleyball club in Bolivia, athletes, staff, access, payments and coaching tools.",
     descriptionLong:
       "Volley Manager is a production digital operations platform for a professional volleyball club in Bolivia. It supports club administration, athlete management, attendance, alerts, notifications, financial workflows and access control, including QR access and consent-based facial recognition, with QR fallback when consent is not provided. Families can register and pay online through an integration with Banco Económico (Bolivia).",
-    technologies: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "PWA", "Vercel"],
+    technologies: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "PWA", "Vercel", "Sports", "Real-time"],
     metrics: [
-      { value: "~700", label: "Athletes" },
+      { value: "700+", label: "Athletes" },
       { value: "~15", label: "Staff members" },
       { value: "~600", label: "Daily access events" },
+      { value: "80%", label: "Manual load reduction" },
       { value: "4K+", label: "Visitors / 30 days" },
       { value: "15K+", label: "Page views / 30 days" },
     ],
-    techMetrics: [{ value: "100K+", label: "Supabase requests / 7 days" }],
+    techMetrics: [
+      { value: "130K+", label: "Supabase requests / 7 days" },
+    ],
     caseStudy: [
       {
         title: "The problem",
@@ -648,14 +718,15 @@ const projects = [
       "Daily production use at a professional volleyball club",
       "Payments and access control in the same operational loop",
       "Coaching tools designed for the court, not a spreadsheet",
+      "Automation cut ~80% of repetitive manual club operations",
     ],
     gallery: [
-      { kind: "image", src: "./assets/media/VolleyManager.webp", caption: "Club operations dashboard", frameLabel: "volley-manager · production" },
+      { kind: "image", src: "./assets/media/VolleyManager.webp", caption: "Club operations dashboard", frameLabel: "www.volleymanager.app" },
       { kind: "image", src: "./assets/media/volley-heatmap.webp", caption: "Attack heatmap · match analytics" },
       { kind: "image", src: "./assets/media/volley-ai.webp", caption: "AI assistant for scouting & prep" },
       { kind: "image", src: "./assets/media/volley-athlete.webp", caption: "Athlete profile · technical radar" },
     ],
-    url: "https://volleymanager.app/",
+    url: "https://www.volleymanager.app/",
     image: "./assets/media/VolleyManager.webp",
   },
   {
@@ -735,12 +806,12 @@ const projects = [
       "Multi-tenant hub ready for regional fair pilots",
     ],
     gallery: [
-      { kind: "image", src: "./assets/media/ExpoLogic.webp", caption: "Marketing landing · fair OS", frameLabel: "caw-expologic.vercel.app" },
+      { kind: "image", src: "./assets/media/ExpoLogic.webp", caption: "Marketing landing · fair OS", frameLabel: "www.expologic.online" },
       { kind: "image", src: "./assets/media/expologic-map.webp", caption: "Interactive stand map · live reservations" },
       { kind: "image", src: "./assets/media/expologic-panel.webp", caption: "Organizer control panel · KPIs" },
       { kind: "image", src: "./assets/media/expologic-reservas.webp", caption: "Reservation management · payments" },
     ],
-    url: "https://caw-expologic.vercel.app/",
+    url: "https://www.expologic.online/",
     image: "./assets/media/ExpoLogic.webp",
   },
   {
@@ -1089,12 +1160,12 @@ const projects = [
       "Public deploy without a backend for simple workflows",
     ],
     gallery: [
-      { kind: "image", src: "./assets/media/TxtGen.webp", caption: "Template workspace", frameLabel: "txt-gent.vercel.app" },
+      { kind: "image", src: "./assets/media/TxtGen.webp", caption: "Template workspace", frameLabel: "www.txtgent.tech" },
       { kind: "image", src: "./assets/media/txtgen-workspace.png", caption: "Templates, field editor & live preview", frameLabel: "generator · dark UI" },
       { kind: "image", src: "./assets/media/txtgen-preview.png", caption: "Exact TXT preview before download", frameLabel: "preview.txt" },
       { kind: "image", src: "./assets/media/txtgen-download.png", caption: "Name the file and download .txt", frameLabel: "export modal" },
     ],
-    url: "https://txt-gent.vercel.app/",
+    url: "https://www.txtgent.tech/",
     image: "./assets/media/TxtGen.webp",
   },
   {
@@ -1520,6 +1591,7 @@ function getSortedProjects() {
 
 const projectPage = document.getElementById("project-page");
 const projectPageMedia = document.getElementById("project-page-media");
+const projectPageGallery = document.getElementById("project-page-gallery");
 const projectPageTitle = document.getElementById("project-page-title");
 const projectPageTagline = document.getElementById("project-page-tagline");
 const projectPageYear = document.getElementById("project-page-year");
@@ -1562,6 +1634,34 @@ function renderProjectMedia(project) {
   projectPageMedia.hidden = false;
   projectPageMedia.className = `project-page__media project-page__media--gradient project-card__grad--${gi}`;
   projectPageMedia.innerHTML = "";
+}
+
+function renderProjectGallery(project) {
+  if (!projectPageGallery) return;
+  const gallery = Array.isArray(project.gallery) ? project.gallery : [];
+  const secondary = gallery.filter((item) => {
+    if (!item || item.kind === "placeholder") return false;
+    if (item.src && project.image && item.src === project.image) return false;
+    return Boolean(item.src || item.motif);
+  });
+
+  if (!secondary.length) {
+    projectPageGallery.hidden = true;
+    projectPageGallery.innerHTML = "";
+    return;
+  }
+
+  projectPageGallery.hidden = false;
+  projectPageGallery.innerHTML = secondary
+    .map((item) => {
+      const caption = item.caption || project.title;
+      return `
+        <figure class="project-page__gallery-item">
+          <div class="project-page__gallery-media">${renderGalleryMedia(item)}</div>
+          <figcaption class="project-page__gallery-caption">${escapeHtml(caption)}</figcaption>
+        </figure>`;
+    })
+    .join("");
 }
 
 function renderMetricCards(items) {
@@ -1625,6 +1725,7 @@ function renderProjectPageLink(project) {
 
 function fillProjectPage(project) {
   renderProjectMedia(project);
+  renderProjectGallery(project);
   if (projectPageTitle) projectPageTitle.textContent = project.title;
   if (projectPageYear) projectPageYear.textContent = String(project.year);
   if (projectPageRole) {
@@ -1706,6 +1807,7 @@ function openProjectPage(projectId, { scroll = true } = {}) {
   fillProjectPage(project);
   projectPage.hidden = false;
   document.documentElement.classList.add("is-project-page");
+  revealSiteChrome();
   document.title = `${project.title}, Fabio Ramos`;
   setActiveNav("projects");
 
@@ -1826,7 +1928,7 @@ function renderSpotlightCard(project, index) {
     .map(
       (metric) => `
         <li class="spotlight__kpi">
-          <span class="spotlight__kpi-value">${escapeHtml(metric.value)}</span>
+          <span class="spotlight__kpi-value">${formatKpiValue(metric.value)}</span>
           <span class="spotlight__kpi-label">${escapeHtml(metric.label)}</span>
         </li>`
     )
@@ -1866,7 +1968,14 @@ function renderSpotlightCard(project, index) {
         </div>
         ${kpis.length ? `<ul class="spotlight__kpis" aria-label="${escapeHtml(t("featured.kpis"))}">${kpiHtml}</ul>` : ""}
         ${outcomesHtml ? `<ul class="spotlight__outcomes" aria-label="${escapeHtml(t("featured.outcomes"))}">${outcomesHtml}</ul>` : ""}
-        <a class="spotlight__cta" href="#project/${escapeHtml(localized.id)}">${escapeHtml(t("featured.caseStudy"))} <span aria-hidden="true">↗</span></a>
+        <div class="spotlight__actions">
+          <a class="spotlight__cta" href="#project/${escapeHtml(localized.id)}">${escapeHtml(t("featured.caseStudy"))} <span aria-hidden="true">↗</span></a>
+          ${
+            shouldShowProjectUrl(localized)
+              ? `<a class="spotlight__cta spotlight__cta--ghost" href="${escapeHtml(localized.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(t("featured.visitProject"))} <span aria-hidden="true">↗</span></a>`
+              : ""
+          }
+        </div>
       </div>
       <div class="spotlight__stage">
         ${renderSpotlightHero(hero, localized)}
@@ -2148,7 +2257,7 @@ function initTestimonials() {
 
     const full = quote.textContent.trim();
     quote.dataset.fullText = full;
-    quote.classList.remove("is-collapsed");
+    quote.classList.remove("is-collapsed", "is-expanded");
     quote.style.maxHeight = "";
     card.classList.remove("testimonial-card--expanded");
     btn.hidden = true;
@@ -2166,29 +2275,21 @@ function initTestimonials() {
 
     const expandQuote = () => {
       quote.classList.remove("is-collapsed");
-      quote.style.maxHeight = `${quote.scrollHeight}px`;
+      quote.classList.add("is-expanded");
+      quote.style.maxHeight = "";
       card.classList.add("testimonial-card--expanded");
       btn.setAttribute("aria-expanded", "true");
       btn.textContent = t("testimonials.readLess");
     };
 
     const collapseQuote = () => {
-      quote.style.maxHeight = `${quote.scrollHeight}px`;
-      requestAnimationFrame(() => {
-        quote.classList.add("is-collapsed");
-        quote.style.maxHeight = `${COLLAPSED_HEIGHT}px`;
-      });
+      quote.classList.remove("is-expanded");
+      quote.classList.add("is-collapsed");
+      quote.style.maxHeight = `${COLLAPSED_HEIGHT}px`;
       card.classList.remove("testimonial-card--expanded");
       btn.setAttribute("aria-expanded", "false");
       btn.textContent = t("testimonials.readMore");
     };
-
-    quote.addEventListener("transitionend", (event) => {
-      if (event.propertyName !== "max-height") return;
-      if (!quote.classList.contains("is-collapsed")) {
-        quote.style.maxHeight = "none";
-      }
-    });
 
     btn.addEventListener("click", () => {
       if (quote.classList.contains("is-collapsed")) {
@@ -2303,45 +2404,11 @@ const resumeDownload = document.querySelector(".resume-download");
 const resumeDownloadBtn = document.getElementById("resume-download-btn");
 const resumeLangMenu = document.getElementById("resume-lang-menu");
 
-function positionResumeMenu() {
-  if (!resumeDownloadBtn || !resumeLangMenu || resumeLangMenu.hidden) return;
-
-  const rect = resumeDownloadBtn.getBoundingClientRect();
-  const menuWidth = Math.max(rect.width, 140);
-  const gap = 8;
-  let top = rect.bottom + gap;
-  let left = rect.left + rect.width / 2 - menuWidth / 2;
-
-  resumeLangMenu.style.width = `${menuWidth}px`;
-  resumeLangMenu.style.minWidth = `${menuWidth}px`;
-  resumeLangMenu.style.left = "0px";
-  resumeLangMenu.style.top = "0px";
-
-  // measure after applying temporary position
-  const menuHeight = resumeLangMenu.offsetHeight || 88;
-  if (top + menuHeight > window.innerHeight - 12) {
-    top = Math.max(12, rect.top - gap - menuHeight);
-  }
-  left = Math.min(Math.max(12, left), window.innerWidth - menuWidth - 12);
-
-  resumeLangMenu.style.top = `${top}px`;
-  resumeLangMenu.style.left = `${left}px`;
-}
-
 function setResumeMenuOpen(open) {
   if (!resumeDownload || !resumeDownloadBtn || !resumeLangMenu) return;
   resumeDownload.classList.toggle("is-open", open);
   resumeDownloadBtn.setAttribute("aria-expanded", String(open));
   resumeLangMenu.hidden = !open;
-
-  if (open) {
-    positionResumeMenu();
-  } else {
-    resumeLangMenu.style.top = "";
-    resumeLangMenu.style.left = "";
-    resumeLangMenu.style.width = "";
-    resumeLangMenu.style.minWidth = "";
-  }
 }
 
 resumeDownloadBtn?.addEventListener("click", (event) => {
@@ -2357,7 +2424,7 @@ resumeLangMenu?.querySelectorAll("a").forEach((link) => {
 });
 
 document.addEventListener("click", (event) => {
-  if (!resumeDownload?.contains(event.target) && !resumeLangMenu?.contains(event.target)) {
+  if (!resumeDownload?.contains(event.target)) {
     setResumeMenuOpen(false);
   }
 });
@@ -2365,12 +2432,6 @@ document.addEventListener("click", (event) => {
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     setResumeMenuOpen(false);
-  }
-});
-
-window.addEventListener("resize", () => {
-  if (resumeDownloadBtn?.getAttribute("aria-expanded") === "true") {
-    positionResumeMenu();
   }
 });
 
