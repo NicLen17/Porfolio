@@ -82,44 +82,10 @@ html {
   overflow-x: clip;
 }
 
-/* First-load gate: only hero tiles + pulse until intro finishes */
-html.is-hero-intro {
-  overflow: hidden;
-}
-
 @media (pointer: fine) and (min-width: 769px) {
   html {
     cursor: none;
   }
-
-  html.is-hero-intro {
-    cursor: auto;
-  }
-}
-
-html.is-hero-intro .site-header,
-html.is-hero-intro .site-main,
-html.is-hero-intro .site-footer,
-html.is-hero-intro .back-to-top,
-html.is-hero-intro .hero-anim-switch,
-html.is-hero-intro .resume-lang-menu,
-html.is-hero-intro .mouse-follower {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
-
-html.is-hero-intro .hero-btn,
-html.is-hero-intro .meta-link-social > a {
-  pointer-events: none !important;
-}
-
-html.is-hero-intro .main-content::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 400;
-  pointer-events: auto;
 }
 
 .site-header,
@@ -901,9 +867,11 @@ button {
   pointer-events: auto;
 }
 
-.meta-link-social > a > img {
+.meta-link-social > a > .social-img {
+  display: block;
   width: 20px;
-  height: auto;
+  height: 20px;
+  color: #fff;
 }
 
 .social-img {

@@ -15,16 +15,11 @@ let leadY = 0;
 let trailX = 0;
 let trailY = 0;
 
-function isHeroIntroGated() {
-  return document.documentElement.classList.contains("is-hero-intro");
-}
-
 function isFollowerActive() {
   return (
     followerMedia.matches &&
     follower &&
-    !follower.classList.contains("mouse-follower--hidden") &&
-    !isHeroIntroGated()
+    !follower.classList.contains("mouse-follower--hidden")
   );
 }
 
@@ -80,11 +75,6 @@ document.addEventListener("mousemove", (e) => {
     ensureFollowerLoop();
   }
 
-  if (isHeroIntroGated()) {
-    clearTileHover();
-    return;
-  }
-
   if (tileHoverRaf) cancelAnimationFrame(tileHoverRaf);
   tileHoverRaf = requestAnimationFrame(() => {
     tileHoverRaf = 0;
@@ -114,61 +104,20 @@ const heroTextEl = document.getElementById("content");
 let tileMeta = [];
 let tileMaxDist = 1;
 let tilesReady = false;
-let heroShouldPlayIntro = true;
-let heroAnimPlaying = "intro";
+let heroShouldPlayIntro = false;
+let heroAnimPlaying = "done";
 let heroAnimGen = 0;
 let heroAnimRaf = 0;
 let heroAnimTimer = 0;
 let heroInView = true;
 let heroScrollPaused = false;
 let heroScrollRaf = 0;
-let siteChromeRevealed = false;
 
 try {
   localStorage.removeItem(HERO_ANIM_KEY);
 } catch {
   /* ignore */
 }
-
-function hasDeepLinkEntry() {
-  const hash = window.location.hash;
-  return Boolean(hash && hash !== "#" && hash !== "#body");
-}
-
-function revealSiteChrome() {
-  if (siteChromeRevealed) return;
-  siteChromeRevealed = true;
-  document.documentElement.classList.remove("is-hero-intro");
-  clearTileHover();
-  if (isFollowerActive()) ensureFollowerLoop();
-}
-
-function preventIntroScroll(e) {
-  if (!isHeroIntroGated()) return;
-  e.preventDefault();
-}
-
-window.addEventListener("wheel", preventIntroScroll, { passive: false });
-window.addEventListener("touchmove", preventIntroScroll, { passive: false });
-
-function onIntroKeydown(e) {
-  if (!isHeroIntroGated()) return;
-  const key = e.key;
-  if (
-    key === "Tab" ||
-    key === " " ||
-    key === "PageDown" ||
-    key === "PageUp" ||
-    key === "Home" ||
-    key === "End" ||
-    key === "ArrowDown" ||
-    key === "ArrowUp"
-  ) {
-    e.preventDefault();
-  }
-}
-
-window.addEventListener("keydown", onIntroKeydown);
 
 function clearIdleLit() {
   idleLit.forEach((el) => el.classList.remove("tile--idle"));
@@ -241,9 +190,6 @@ function populateTiles(onDone) {
 function syncHeroAnimSwitch() {
   if (heroAnimReplayBtn) {
     heroAnimReplayBtn.classList.toggle("is-playing", heroAnimPlaying === "intro");
-  }
-  if (heroAnimPlaying === "done") {
-    revealSiteChrome();
   }
 }
 
@@ -413,37 +359,12 @@ if (typeof reducedMotionQuery.addEventListener === "function") {
   reducedMotionQuery.addListener(onReducedMotionChange);
 }
 
-if (hasDeepLinkEntry()) {
-  heroShouldPlayIntro = false;
-  heroAnimPlaying = "done";
-}
-
 syncHeroAnimSwitch();
 heroScrollPaused = window.scrollY > HERO_PAUSE_SCROLL_Y;
 syncHeroPerspective();
 
-function waitForHeroCopy(fn) {
-  const panel = document.querySelector(".hero-panel");
-  if (!panel || prefersReducedMotion()) {
-    fn();
-    return;
-  }
-
-  const opacity = Number(getComputedStyle(panel).opacity);
-  const remaining = panel.classList.contains("show")
-    ? Math.max(80, Math.round((1 - Math.min(1, opacity)) * 1000) + 80)
-    : 1080;
-
-  heroAnimTimer = setTimeout(() => {
-    heroAnimTimer = 0;
-    fn();
-  }, remaining);
-}
-
-function startInitialIntro() {
-  waitForHeroCopy(() => {
-    restartHeroAnim({ playIntro: shouldPlayWaveIntro() });
-  });
+function startInitialHeroAnim() {
+  restartHeroAnim({ playIntro: false });
 }
 
 const heroObserver = new IntersectionObserver((entries) => {
@@ -464,7 +385,7 @@ requestAnimationFrame(() => {
     populateTiles(() => {
       container.classList.add("show");
       heroObserver.observe(container);
-      afterPaint(startInitialIntro);
+      afterPaint(startInitialHeroAnim);
     });
   });
 });
@@ -1807,7 +1728,6 @@ function openProjectPage(projectId, { scroll = true } = {}) {
   fillProjectPage(project);
   projectPage.hidden = false;
   document.documentElement.classList.add("is-project-page");
-  revealSiteChrome();
   document.title = `${project.title}, Fabio Ramos`;
   setActiveNav("projects");
 

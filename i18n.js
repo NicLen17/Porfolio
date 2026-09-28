@@ -257,7 +257,7 @@ window.PORTFOLIO_I18N = {
       copied: "Copied",
       whatsapp: "Chat on WhatsApp",
       legal: "All rights reserved",
-      backToTop: "Back to top arrow",
+      backToTop: "Back to top",
     },
     stats: [
       { num: "5+", label: "Years building software" },
