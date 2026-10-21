@@ -574,7 +574,7 @@ const projects = [
     year: 2026,
     spotlight: true,
     spotlightOrder: 1,
-    role: "Principal Software Engineer · Co-Founder · CAW Tech",
+    role: "Co-Founder & Lead Software Engineer · CAW Tech",
     tagline: "Production SaaS / PWA for professional volleyball club operations",
     status: "In production",
     statusKind: "production",
@@ -584,15 +584,15 @@ const projects = [
       "Volley Manager is a production digital operations platform for a professional volleyball club in Bolivia. It supports club administration, athlete management, attendance, alerts, notifications, financial workflows and access control, including QR access and consent-based facial recognition, with QR fallback when consent is not provided. Families can register and pay online through an integration with Banco Económico (Bolivia).",
     technologies: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "PWA", "Vercel", "Sports", "Real-time"],
     metrics: [
-      { value: "700+", label: "Athletes" },
+      { value: "~700", label: "Athletes" },
       { value: "~15", label: "Staff members" },
       { value: "~600", label: "Daily access events" },
       { value: "80%", label: "Manual load reduction" },
-      { value: "4K+", label: "Visitors / 30 days" },
-      { value: "15K+", label: "Page views / 30 days" },
+      { value: "15K+", label: "Visits since July 2026" },
+      { value: "55K+", label: "Page views since July 2026" },
     ],
     techMetrics: [
-      { value: "130K+", label: "Supabase requests / 7 days" },
+      { value: "165K+", label: "Supabase requests / week · 99.9% success" },
     ],
     caseStudy: [
       {
@@ -627,7 +627,7 @@ const projects = [
       },
       {
         title: "My role",
-        body: "As Principal Software Engineer and Co-Founder at CAW Tech, I own architecture decisions, product design, implementation, integrations, deployment and ongoing technical evolution end-to-end.",
+        body: "As Co-Founder & Lead Software Engineer at CAW Tech, I own architecture decisions, product design, implementation, integrations, deployment and ongoing technical evolution end-to-end.",
       },
     ],
     highlights: [
@@ -656,9 +656,9 @@ const projects = [
     year: 2026,
     spotlight: true,
     spotlightOrder: 2,
-    role: "Principal Software Engineer · Co-Founder · CAW Tech",
+    role: "Co-Founder & Lead Software Engineer · CAW Tech",
     tagline: "B2B2C multi-tenant SaaS for cultural fairs, artisan markets and entrepreneur events",
-    status: "MVP · Seed · Validated prototype",
+    status: "Validated · Two pilot clients · Moving to production",
     statusKind: "mvp",
     description:
       "Multi-tenant SaaS that replaces Excel, WhatsApp and paper maps with interactive fair maps, reservations, waitlists, virtual fairs and analytics.",
@@ -709,22 +709,22 @@ const projects = [
       },
       {
         title: "External validation",
-        body: "Presented at Emprende U and reached the semifinal stage; featured by La Gaceta. Prospective organizers in Tucumán have expressed interest; the product is being prepared for broader adoption. One-pager: niclen17.github.io/ExpoLogic-one-pager/",
+        body: "Emprende U 2026 semifinalist: one of 11 university-category finalists out of 300+ projects; featured by La Gaceta. Now validated with two pilot clients and moving to production. Live at www.expologic.online. One-pager: niclen17.github.io/ExpoLogic-one-pager/",
       },
       {
         title: "My role",
-        body: "As Principal Software Developer / Co-Founder at CAW Tech, I own SaaS architecture, product vision and end-to-end implementation of the multi-tenant hub, map builder, reservation flows and virtual-fair experience.",
+        body: "As Co-Founder & Lead Software Engineer at CAW Tech, I own SaaS architecture, product vision and end-to-end implementation of the multi-tenant hub, map builder, reservation flows and virtual-fair experience.",
       },
     ],
     highlights: [
       "Replaces weeks of manual fair ops with real-time maps, reservations, waitlists and payment audit.",
       "Free exhibitor landings + 24/7 virtual fair, B2B SaaS with social-impact positioning.",
-      "Validated with ~50 field interviews; 3.5K+ fairs / 50K+ exhibitors market; Emprende U semifinalist.",
+      "Validated with ~50 field interviews and two pilot clients; 3.5K+ fairs / 50K+ exhibitors market; Emprende U 2026 semifinalist.",
     ],
     outcomes: [
       "Field-validated with ~50 organizer and exhibitor interviews",
-      "Emprende U semifinalist · covered by La Gaceta",
-      "Multi-tenant hub ready for regional fair pilots",
+      "Emprende U 2026 semifinalist (11 university finalists out of 300+ projects) · covered by La Gaceta",
+      "Two pilot clients · moving to production",
     ],
     gallery: [
       { kind: "image", src: "./assets/media/ExpoLogic.webp", caption: "Marketing landing · fair OS", frameLabel: "www.expologic.online" },
@@ -739,7 +739,7 @@ const projects = [
     id: "caw-education",
     title: "CAW Education",
     year: 2026,
-    role: "Principal Software Engineer · Co-Founder · CAW Tech",
+    role: "Co-Founder & Lead Software Engineer · CAW Tech",
     tagline: "Data-driven educational operations for primary and secondary schools",
     status: "Product development",
     statusKind: "dev",
@@ -1035,7 +1035,7 @@ const projects = [
     year: 2026,
     featured: true,
     featuredOrder: 2,
-    role: "Co-founder · Principal Software Engineer",
+    role: "Co-Founder & Lead Software Engineer",
     description:
       "Company marketing site, services, product positioning, and high-conversion contact funnels.",
     descriptionLong:
@@ -1051,7 +1051,7 @@ const projects = [
   },
   {
     id: "txtgen",
-    title: "TxtGen",
+    title: "TxtGent",
     year: 2025,
     spotlight: true,
     spotlightOrder: 4,
@@ -1060,9 +1060,9 @@ const projects = [
     status: "In production",
     statusKind: "production",
     description:
-      "Generate downloadable structured .txt documents from configurable templates.",
+      "My own tool to design fixed-width TXT layouts with typed fields, reusable templates and live preview. Runs 100% in the browser, so sensitive data never leaves your machine.",
     descriptionLong:
-      "TxtGen lets users compose repeatable text exports from templates, ideal for batch documentation, labels, and structured reports. The UI focuses on template editing, preview, and one-click downloads without server-side lock-in for simple workflows.",
+      "TxtGent lets users compose repeatable text exports from templates, ideal for batch documentation, labels, and structured reports. The UI focuses on template editing, preview, and one-click downloads without server-side lock-in for simple workflows.",
     technologies: ["React", "TypeScript", "Vite", "JavaScript", "Vercel"],
     metrics: [
       { value: "1-click", label: "Export" },
