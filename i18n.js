@@ -3,7 +3,7 @@ window.PORTFOLIO_I18N = {
     meta: {
       title: "Fabio Ramos, Senior Full Stack Software Engineer",
       description:
-        "Fabio Ramos, Senior Full Stack Software Engineer specializing in TypeScript, React, Next.js and Supabase. Builds B2B products and enterprise systems with experience in SQL, APIs and legacy modernization.",
+        "Fabio Ramos, Senior Full Stack Software Engineer specializing in TypeScript, React, Next.js, Node.js and Supabase. Builds production SaaS products and enterprise & banking systems, with experience in SQL and APIs.",
     },
     nav: {
       about: "About",
@@ -24,8 +24,8 @@ window.PORTFOLIO_I18N = {
     hero: {
       location: "Based in Tucumán, Argentina",
       role: "Senior Full Stack Software Engineer",
-      stack: "TypeScript · React · Next.js · Supabase · SQL",
-      focus: "Product Engineering · Software Architecture · Enterprise Systems",
+      stack: "TypeScript · React · Next.js · Node.js · Supabase · SQL",
+      focus: "Production SaaS · Enterprise & Banking Systems",
       viewWork: "View featured work",
       downloadResume: "Download Resume",
       emailSubject: "Hello Fabio",
@@ -37,13 +37,13 @@ window.PORTFOLIO_I18N = {
       eyebrow: "About",
       title: "Ownership, architecture, and production impact",
       p1: "Senior Full Stack Software Engineer with 5+ years building software across modern web applications, B2B products and enterprise systems. I work primarily with TypeScript, React, Next.js and Supabase, complemented by SQL, APIs and relational data.",
-      p2: "Today I own architecture and end-to-end product delivery at CAW Tech as Principal Software Engineer and Co-Founder. Previously I maintained and adapted banking systems at CENSYS and completed a competitive frontend internship at Globant. What differentiates my profile is the combination of modern product engineering and SaaS ownership with enterprise systems and legacy modernization, protecting transactional integrity while shipping real-world production platforms.",
+      p2: "Today I am Co-Founder & Lead Software Engineer at CAW Tech, where I own architecture and end-to-end product delivery. Previously I built banking software at CENSYS and completed a competitive frontend internship at Globant. What differentiates my profile is the combination of modern product engineering and SaaS ownership with critical enterprise banking systems, protecting transactional integrity while shipping real-world production platforms.",
       p3: "I look for Senior Software Engineering and Full Stack roles where technical ownership, system design and measurable business impact matter, with a path toward technical leadership and architecture.",
       achievementsTitle: "Achievements & extras.",
       a1: '<strong>ExpoLogic</strong>, semifinalist at <strong>Emprende U 2026</strong> (11 university finalists from 300+). Digitized fair &amp; stand management. <a class="about-achievements__link" href="https://www.lagaceta.com.ar/nota/1143781/sociedad/emprende-u-proponen-equipos-universitarios-tucumanos-llegaron-semifinal.html" target="_blank" rel="noopener noreferrer">La Gaceta <span aria-hidden="true">↗</span></a>',
       a2: "Selected from hundreds of profiles for Globant's intensive <strong>SSR-level Web UI bootcamp</strong>.",
       a3: "International scholarship in <strong>Digital Companies &amp; E-Business Revolution</strong> at California State University, Northridge.",
-      a4: "Maintained and adapted <strong>banking modules</strong> for Argentine banks; SQL &amp; stored procedures up to <strong>60% faster</strong> on financial reports.",
+      a4: "Technical go-to on <strong>banking software</strong> for Argentine banks; cut financial report execution time by up to <strong>60%</strong> with optimized SQL &amp; stored procedures.",
       a5: "Architected <strong>Volley Manager</strong> as a production SaaS/PWA for a professional volleyball club in Bolivia, ~700 athletes, ~15 staff and ~600 daily access events, with payments and access control in daily use.",
       a6: "Mentored new developers end-to-end while shipping in distributed Agile teams under production pressure.",
       fact1: "Argentina-based Software Engineer",
@@ -52,14 +52,14 @@ window.PORTFOLIO_I18N = {
       skillCore: "Core",
       skillBackend: "Backend / Data",
       skillEngineering: "Engineering",
-      skillEnterprise: "Enterprise / Legacy Modernization",
+      skillEnterprise: "Enterprise / Banking",
       skillComplementary: "Complementary",
       pillArchitecture: "Software Architecture",
       pillApiDesign: "API Design",
       pillDbOpt: "Database Optimization",
       pillTesting: "Testing",
       pillEnterprise: "Enterprise Systems",
-      pillLegacy: "Legacy Modernization",
+      pillLegacy: "Legacy Integration",
       pillCoreBanking: "Banking",
       pillMentoring: "Mentoring",
       pillCodeReview: "Code review",
@@ -84,30 +84,30 @@ window.PORTFOLIO_I18N = {
       hybrid: "Hybrid",
       present: "Present",
       caw: {
-        role: "Principal Software Engineer · Co-Founder",
+        role: "Co-Founder & Lead Software Engineer",
         company: "CAW Tech",
         muted: "· Argentina · Remote",
         period: "September 2025 to Present",
         summary:
-          "Co-founder and principal developer for CAW Tech products, owning technical direction, system architecture, product design, implementation, integrations, deployment and ongoing evolution from concept/MVP through production.",
+          "Co-founder and lead software engineer for CAW Tech products, owning technical direction, system architecture, product design, implementation, integrations, deployment and ongoing evolution from concept through production.",
         b1: "Own architecture decisions and end-to-end delivery across CAW products on Next.js, TypeScript and Supabase, design, backend/database choices, frontend architecture, integrations and release practices.",
-        b2: "Volley Manager: production SaaS/PWA for a professional volleyball club in Bolivia, ~700 athletes, ~15 staff and ~600 daily access/check-in events, including payments with Banco Económico and access control (QR + consent-based facial recognition).",
+        b2: "Volley Manager: production SaaS/PWA for a professional volleyball club in Bolivia, ~700 athletes, ~15 staff and ~600 daily access/check-in events; cut ~80% of the club's repetitive manual work and runs 165K+ requests/week at a 99.9% success rate, with 15K+ visits since July 2026. Includes payments with Banco Económico and access control (QR + consent-based facial recognition).",
         b3: "Built domain-specific coaching tools: interactive volleyball scouting court, AI-assisted club information and a voice-based scouting workflow designed for coaches.",
-        b4: "ExpoLogic: B2B2C multi-tenant SaaS for cultural fairs and artisan markets, real-time interactive maps, stand reservations/waitlists, event websites, free exhibitor landings and a 24/7 virtual fair; field-validated (~50 interviews) for a 3.5K+ fairs / 50K+ exhibitors market in Argentina; Emprende U semifinalist, featured by La Gaceta.",
+        b4: "ExpoLogic: B2B2C multi-tenant SaaS for cultural fairs and artisan markets, real-time interactive maps, stand reservations/waitlists, event websites, free exhibitor landings and a 24/7 virtual fair; validated with two pilot clients and moving to production, after ~50 field interviews in a 3.5K+ fairs / 50K+ exhibitors market in Argentina; Emprende U 2026 semifinalist (one of 11 university-category finalists out of 300+ projects), featured by La Gaceta.",
         b5: "CAW Education: designed a data-driven education platform for schools.",
       },
       censys: {
-        role: "Software Developer · Banking",
+        role: "Software Developer (Banking)",
         company: "CENSYS S.A.",
         muted: "· Argentina · Remote",
         period: "December 2023 to July 2025",
         summary:
-          "Banking systems for Sucrédito Bank (BSR) and Banco Santiago del Estero (BSE). Maintained and adapted existing modules with PowerBuilder and Sybase, collaborating with QA and stakeholders on high-volume transactional systems.",
-        b1: "Maintained and adapted existing banking modules under production pressure, requirement changes, business logic updates and transactional integrity on business-critical systems.",
-        b2: "Designed and tuned stored procedures, triggers and Sybase SQL / T-SQL, up to 60% faster execution on financial reporting workloads.",
-        b3: "Integrated SOAP APIs (validated with Postman), supported UATs and owned post-deploy incident care.",
-        b4: "Implemented a hardware-assisted credit-card statement payment flow: operators scan the statement barcode with a reader, the system matches the records automatically, and payment of the credit-card summary is managed from there.",
-        b5: "Mentored new developers through onboarding across technologies, Scrum practices and team workflows, connecting day-to-day development with the tech lead and QA/testers.",
+          "Banking software for Banco Sucrédito (BSR, main client) and other regional Argentine banks, including Banco Santiago del Estero (BSE). Stack: PowerBuilder, Sybase/T-SQL, SOAP.",
+        b1: "Became the team's technical go-to, right below the tech lead: other teams and other banks' clients brought me in to implement solutions I had already built.",
+        b2: "Cut financial report execution time by up to 60% with optimized queries, stored procedures and views in Sybase/T-SQL.",
+        b3: "Delivered a hardware and legacy integration for credit-card statement payments driven by barcode scanning, with PowerBuilder screens operable by keyboard only, mouse only or the hardware device, so bank operations never stopped.",
+        b4: "Implemented ANSES and AFIP requirements, host-to-host integrations and SOAP APIs, working daily with the client.",
+        b5: "Onboarded and mentored new developers, assigning tasks and following up on their work.",
       },
       globant: {
         role: "Front-End Engineer Intern · Web UI (SSR)",
@@ -246,7 +246,7 @@ window.PORTFOLIO_I18N = {
     },
     footer: {
       title: "Let's connect",
-      text: "Available for Senior Software Engineering and Full Stack opportunities where technical ownership, system design and collaborative delivery matter. Open to roles involving modern TypeScript stacks, B2B products and enterprise systems, including teams modernizing legacy platforms.",
+      text: "Available for Senior Software Engineering and Full Stack opportunities where technical ownership, system design and collaborative delivery matter. Open to roles involving modern TypeScript stacks, B2B products and enterprise systems, including teams that run critical banking and enterprise platforms.",
       emailMe: "Email me",
       email: "Email",
       phone: "Phone",
@@ -261,10 +261,10 @@ window.PORTFOLIO_I18N = {
     },
     stats: [
       { num: "5+", label: "Years building software" },
-      { num: "700+", label: "Athletes on Volley Manager" },
+      { num: "~700", label: "Athletes on Volley Manager" },
       { num: "80%", label: "Manual load reduction · Volley Manager" },
       { num: "~600", label: "Daily access events · Volley Manager" },
-      { num: "4K+", label: "Monthly visitors · Volley Manager" },
+      { num: "15K+", label: "Visits since July 2026 · Volley Manager" },
       { num: "15+", label: "Certifications and courses completed" },
       { num: "60%", label: "Faster financial report SQL · CENSYS" },
       { num: "~20%", label: "Faster initial load · Globant" },
@@ -291,9 +291,9 @@ window.PORTFOLIO_I18N = {
 
   es: {
     meta: {
-      title: "Fabio Ramos, Ingeniero de Software Full Stack Senior",
+      title: "Fabio Ramos, Desarrollador Full Stack Senior",
       description:
-        "Fabio Ramos, Ingeniero de Software Full Stack Senior. Especializado en TypeScript, React, Next.js y Supabase. Construye productos B2B y sistemas enterprise, con experiencia en SQL, APIs y modernización de sistemas legacy.",
+        "Fabio Ramos, Desarrollador Full Stack Senior. Especializado en TypeScript, React, Next.js, Node.js y Supabase. Construye productos SaaS en producción y sistemas enterprise y bancarios, con experiencia en SQL y APIs.",
     },
     nav: {
       about: "Sobre mí",
@@ -313,9 +313,9 @@ window.PORTFOLIO_I18N = {
     },
     hero: {
       location: "Desde Tucumán, Argentina",
-      role: "Ingeniero de Software Full Stack Senior",
-      stack: "TypeScript · React · Next.js · Supabase · SQL",
-      focus: "Ingeniería de producto · Arquitectura de software · Sistemas enterprise",
+      role: "Desarrollador Full Stack Senior",
+      stack: "TypeScript · React · Next.js · Node.js · Supabase · SQL",
+      focus: "Productos SaaS en producción · Sistemas enterprise y bancarios",
       viewWork: "Ver proyectos destacados",
       downloadResume: "Descargar CV",
       emailSubject: "Hola Fabio",
@@ -326,30 +326,30 @@ window.PORTFOLIO_I18N = {
     about: {
       eyebrow: "Sobre mí",
       title: "Ownership técnico, arquitectura e impacto en producción",
-      p1: "Ingeniero de Software Full Stack Senior con más de 5 años construyendo software: aplicaciones web modernas, productos B2B y sistemas enterprise. Trabajo sobre todo con TypeScript, React, Next.js y Supabase, complementado con SQL, APIs y datos relacionales.",
-      p2: "Hoy lidero arquitectura y entrega end-to-end de producto en CAW Tech como Principal Software Engineer y Cofundador. Antes mantuve y adapté sistemas bancarios en CENSYS y completé un internship competitivo de frontend en Globant. Lo que marca la diferencia en mi perfil es unir ingeniería de producto moderna y ownership de SaaS con sistemas enterprise y modernización legacy: proteger la integridad transaccional y llevar plataformas reales a producción.",
+      p1: "Desarrollador Full Stack Senior con más de 5 años construyendo software: aplicaciones web modernas, productos B2B y sistemas enterprise. Trabajo sobre todo con TypeScript, React, Next.js y Supabase, complementado con SQL, APIs y datos relacionales.",
+      p2: "Hoy soy Co-Founder & Lead Software Engineer en CAW Tech, donde lidero la arquitectura y la entrega end-to-end de producto. Antes desarrollé software bancario en CENSYS y completé un internship competitivo de frontend en Globant. Lo que marca la diferencia en mi perfil es unir desarrollo de producto moderno y ownership de SaaS con sistemas bancarios críticos: proteger la integridad transaccional y llevar plataformas reales a producción.",
       p3: "Busco roles Senior de Software Engineering y Full Stack donde importen el ownership técnico, el diseño de sistemas y el impacto de negocio medible, con camino hacia liderazgo técnico y arquitectura.",
       achievementsTitle: "Logros y extras.",
       a1: '<strong>ExpoLogic</strong>, semifinalista en <strong>Emprende U 2026</strong> (11 equipos universitarios finalistas entre más de 300). Digitalizó la gestión de ferias y stands. <a class="about-achievements__link" href="https://www.lagaceta.com.ar/nota/1143781/sociedad/emprende-u-proponen-equipos-universitarios-tucumanos-llegaron-semifinal.html" target="_blank" rel="noopener noreferrer">La Gaceta <span aria-hidden="true">↗</span></a>',
       a2: "Seleccionado entre cientos de perfiles para el bootcamp intensivo <strong>Web UI nivel SSR</strong> de Globant.",
       a3: "Beca internacional en <strong>Digital Companies &amp; E-Business Revolution</strong> en California State University, Northridge.",
-      a4: "Mantuve y adapté <strong>módulos bancarios</strong> para bancos argentinos; SQL y stored procedures hasta un <strong>60% más rápidos</strong> en reportes financieros.",
+      a4: "Referente técnico en <strong>software bancario</strong> para bancos argentinos; reduje hasta un <strong>60%</strong> el tiempo de ejecución de reportes financieros con SQL y stored procedures optimizados.",
       a5: "Arquitecturé <strong>Volley Manager</strong> como SaaS/PWA en producción para un club profesional de vóley en Bolivia, ~700 atletas, ~15 staff y ~600 accesos diarios, con pagos y control de acceso en uso cotidiano.",
       a6: "Mentoreé desarrolladores nuevos de punta a punta mientras entregábamos en equipos Agile distribuidos, bajo presión de producción.",
-      fact1: "Ingeniero de Software desde Argentina",
+      fact1: "Desarrollador de Software desde Argentina",
       fact2: "Side projects que pasan de prototipo a producto",
       fact3: "Fanático del hardware",
       skillCore: "Core",
       skillBackend: "Backend / Datos",
       skillEngineering: "Ingeniería",
-      skillEnterprise: "Enterprise / Modernización legacy",
+      skillEnterprise: "Enterprise / Banca",
       skillComplementary: "Complementarias",
       pillArchitecture: "Arquitectura de software",
       pillApiDesign: "Diseño de APIs",
       pillDbOpt: "Optimización de bases de datos",
       pillTesting: "Testing",
       pillEnterprise: "Sistemas enterprise",
-      pillLegacy: "Modernización legacy",
+      pillLegacy: "Integración con sistemas legacy",
       pillCoreBanking: "Banking",
       pillMentoring: "Mentoría",
       pillCodeReview: "Code review",
@@ -374,30 +374,30 @@ window.PORTFOLIO_I18N = {
       hybrid: "Híbrido",
       present: "Presente",
       caw: {
-        role: "Principal Software Engineer · Cofundador",
+        role: "Co-Founder & Lead Software Engineer",
         company: "CAW Tech",
         muted: "· Argentina · Remoto",
         period: "Septiembre 2025 a Presente",
         summary:
-          "Cofundador y desarrollador principal de los productos de CAW Tech: dirección técnica, arquitectura de sistemas, diseño de producto, implementación, integraciones, despliegue y evolución desde concepto/MVP hasta producción.",
+          "Cofundador y desarrollador líder de los productos de CAW Tech: dirección técnica, arquitectura de sistemas, diseño de producto, implementación, integraciones, despliegue y evolución desde el concepto hasta producción.",
         b1: "Ownership de decisiones de arquitectura y entrega end-to-end en productos CAW con Next.js, TypeScript y Supabase, diseño, backend/base de datos, arquitectura frontend, integraciones y prácticas de release.",
-        b2: "Volley Manager: SaaS/PWA en producción para un club profesional de vóley en Bolivia, ~700 atletas, ~15 staff y ~600 eventos diarios de acceso/check-in, con pagos vía Banco Económico y control de acceso (QR + reconocimiento facial con consentimiento).",
+        b2: "Volley Manager: SaaS/PWA en producción para un club profesional de vóley en Bolivia, ~700 atletas, ~15 staff y ~600 eventos diarios de acceso/check-in; redujo ~80% la carga manual repetitiva del club y sostiene 165K+ requests por semana con 99,9% de éxito, con 15K+ visitas desde julio de 2026. Incluye pagos vía Banco Económico y control de acceso (QR + reconocimiento facial con consentimiento).",
         b3: "Herramientas de coaching de dominio: cancha interactiva de scouting, información del club asistida por IA y un flujo de scouting por voz pensado para entrenadores.",
-        b4: "ExpoLogic: SaaS B2B2C multi-tenant para ferias culturales y mercados artesanales, mapas interactivos en tiempo real, reservas/lista de espera, sitios del evento, landings gratis para expositores y feria virtual 24/7; validado en campo (~50 entrevistas) para un mercado de 3.5K+ ferias / 50K+ expositores en Argentina; semifinalista Emprende U, cubierto por La Gaceta.",
+        b4: "ExpoLogic: SaaS B2B2C multi-tenant para ferias culturales y mercados artesanales, mapas interactivos en tiempo real, reservas/lista de espera, sitios del evento, landings gratis para expositores y feria virtual 24/7; validado con dos clientes piloto y en transición a producción, tras ~50 entrevistas en campo en un mercado de 3.5K+ ferias / 50K+ expositores en Argentina; semifinalista de Emprende U 2026 (uno de los 11 finalistas de la categoría universitaria entre más de 300 proyectos), cubierto por La Gaceta.",
         b5: "CAW Education: diseñé una plataforma educativa orientada a datos para escuelas.",
       },
       censys: {
-        role: "Software Developer · Banking",
+        role: "Desarrollador de Software (banca)",
         company: "CENSYS S.A.",
         muted: "· Argentina · Remoto",
         period: "Diciembre 2023 a Julio 2025",
         summary:
-          "Sistemas bancarios para Sucrédito Bank (BSR) y Banco Santiago del Estero (BSE). Mantuve y adapté módulos existentes con PowerBuilder y Sybase, junto a QA y stakeholders en sistemas transaccionales de alto volumen.",
-        b1: "Mantuve y adapté módulos bancarios existentes bajo presión de producción, cambios de requerimientos, lógica de negocio e integridad transaccional en sistemas críticos.",
-        b2: "Diseñé y afiné stored procedures, triggers y SQL Sybase / T-SQL, hasta 60% más rápidos en cargas de reporting financiero.",
-        b3: "Integré APIs SOAP (validadas con Postman), acompañé UATs y asumí el cuidado de incidentes post-deploy.",
-        b4: "Implementé un flujo de pago de resúmenes de tarjeta de crédito asistido por hardware: el operador escanea el código de barras del resumen con un lector, el sistema detecta automáticamente los registros y gestiona el pago desde ahí.",
-        b5: "Mentoreé a nuevos desarrolladores durante el onboarding: tecnologías, prácticas Scrum y flujos de trabajo del equipo, vinculando el desarrollo diario con el líder técnico y QA/testers.",
+          "Software bancario para Banco Sucrédito (BSR, cliente principal) y otros bancos regionales de Argentina, como Banco Santiago del Estero (BSE). Stack: PowerBuilder, Sybase/T-SQL, SOAP.",
+        b1: "Me consolidé como referente técnico del equipo, debajo de la tech lead: otros equipos y clientes de otros bancos me convocaban para implementar soluciones que yo ya había construido.",
+        b2: "Reduje hasta 60% el tiempo de ejecución de reportes financieros con consultas optimizadas, stored procedures y vistas en Sybase/T-SQL.",
+        b3: "Entregué la integración de hardware y sistema legacy para el pago de resúmenes de tarjeta de crédito mediante lectura del código de barras, con pantallas PowerBuilder operables solo con teclado, solo con mouse o con el dispositivo de hardware, para que la operación bancaria nunca se detuviera.",
+        b4: "Implementé requerimientos de ANSES y AFIP, integraciones host-to-host y APIs SOAP, en contacto diario con el cliente.",
+        b5: "Guié el onboarding de nuevos desarrolladores con asignación de tareas, seguimiento y mentoring.",
       },
       globant: {
         role: "Front-End Engineer Intern · Web UI (SSR)",
@@ -537,7 +537,7 @@ window.PORTFOLIO_I18N = {
     },
     footer: {
       title: "Conectemos",
-      text: "Disponible para oportunidades Senior de Software Engineering y Full Stack donde importen el ownership técnico, el diseño de sistemas y la entrega colaborativa. Abierto a roles con stacks TypeScript modernos, productos B2B y sistemas enterprise, también en equipos que modernizan plataformas legacy.",
+      text: "Disponible para oportunidades Senior de Software Engineering y Full Stack donde importen el ownership técnico, el diseño de sistemas y la entrega colaborativa. Abierto a roles con stacks TypeScript modernos, productos B2B y sistemas enterprise, también en equipos que operan plataformas bancarias y enterprise críticas.",
       emailMe: "Escribime",
       email: "Email",
       phone: "Teléfono",
@@ -552,10 +552,10 @@ window.PORTFOLIO_I18N = {
     },
     stats: [
       { num: "5+", label: "Años construyendo software" },
-      { num: "700+", label: "Atletas en Volley Manager" },
+      { num: "~700", label: "Atletas en Volley Manager" },
       { num: "80%", label: "Reducción de carga manual · Volley Manager" },
       { num: "~600", label: "Accesos diarios · Volley Manager" },
-      { num: "4K+", label: "Visitantes mensuales · Volley Manager" },
+      { num: "15K+", label: "Visitas desde julio 2026 · Volley Manager" },
       { num: "15+", label: "Certificaciones y cursos completados" },
       { num: "60%", label: "SQL más rápido en reportes · CENSYS" },
       { num: "~20%", label: "Carga inicial más rápida · Globant" },
@@ -716,7 +716,7 @@ window.PORTFOLIO_CERT_I18N = {
 
 window.PORTFOLIO_PROJECT_I18N = {
   "volley-manager": {
-    role: "Principal Software Engineer · Cofundador · CAW Tech",
+    role: "Co-Founder & Lead Software Engineer · CAW Tech",
     tagline: "SaaS / PWA en producción para la operación de un club profesional de vóley",
     status: "En producción",
     description:
@@ -724,15 +724,15 @@ window.PORTFOLIO_PROJECT_I18N = {
     descriptionLong:
       "Volley Manager es una plataforma operativa digital en producción para un club profesional de vóley en Bolivia. Soporta administración del club, gestión de atletas, asistencia, alertas, notificaciones, flujos financieros y control de acceso, incluyendo acceso por QR y reconocimiento facial con consentimiento, con fallback a QR cuando no hay consentimiento. Las familias pueden registrarse y pagar online mediante integración con Banco Económico (Bolivia).",
     metrics: [
-      { value: "700+", label: "Atletas" },
+      { value: "~700", label: "Atletas" },
       { value: "~15", label: "Miembros de staff" },
       { value: "~600", label: "Accesos diarios" },
       { value: "80%", label: "Reducción de carga manual" },
-      { value: "4K+", label: "Visitantes / 30 días" },
-      { value: "15K+", label: "Vistas de página / 30 días" },
+      { value: "15K+", label: "Visitas desde julio 2026" },
+      { value: "55K+", label: "Vistas de página desde julio 2026" },
     ],
     techMetrics: [
-      { value: "130K+", label: "Requests Supabase / 7 días" },
+      { value: "165K+", label: "Requests Supabase / semana · 99,9% de éxito" },
     ],
     caseStudy: [
       {
@@ -767,7 +767,7 @@ window.PORTFOLIO_PROJECT_I18N = {
       },
       {
         title: "Mi rol",
-        body: "Como Principal Software Engineer y Cofundador en CAW Tech, asumo decisiones de arquitectura, diseño de producto, implementación, integraciones, despliegue y evolución técnica end-to-end.",
+        body: "Como Co-Founder & Lead Software Engineer en CAW Tech, asumo decisiones de arquitectura, diseño de producto, implementación, integraciones, despliegue y evolución técnica end-to-end.",
       },
     ],
     highlights: [
@@ -789,9 +789,9 @@ window.PORTFOLIO_PROJECT_I18N = {
     ],
   },
   expologic: {
-    role: "Principal Software Engineer · Cofundador · CAW Tech",
+    role: "Co-Founder & Lead Software Engineer · CAW Tech",
     tagline: "SaaS B2B2C multi-tenant para ferias culturales, mercados artesanales y eventos de emprendedores",
-    status: "MVP · Seed · Prototipo validado",
+    status: "Validado · Dos clientes piloto · En transición a producción",
     description:
       "SaaS multi-tenant que reemplaza Excel, WhatsApp y mapas en papel con mapas interactivos, reservas, lista de espera, feria virtual y analytics.",
     descriptionLong:
@@ -840,22 +840,22 @@ window.PORTFOLIO_PROJECT_I18N = {
       },
       {
         title: "Validación externa",
-        body: "Presentado en Emprende U, llegó a semifinales; cubierto por La Gaceta. Hay organizadores prospectivos en Tucumán; el producto se prepara para una adopción más amplia. One-pager: niclen17.github.io/ExpoLogic-one-pager/",
+        body: "Semifinalista de Emprende U 2026: uno de los 11 finalistas de la categoría universitaria entre más de 300 proyectos; cubierto por La Gaceta. Hoy está validado con dos clientes piloto y en transición a producción. En vivo: www.expologic.online. One-pager: niclen17.github.io/ExpoLogic-one-pager/",
       },
       {
         title: "Mi rol",
-        body: "Como Principal Software Developer / Cofundador en CAW Tech, asumo arquitectura SaaS, visión de producto e implementación end-to-end del hub multi-tenant, constructor de mapas, reservas y feria virtual.",
+        body: "Como Co-Founder & Lead Software Engineer en CAW Tech, asumo arquitectura SaaS, visión de producto e implementación end-to-end del hub multi-tenant, constructor de mapas, reservas y feria virtual.",
       },
     ],
     highlights: [
       "Reemplaza semanas de gestión manual por mapas en tiempo real, reservas, waitlists y auditoría de cobros.",
       "Landings gratis para expositores + feria virtual 24/7, SaaS B2B con posicionamiento de impacto social.",
-      "Validado con ~50 entrevistas; mercado 3.5K+ ferias / 50K+ expositores; semifinalista Emprende U.",
+      "Validado con ~50 entrevistas y dos clientes piloto; mercado 3.5K+ ferias / 50K+ expositores; semifinalista Emprende U 2026.",
     ],
     outcomes: [
       "Validado en campo con ~50 entrevistas a organizadores y expositores",
-      "Semifinalista Emprende U · cubierto por La Gaceta",
-      "Hub multi-tenant listo para pilotos regionales",
+      "Semifinalista Emprende U 2026 (11 finalistas universitarios entre 300+ proyectos) · cubierto por La Gaceta",
+      "Dos clientes piloto · en transición a producción",
     ],
     gallery: [
       { caption: "Landing de marketing · SO para ferias", frameLabel: "www.expologic.online" },
@@ -865,7 +865,7 @@ window.PORTFOLIO_PROJECT_I18N = {
     ],
   },
   "caw-education": {
-    role: "Principal Software Engineer · Cofundador · CAW Tech",
+    role: "Co-Founder & Lead Software Engineer · CAW Tech",
     tagline: "Operación educativa orientada a datos para escuelas primarias y secundarias",
     status: "Desarrollo de producto",
     description:
@@ -1084,7 +1084,7 @@ window.PORTFOLIO_PROJECT_I18N = {
     ],
   },
   "caw-tech": {
-    role: "Cofundador · Principal Software Engineer",
+    role: "Co-Founder & Lead Software Engineer",
     description:
       "Sitio de la empresa, servicios, posicionamiento de producto y funnels de contacto de alta conversión.",
     descriptionLong:
@@ -1100,9 +1100,9 @@ window.PORTFOLIO_PROJECT_I18N = {
     tagline: "Documentos .txt estructurados desde templates configurables, preview y descarga",
     status: "En producción",
     description:
-      "Generá documentos .txt estructurados descargables a partir de templates configurables.",
+      "Herramienta propia para diseñar layouts TXT de ancho fijo con campos tipados, templates reutilizables y preview en vivo. Corre 100% en el navegador: los datos sensibles no salen de tu máquina.",
     descriptionLong:
-      "TxtGen permite componer exportaciones de texto repetibles desde templates, ideal para documentación por lotes, etiquetas y reportes estructurados. La UI prioriza edición de templates, preview y descarga en un clic, sin atarse a servidor para flujos simples.",
+      "TxtGent permite componer exportaciones de texto repetibles desde templates, ideal para documentación por lotes, etiquetas y reportes estructurados. La UI prioriza edición de templates, preview y descarga en un clic, sin atarse a servidor para flujos simples.",
     metrics: [
       { value: "1 clic", label: "Exportar" },
       { value: "Live", label: "Preview del template" },
