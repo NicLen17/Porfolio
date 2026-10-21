@@ -584,7 +584,7 @@ const projects = [
       "Volley Manager is a production digital operations platform for a professional volleyball club in Bolivia. It supports club administration, athlete management, attendance, alerts, notifications, financial workflows and access control, including QR access and consent-based facial recognition, with QR fallback when consent is not provided. Families can register and pay online through an integration with Banco Económico (Bolivia).",
     technologies: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "PWA", "Vercel", "Sports", "Real-time"],
     metrics: [
-      { value: "~700", label: "Athletes" },
+      { value: "~800", label: "Athletes" },
       { value: "~15", label: "Staff members" },
       { value: "~600", label: "Daily access events" },
       { value: "80%", label: "Manual load reduction" },
@@ -631,7 +631,7 @@ const projects = [
       },
     ],
     highlights: [
-      "Production platform for ~700 athletes and ~15 staff with ~600 daily access/check-in events.",
+      "Production platform for ~800 athletes and ~15 staff with ~600 daily access/check-in events.",
       "Administrative, financial, attendance and access-control workflows, including Banco Económico payments.",
       "Interactive volleyball scouting court, AI-assisted club context and voice-based scouting for coaches.",
     ],
