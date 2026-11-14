@@ -1,0 +1,316 @@
+---
+import type { Content, Lang } from '../i18n/content';
+
+interface Props {
+  t: Content;
+  lang: Lang;
+}
+
+const { t, lang } = Astro.props;
+const links = [
+  { href: '#volley-manager', label: t.nav.work, spy: 'volley-manager expologic' },
+  { href: '#tools', label: t.nav.tools, spy: 'tools' },
+  { href: '#projects', label: t.nav.projects, spy: 'projects' },
+  { href: '#talks', label: t.nav.talks, spy: 'talks' },
+  { href: '#experience', label: t.nav.experience, spy: 'credentials experience about' },
+];
+---
+
+<!-- Retention-first: in-page anchors only. Outbound links live in Contact. -->
+<header class="top">
+  <a class="top__mark" href="#top"><span aria-hidden="true">F</span><span aria-hidden="true">R</span><b class="sr-only">Fabio Ramos</b></a>
+  <nav class="top__nav" aria-label={t.nav.label}>
+    {
+      links.map((link, i) => (
+        <a href={link.href} data-spy={link.spy}>
+          <i>0{i + 1}</i>
+          {link.label}
+        </a>
+      ))
+    }
+  </nav>
+  <div class="top__end">
+    <div class="top__lang" role="group" aria-label={t.nav.lang}>
+      <a href="/" hreflang="en" lang="en" aria-current={lang === 'en' ? 'true' : undefined}>EN</a>
+      <a href="/es/" hreflang="es" lang="es" aria-current={lang === 'es' ? 'true' : undefined}>ES</a>
+    </div>
+    <a class="top__cta" href="#contact" data-spy="contact">{t.nav.contact}</a>
+  </div>
+  <i class="top__progress" aria-hidden="true"></i>
+</header>
+
+<style is:global>
+  /* Always there: a hard-edged bar with the chapter you are in and how far along you are. */
+  .top {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 1rem;
+    height: var(--bar);
+    padding-left: var(--gutter);
+    background: rgb(0 0 0 / 0.86);
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    transition:
+      opacity 0.7s var(--ease-out),
+      transform 0.7s var(--ease-out);
+  }
+
+  @supports (backdrop-filter: blur(1px)) {
+    .top {
+      background: rgb(0 0 0 / 0.66);
+      backdrop-filter: blur(14px) saturate(1.3);
+    }
+  }
+
+  html.intro .top,
+  html.intro-short .top {
+    opacity: 0;
+    transform: translateY(-100%);
+    pointer-events: none;
+  }
+
+  .top a {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* The mark is two keycaps. */
+  .top__mark {
+    gap: 3px;
+    align-self: center;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .top__mark span {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    background: var(--emerald);
+    color: #00130c;
+    box-shadow: 3px 3px 0 var(--emerald-deep);
+    transition:
+      transform 0.2s var(--ease-out),
+      box-shadow 0.2s var(--ease-out);
+  }
+
+  .top__mark:hover span {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--emerald-deep);
+  }
+
+  .top__mark:hover span:last-of-type {
+    transition-delay: 0.06s;
+  }
+
+  .top__nav {
+    display: none;
+    font-size: var(--step--1);
+    font-weight: 500;
+  }
+
+  @media (min-width: 900px) {
+    .top__nav {
+      display: flex;
+    }
+  }
+
+  .top__nav a {
+    position: relative;
+    gap: 0.5rem;
+    padding-inline: clamp(0.6rem, 1.3vw, 1.25rem);
+    color: var(--ink-dim);
+    transition: color 0.25s;
+  }
+
+  .top__nav i {
+    font-family: var(--font-display);
+    font-style: normal;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--ink-faint);
+    transition: color 0.25s;
+  }
+
+  .top__nav a::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 -1px 0;
+    height: 3px;
+    background: var(--emerald);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.45s var(--ease-out);
+  }
+
+  .top__nav a:hover,
+  .top__nav a.is-active {
+    color: var(--ink);
+  }
+
+  .top__nav a.is-active i {
+    color: var(--accent);
+  }
+
+  .top__nav a:hover::after,
+  .top__nav a.is-active::after {
+    transform: none;
+    transform-origin: left;
+  }
+
+  .top__end {
+    display: flex;
+    align-items: stretch;
+    gap: clamp(0.5rem, 1.5vw, 1.25rem);
+    font-size: var(--step--1);
+  }
+
+  .top__lang {
+    display: flex;
+  }
+
+  .top__lang a {
+    justify-content: center;
+    min-width: 2.6rem;
+    font-weight: 600;
+    color: var(--ink-faint);
+    transition: color 0.25s;
+  }
+
+  .top__lang a[aria-current] {
+    color: var(--emerald-ice);
+  }
+
+  .top__lang a:hover {
+    color: var(--ink);
+  }
+
+  .top__cta {
+    position: relative;
+    isolation: isolate;
+    padding-inline: clamp(1rem, 2.4vw, 1.75rem);
+    background: var(--emerald);
+    color: #00130c;
+    font-weight: 700;
+    overflow: hidden;
+  }
+
+  .top__cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--accent);
+    transform: translateY(101%);
+    transition: transform 0.4s var(--ease-out);
+  }
+
+  .top__cta:hover::before,
+  .top__cta.is-active::before {
+    transform: none;
+  }
+
+  .top__progress {
+    position: absolute;
+    inset: auto 0 -1px 0;
+    height: 1px;
+    background: var(--emerald);
+    transform: scaleX(var(--p, 0));
+    transform-origin: left;
+    pointer-events: none;
+  }
+
+  /* Cursor follower --------------------------------------------------- */
+  .cursor {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .cursor.is-on {
+    opacity: 1;
+  }
+
+  .cursor i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    will-change: transform;
+  }
+
+  .cursor i::before {
+    content: '';
+    position: absolute;
+    transition:
+      transform 0.35s var(--ease-out),
+      background-color 0.3s,
+      opacity 0.3s;
+  }
+
+  .cursor__trail::before {
+    width: 4rem;
+    height: 4rem;
+    margin: -2rem 0 0 -2rem;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(16 185 129 / 0.5), rgb(6 95 70 / 0.2) 45%, transparent 72%);
+    filter: blur(10px);
+    mix-blend-mode: screen;
+  }
+
+  /* The lead is a small diamond: one key of the board, following you around. */
+  .cursor__lead::before {
+    width: 0.7rem;
+    height: 0.7rem;
+    margin: -0.35rem 0 0 -0.35rem;
+    background: #d1fae5;
+    box-shadow: 0 0 14px rgb(110 231 183 / 0.9);
+    transform: rotate(45deg);
+  }
+
+  /* The follower replaces the system pointer wherever it is active. */
+  html.has-cursor,
+  html.has-cursor * {
+    cursor: none !important;
+  }
+
+  /* A click spins the diamond half a turn (it lands looking the same) and flashes the accent. */
+  .cursor.is-click .cursor__lead::before {
+    animation: cursor-click 0.5s var(--ease-out);
+  }
+
+  @keyframes cursor-click {
+    35% {
+      background: var(--accent);
+      box-shadow: 0 0 18px var(--accent);
+      scale: 1.7;
+    }
+    to {
+      rotate: 180deg;
+    }
+  }
+
+  .cursor.is-link .cursor__lead::before {
+    transform: rotate(45deg) scale(3);
+    opacity: 0.4;
+  }
+
+  .cursor.is-paper .cursor__lead::before {
+    background: var(--emerald-deep);
+    box-shadow: none;
+  }
+
+  .cursor.is-paper .cursor__trail::before {
+    mix-blend-mode: multiply;
+    opacity: 0.6;
+  }
+</style>

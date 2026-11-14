@@ -1,0 +1,613 @@
+---
+/**
+ * Background life for the quiet sections. One idea per section, so each chapter
+ * has its own weather:
+ *
+ * - stars:  a field of points that twinkle, with the odd one streaking past.
+ * - signal: a broadcast breaking up (glitch bars, hex read-outs, diamond pings, a scan line).
+ * - binary: columns of bits running up and down the right-hand third.
+ * - glyphs: outlined code punctuation drifting slowly.
+ * - sonar:  rings spreading from two corners over a dot grid, and a glow that wanders.
+ * - embers: sparks lifting off the light at the bottom of the page, with a slow horizon line.
+ *
+ * All of it is decoration: hidden from assistive tech, CSS only, transform and
+ * opacity only, paused while its section is off screen (see `[data-live]` in
+ * page.ts) and removed on phones and for reduced motion.
+ */
+interface Props {
+  kind: 'stars' | 'signal' | 'binary' | 'glyphs' | 'sonar' | 'embers';
+}
+
+const { kind } = Astro.props;
+
+// Seeded, so the build is the same every time and nothing shifts between deploys.
+const seeded = (seed: number) => () => {
+  seed = (seed + 0x6d2b79f5) | 0;
+  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
+const rand = seeded(kind.length * 7919 + kind.charCodeAt(0));
+const between = (a: number, b: number) => a + (b - a) * rand();
+const fix = (n: number, digits = 1) => n.toFixed(digits);
+
+const stars = Array.from({ length: 46 }, (_, i) => ({
+  x: fix(between(1, 99)),
+  y: fix(between(2, 98)),
+  size: fix(between(2, 5)),
+  time: fix(between(2.6, 7)),
+  delay: fix(-between(0, 7)),
+  spark: i % 9 === 4,
+}));
+const streaks = [
+  { x: 12, y: 18, time: 11, delay: -2 },
+  { x: 58, y: 46, time: 14, delay: -9 },
+  { x: 30, y: 74, time: 17, delay: -5 },
+];
+
+const bars = Array.from({ length: 12 }, (_, i) => ({
+  x: fix(between(0, 82)),
+  y: fix(between(4, 96)),
+  w: fix(between(4, 18)),
+  h: i % 4 === 0 ? 5 : 2,
+  time: fix(between(4.5, 9)),
+  delay: fix(-between(0, 9)),
+  rose: i % 3 === 1,
+}));
+const codes = ['0x10B981', 'FF 4D 6D', '0x7F3A', 'A9 0C 1E', '>> 48k', '0b1011', '00:27:44', 'E2 9C 93', '0xC0DE', '// ch.02'];
+const hexes = codes.map((text, i) => ({
+  text,
+  x: fix(between(2, 88)),
+  y: fix(4 + i * 9.4 + between(0, 4)),
+  time: fix(between(5, 10)),
+  delay: fix(-between(0, 10)),
+  rose: i % 4 === 2,
+}));
+
+const columns = Array.from({ length: 9 }, (_, i) => {
+  const bits = Array.from({ length: 44 }, () => (rand() > 0.5 ? '1' : '0'));
+  return { text: [...bits, ...bits].join('\n'), time: fix(between(26, 48), 0), down: i % 2 === 1, rose: i === 3 || i === 7, dim: fix(between(0.35, 1), 2) };
+});
+
+// Placed in rem from the top, not in percent: the section grows when a role is
+// opened, and the marks must stay where they are instead of sliding with it.
+const embers = Array.from({ length: 30 }, (_, i) => ({
+  x: fix(between(4, 96)),
+  size: fix(between(3, 7)),
+  time: fix(between(7, 15)),
+  delay: fix(-between(0, 15)),
+  sway: fix(between(-3, 3)),
+  rose: i % 4 === 1,
+}));
+
+const marks = ['{ }', '</>', '=>', '( )', '[ ]', '&&', '::', '#', '/**/', '?.', '!==', ';'];
+const glyphs = [...marks, ...marks, ...marks].map((text, i) => ({
+  text,
+  x: fix(i % 2 ? between(72, 94) : between(1, 20)),
+  y: fix(4 + i * 8.5 + between(0, 3)),
+  size: fix(between(2.2, 5.5)),
+  time: fix(between(9, 17)),
+  delay: fix(-between(0, 12)),
+  turn: fix(between(-14, 14), 0),
+  rose: i % 5 === 3,
+}));
+---
+
+<div class={`amb amb--${kind}`} aria-hidden="true">
+  {
+    kind === 'stars' && (
+      <>
+        {stars.map((star) => (
+          <i class:list={['amb__star', { 'amb__star--spark': star.spark }]} style={`--x:${star.x}%;--y:${star.y}%;--s:${star.size}px;--d:${star.time}s;--delay:${star.delay}s`} />
+        ))}
+        {streaks.map((streak) => (
+          <i class="amb__streak" style={`--x:${streak.x}%;--y:${streak.y}%;--d:${streak.time}s;--delay:${streak.delay}s`} />
+        ))}
+      </>
+    )
+  }
+  {
+    kind === 'signal' && (
+      <>
+        <i class="amb__scan" />
+        <i class="amb__ping" />
+        <i class="amb__ping amb__ping--late" />
+        {bars.map((bar) => (
+          <i class:list={['amb__bar', { 'is-rose': bar.rose }]} style={`--x:${bar.x}%;--y:${bar.y}%;--w:${bar.w}%;--h:${bar.h}px;--d:${bar.time}s;--delay:${bar.delay}s`} />
+        ))}
+        {hexes.map((hex) => (
+          <span class:list={['amb__hex', { 'is-rose': hex.rose }]} style={`--x:${hex.x}%;--y:${hex.y}%;--d:${hex.time}s;--delay:${hex.delay}s`}>
+            {hex.text}
+          </span>
+        ))}
+      </>
+    )
+  }
+  {
+    kind === 'binary' && (
+      <div class="amb__rain">
+        {columns.map((column) => (
+          <span class:list={['amb__bits', { 'is-down': column.down, 'is-rose': column.rose }]} style={`--d:${column.time}s;--o:${column.dim}`}>
+            {column.text}
+          </span>
+        ))}
+      </div>
+    )
+  }
+  {
+    kind === 'glyphs' &&
+      glyphs.map((glyph) => (
+        <span class:list={['amb__glyph', { 'is-rose': glyph.rose }]} style={`--x:${glyph.x}%;--y:${glyph.y}rem;--s:${glyph.size}rem;--d:${glyph.time}s;--delay:${glyph.delay}s;--r:${glyph.turn}deg`}>
+          {glyph.text}
+        </span>
+      ))
+  }
+  {
+    kind === 'sonar' && (
+      <>
+        <i class="amb__dots" />
+        <i class="amb__glow" />
+        <i class="amb__ring" />
+        <i class="amb__ring" style="--delay:-2.4s" />
+        <i class="amb__ring" style="--delay:-4.8s" />
+        <i class="amb__ring amb__ring--far" style="--delay:-1.2s" />
+        <i class="amb__ring amb__ring--far" style="--delay:-3.6s" />
+        <i class="amb__ring amb__ring--far" style="--delay:-6s" />
+        {Array.from({ length: 5 }, (_, i) => (
+          <i class="amb__blip" style={`--x:${[62, 71, 83, 90, 77][i]}%;--y:${[9, 17, 6, 14, 23][i]}rem;--delay:${-i * 1.3}s`} />
+        ))}
+      </>
+    )
+  }
+  {
+    kind === 'embers' && (
+      <>
+        <i class="amb__horizon" />
+        {embers.map((ember) => (
+          <i class:list={['amb__ember', { 'is-rose': ember.rose }]} style={`--x:${ember.x}%;--s:${ember.size}px;--d:${ember.time}s;--delay:${ember.delay}s;--sway:${ember.sway}rem`} />
+        ))}
+      </>
+    )
+  }
+</div>
+
+<style is:global>
+  .amb {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    /* Nothing in here depends on, or disturbs, the layout around it. */
+    contain: layout paint style;
+    pointer-events: none;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  }
+
+  /* The layer sits above its section's background and below its content. */
+  :is(section, footer):has(> .amb) {
+    position: relative;
+    isolation: isolate;
+  }
+
+  [data-live]:not(.is-live) .amb * {
+    animation-play-state: paused !important;
+  }
+
+  @media (max-width: 699.98px), (prefers-reduced-motion: reduce) {
+    .amb {
+      display: none;
+    }
+  }
+
+  /* Stars -------------------------------------------------------------- */
+  .amb__star {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--s);
+    height: var(--s);
+    background: var(--emerald-ice);
+    opacity: 0.12;
+    animation: amb-twinkle var(--d) var(--ease-in-out) var(--delay) infinite alternate;
+  }
+
+  /* A few are four-pointed and rose: the ones the eye lands on. */
+  .amb__star--spark {
+    width: calc(var(--s) * 3.4);
+    height: calc(var(--s) * 3.4);
+    background:
+      linear-gradient(var(--accent), var(--accent)) center / 1.5px 100% no-repeat,
+      linear-gradient(var(--accent), var(--accent)) center / 100% 1.5px no-repeat;
+  }
+
+  .amb__streak {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: 9rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--emerald-ice));
+    opacity: 0;
+    rotate: 24deg;
+    animation: amb-streak var(--d) var(--ease-out) var(--delay) infinite;
+  }
+
+  @keyframes amb-twinkle {
+    from {
+      opacity: 0.08;
+      transform: scale(0.6);
+    }
+    to {
+      opacity: 0.75;
+      transform: scale(1.15);
+    }
+  }
+
+  @keyframes amb-streak {
+    0%,
+    88% {
+      opacity: 0;
+      transform: translateX(-6rem);
+    }
+    91% {
+      opacity: 0.8;
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(26rem);
+    }
+  }
+
+  /* Signal ------------------------------------------------------------- */
+  .amb__bar {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--w);
+    height: var(--h);
+    background: var(--emerald);
+    opacity: 0;
+    animation: amb-glitch var(--d) steps(1, end) var(--delay) infinite;
+  }
+
+  .amb--signal .is-rose {
+    background: var(--accent);
+    color: var(--accent);
+  }
+
+  .amb__hex {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    background: none !important;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--emerald-ice);
+    white-space: nowrap;
+    opacity: 0;
+    animation: amb-readout var(--d) steps(1, end) var(--delay) infinite;
+  }
+
+  /* Diamond pings from the corner the light comes from. */
+  .amb__ping {
+    position: absolute;
+    right: 9%;
+    top: 7rem;
+    width: 34rem;
+    height: 34rem;
+    margin: -17rem -17rem 0 0;
+    border: 1px solid var(--emerald);
+    opacity: 0;
+    rotate: 45deg;
+    animation: amb-ping 6s var(--ease-out) infinite;
+  }
+
+  .amb__ping--late {
+    border-color: var(--accent);
+    animation-delay: -3s;
+  }
+
+  .amb__scan {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(transparent, var(--emerald-ice) 30%, var(--emerald-ice) 70%, transparent);
+    box-shadow: 0 0 18px 2px rgb(16 185 129 / 0.5);
+    opacity: 0.35;
+    animation: amb-scan 16s linear infinite;
+  }
+
+  @keyframes amb-glitch {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    4% {
+      opacity: 0.55;
+      transform: none;
+    }
+    6% {
+      opacity: 0.15;
+      transform: translateX(2rem);
+    }
+    8% {
+      opacity: 0.7;
+      transform: translateX(-0.75rem) scaleX(1.5);
+    }
+    11% {
+      opacity: 0.3;
+      transform: translateX(0.5rem) scaleX(0.6);
+    }
+    13% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes amb-readout {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    10%,
+    14%,
+    20% {
+      opacity: 0.5;
+    }
+    12%,
+    17% {
+      opacity: 0.1;
+    }
+    44% {
+      opacity: 0.5;
+    }
+    46% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes amb-ping {
+    from {
+      opacity: 0.55;
+      scale: 0.08;
+    }
+    to {
+      opacity: 0;
+      scale: 1;
+    }
+  }
+
+  @keyframes amb-scan {
+    from {
+      transform: translateX(-2vw);
+    }
+    to {
+      transform: translateX(102vw);
+    }
+  }
+
+  /* Binary --------------------------------------------------------------- */
+  .amb__rain {
+    position: absolute;
+    inset: 0 0 0 auto;
+    display: flex;
+    justify-content: space-between;
+    width: 33%;
+    padding-inline: 1.5rem;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 55%), linear-gradient(transparent, #000 18%, #000 82%, transparent);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(90deg, transparent, #000 55%), linear-gradient(transparent, #000 18%, #000 82%, transparent);
+    mask-composite: intersect;
+  }
+
+  .amb__bits {
+    align-self: start;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.7;
+    color: var(--emerald);
+    white-space: pre;
+    opacity: calc(var(--o) * 0.42);
+    animation: amb-rise var(--d) linear infinite;
+  }
+
+  .amb__bits.is-down {
+    animation-direction: reverse;
+  }
+
+  .amb__bits.is-rose {
+    color: var(--accent);
+  }
+
+  /* The column is written twice, so half a turn loops without a seam. */
+  @keyframes amb-rise {
+    to {
+      transform: translateY(-50%);
+    }
+  }
+
+  /* Glyphs --------------------------------------------------------------- */
+  .amb__glyph {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    font-size: var(--s);
+    font-weight: 700;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--emerald);
+    white-space: nowrap;
+    opacity: 0.2;
+    rotate: var(--r);
+    animation: amb-drift var(--d) var(--ease-in-out) var(--delay) infinite alternate;
+  }
+
+  .amb__glyph.is-rose {
+    -webkit-text-stroke-color: var(--accent);
+  }
+
+  @keyframes amb-drift {
+    from {
+      transform: translate3d(0, 1.6rem, 0) rotate(-5deg);
+      opacity: 0.08;
+    }
+    to {
+      transform: translate3d(0.8rem, -1.6rem, 0) rotate(6deg);
+      opacity: 0.26;
+    }
+  }
+
+  /* Sonar ---------------------------------------------------------------- */
+  .amb__dots {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgb(110 231 183 / 0.22) 1px, transparent 1.6px) 0 0 / 1.75rem 1.75rem;
+    -webkit-mask-image: radial-gradient(60rem 34rem at 8% 100%, #000, transparent 75%);
+    mask-image: radial-gradient(60rem 34rem at 8% 100%, #000, transparent 75%);
+  }
+
+  .amb__glow {
+    position: absolute;
+    left: 55%;
+    top: 20%;
+    width: 38rem;
+    height: 38rem;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(16 185 129 / 0.14), transparent 65%);
+    animation: amb-wander 22s var(--ease-in-out) infinite alternate;
+  }
+
+  .amb__ring {
+    position: absolute;
+    left: 8%;
+    bottom: 0;
+    width: 60rem;
+    height: 60rem;
+    margin: 0 0 -30rem -30rem;
+    border: 1px solid var(--emerald);
+    border-radius: 50%;
+    opacity: 0;
+    animation: amb-sonar 7.2s var(--ease-out) var(--delay, 0s) infinite;
+  }
+
+  /* A second, rose source in the far top corner, and a few echoes near it. */
+  .amb__ring--far {
+    left: auto;
+    right: 4%;
+    top: 0;
+    bottom: auto;
+    width: 46rem;
+    height: 46rem;
+    margin: -23rem -23rem 0 0;
+    border-color: var(--accent);
+    animation-duration: 8.4s;
+  }
+
+  .amb__blip {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: 6px;
+    height: 6px;
+    background: var(--emerald-ice);
+    rotate: 45deg;
+    opacity: 0;
+    animation: amb-blip 6.5s var(--ease-out) var(--delay) infinite;
+  }
+
+  @keyframes amb-blip {
+    0%,
+    100% {
+      opacity: 0;
+      scale: 0.4;
+    }
+    8% {
+      opacity: 0.9;
+      scale: 1.3;
+    }
+    40% {
+      opacity: 0;
+      scale: 1;
+    }
+  }
+
+  /* Embers ----------------------------------------------------------------- */
+  .amb__ember {
+    position: absolute;
+    left: var(--x);
+    bottom: -1rem;
+    width: var(--s);
+    height: var(--s);
+    background: var(--emerald-ice);
+    opacity: 0;
+    animation: amb-ember var(--d) linear var(--delay) infinite;
+  }
+
+  .amb__ember.is-rose {
+    background: var(--accent);
+  }
+
+  .amb__horizon {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--emerald-ice) 30%, var(--emerald-ice) 70%, transparent);
+    opacity: 0;
+    animation: amb-horizon 9s var(--ease-in-out) infinite;
+  }
+
+  @keyframes amb-ember {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+    12% {
+      opacity: 0.85;
+    }
+    70% {
+      opacity: 0.35;
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(var(--sway), -34rem, 0) rotate(200deg);
+    }
+  }
+
+  @keyframes amb-horizon {
+    0% {
+      opacity: 0;
+      transform: translateY(0);
+    }
+    15% {
+      opacity: 0.5;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-26rem);
+    }
+  }
+
+  @keyframes amb-sonar {
+    from {
+      opacity: 0.5;
+      scale: 0.05;
+    }
+    to {
+      opacity: 0;
+      scale: 1;
+    }
+  }
+
+  @keyframes amb-wander {
+    from {
+      transform: translate3d(-12rem, 4rem, 0);
+    }
+    to {
+      transform: translate3d(10rem, -5rem, 0) scale(1.2);
+    }
+  }
+</style>

@@ -1,0 +1,334 @@
+---
+/**
+ * ExpoLogic, organizer control panel on its Payments tab: money collected,
+ * receipts waiting for review, revenue by concept and the receipt pipeline.
+ * Simplified from the real panel, with made-up figures and fair name.
+ */
+import type { Lang } from '../../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const L = {
+  en: {
+    title: 'Control panel',
+    fair: 'Autumn Fair · 3rd edition',
+    tabs: ['Overview', 'Bookings', 'Payments'],
+    kpis: [
+      { l: 'Total collected', n: '$ 1.392.000', s: '13 receipts approved' },
+      { l: 'Waiting for review', n: '5', s: 'Receipts in the queue' },
+      { l: 'Active invitations', n: '2', s: '19 uses in total' },
+      { l: 'Payments without amount', n: '0', s: 'Need verification' },
+    ],
+    concept: 'Revenue by concept',
+    concepts: ['Deposit', 'Balance', 'Extras'],
+    pipe: 'Receipt pipeline',
+    stages: ['Received', 'Approved', 'In review', 'Rejected'],
+  },
+  es: {
+    title: 'Panel de control',
+    fair: 'Feria de Otoño · 3ª edición',
+    tabs: ['General', 'Reservas', 'Pagos'],
+    kpis: [
+      { l: 'Recaudado total', n: '$ 1.392.000', s: '13 comprobantes aprobados' },
+      { l: 'Pendientes de revisión', n: '5', s: 'Comprobantes en cola' },
+      { l: 'Invitaciones activas', n: '2', s: '19 usos totales' },
+      { l: 'Pagos sin monto', n: '0', s: 'Requieren verificación' },
+    ],
+    concept: 'Recaudación por concepto',
+    concepts: ['Seña', 'Saldo', 'Extras'],
+    pipe: 'Pipeline de comprobantes',
+    stages: ['Recibidos', 'Aprobados', 'En revisión', 'Rechazados'],
+  },
+}[Astro.props.lang];
+
+const tones = ['#486749', '#5f9e7f', '#b36139', '#a83a3a'];
+// Donut on a circle whose circumference is exactly 100 units.
+const slices = [64, 28, 8];
+const offsets = slices.map((_, i) => slices.slice(0, i).reduce((a, b) => a + b, 0));
+const counts = [19, 13, 5, 1];
+---
+
+<div class="mock mock--light" data-demo data-film="0.04,0.27" aria-hidden="true">
+  <div class="ea">
+    <div class="ea__head">
+      <b>{L.title}</b>
+      <span>{L.fair}</span>
+    </div>
+    <p class="ea__tabs">
+      {
+        L.tabs.map((tab, i) => (
+          <span class:list={{ 'is-on': i === 2 }}>
+            {tab}
+            {i === 2 && <i>5</i>}
+          </span>
+        ))
+      }
+    </p>
+
+    <ul class="ea__kpis">
+      {
+        L.kpis.map((kpi, i) => (
+          <li style={`--c:${[tones[1], tones[2], tones[0], tones[2]][i]}`}>
+            <span>{kpi.l}</span>
+            <b>{kpi.n}</b>
+            <em>{kpi.s}</em>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="ea__row">
+      <section class="ea__card">
+        <h4>{L.concept}</h4>
+        <div class="ea__donut">
+          <svg viewBox="0 0 42 42">
+            <circle cx="21" cy="21" r="15.915" fill="none" stroke="#e9e3d2" stroke-width="5"></circle>
+            {
+              slices.map((v, i) => (
+                <circle class="ea__slice" cx="21" cy="21" r="15.915" fill="none" stroke={tones[i]} stroke-width="5" stroke-dasharray={`${v} ${100 - v}`} stroke-dashoffset={25 - offsets[i]} style={`--i:${i}`} />
+              ))
+            }
+          </svg>
+          <ul>
+            {
+              L.concepts.map((label, i) => (
+                <li>
+                  <i style={`background:${tones[i]}`} />
+                  {label}
+                  <b>{slices[i]}%</b>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </section>
+
+      <section class="ea__card">
+        <h4>{L.pipe}</h4>
+        <ul class="ea__pipe">
+          {
+            L.stages.map((label, i) => (
+              <li style={`--w:${(counts[i] / 19) * 100};--c:${tones[i]};--i:${i}`}>
+                <span>{label}</span>
+                <b>{counts[i]}</b>
+                <i><i /></i>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  .ea {
+    display: grid;
+    grid-template-rows: auto auto auto 1fr;
+    gap: 1.1em;
+    height: 100%;
+    padding: 1.5em;
+    background: #fdfcf6;
+    color: #272017;
+  }
+
+  .ea__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+  }
+
+  .ea__head b {
+    font-family: var(--font-display);
+    font-size: 1.5em;
+    letter-spacing: -0.02em;
+    color: #1b4132;
+  }
+
+  .ea__head span {
+    padding: 0.5em 0.9em;
+    border: 1px solid #e3ddd3;
+    font-size: 0.85em;
+    white-space: nowrap;
+  }
+
+  .ea__tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: #f1ecdc;
+    font-weight: 600;
+    color: #685b4b;
+    text-align: center;
+  }
+
+  .ea__tabs span {
+    padding: 0.6em;
+  }
+
+  .ea__tabs .is-on {
+    background: #fdfcf6;
+    box-shadow: inset 0 0 0 1px #cfc7b6;
+    color: #272017;
+  }
+
+  .ea__tabs i {
+    display: inline-grid;
+    place-items: center;
+    width: 1.5em;
+    height: 1.5em;
+    margin-left: 0.5em;
+    border-radius: 50%;
+    background: #a83a3a;
+    color: #fff;
+    font-size: 0.75em;
+    font-style: normal;
+  }
+
+  .ea__kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.8em;
+  }
+
+  .ea__kpis li {
+    display: grid;
+    gap: 0.25em;
+    padding: 0.85em 0.9em;
+    border: 1px solid #e3ddd3;
+    border-top: 0.25em solid var(--c);
+    background: #faf7ec;
+    font-size: 0.78em;
+    color: #685b4b;
+  }
+
+  .ea__kpis span {
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .ea__kpis b {
+    font-family: var(--font-display);
+    font-size: 1.9em;
+    line-height: 1.05;
+    color: #272017;
+    white-space: nowrap;
+  }
+
+  .ea__kpis em {
+    font-style: normal;
+  }
+
+  .ea__row {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 0.8em;
+    min-height: 0;
+  }
+
+  .ea__card {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 0.8em;
+    min-height: 0;
+    padding: 1em;
+    border: 1px solid #e3ddd3;
+    background: #faf7ec;
+  }
+
+  .ea__card h4 {
+    margin: 0;
+    font-size: 0.95em;
+    font-weight: 700;
+  }
+
+  .ea__donut {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 1.4em;
+    min-height: 0;
+  }
+
+  .ea__donut svg {
+    height: 100%;
+    max-height: 9em;
+    aspect-ratio: 1;
+  }
+
+  .ea__slice {
+    animation: ea-slice 9s var(--ease-out) infinite;
+    animation-delay: calc(var(--i) * 0.18s);
+  }
+
+  .ea__donut ul {
+    display: grid;
+    gap: 0.5em;
+    font-size: 0.9em;
+  }
+
+  .ea__donut li {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+  }
+
+  .ea__donut li i {
+    width: 0.75em;
+    height: 0.75em;
+    border-radius: 50%;
+  }
+
+  .ea__donut li b {
+    margin-left: auto;
+  }
+
+  .ea__pipe {
+    display: grid;
+    align-content: space-around;
+    gap: 0.5em;
+    font-size: 0.9em;
+  }
+
+  .ea__pipe li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.35em;
+  }
+
+  .ea__pipe li > i {
+    grid-column: 1 / -1;
+    height: 0.45em;
+    background: #e9e3d2;
+  }
+
+  .ea__pipe li > i > i {
+    display: block;
+    width: calc(var(--w) * 1%);
+    height: 100%;
+    background: var(--c);
+    transform-origin: left;
+    animation: vd-grow-x 9s var(--ease-out) infinite;
+    animation-delay: calc(var(--i) * 0.14s + 0.2s);
+  }
+
+  @keyframes ea-slice {
+    0%,
+    6% {
+      opacity: 0;
+      stroke-width: 0;
+    }
+    22%,
+    93% {
+      opacity: 1;
+      stroke-width: 5;
+    }
+    100% {
+      opacity: 0;
+      stroke-width: 0;
+    }
+  }
+</style>

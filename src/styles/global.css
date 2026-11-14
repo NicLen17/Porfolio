@@ -1,0 +1,975 @@
+/* ------------------------------------------------------------------
+   Tokens
+   Concept: "boot sequence". True black, a violet/ice plasma light and
+   white type. Each flagship product brings its own colour world.
+------------------------------------------------------------------- */
+:root {
+  /* Brand: emerald on blacks and graphite greys. Rose is the complement of
+     emerald on the colour wheel and is reserved for the few things that
+     must pull the eye. */
+  --black: #000;
+  --coal: #0b0e0d;
+  --graphite: #121716;
+  --graphite-2: #1a211f;
+  --ink: #f2f5f3;
+  --ink-dim: #a9b4af;
+  --ink-faint: #7b8782;
+  --line: rgb(255 255 255 / 0.13);
+  --line-soft: rgb(255 255 255 / 0.07);
+
+  --emerald-deep: #065f46;
+  --emerald: #10b981;
+  --emerald-ice: #6ee7b7;
+  --accent: #ff4d6d;
+
+  /* Older names, kept as aliases. */
+  --plasma-deep: var(--emerald-deep);
+  --plasma: var(--emerald);
+  --plasma-ice: var(--emerald-ice);
+  --paper: var(--graphite);
+  --paper-ink: var(--ink);
+  --paper-dim: var(--ink-dim);
+  --paper-line: var(--line);
+
+  /* Volley Manager: real product tokens */
+  --vm-navy: #0f172a;
+  --vm-court: #1d4ed8;
+  --vm-red: #ef4444;
+  --vm-brand: #9c1616;
+  --vm-key: #1e3a8a;
+  --vm-sky: #38bdf8;
+  --vm-win: #10b981;
+
+  --font-display: 'Archivo Variable', 'Arial Narrow', Arial, system-ui, sans-serif;
+  --font-text: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --step--1: clamp(0.8rem, 0.77rem + 0.15vw, 0.9rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --step-1: clamp(1.15rem, 1.05rem + 0.5vw, 1.5rem);
+  --step-2: clamp(1.5rem, 1.2rem + 1.4vw, 2.5rem);
+  --step-3: clamp(2.1rem, 1.3rem + 3.4vw, 4.5rem);
+  --step-4: clamp(2.8rem, 1.2rem + 7vw, 7.5rem);
+
+  --gutter: clamp(1.25rem, 4vw, 4rem);
+  --section-y: clamp(5rem, 12vw, 11rem);
+  --cut: clamp(2.5rem, 7vw, 7rem);
+  --wrap: 88rem;
+  --radius: 0;
+  --bar: 3.75rem;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-back: cubic-bezier(0.3, 1.35, 0.5, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scrollbar-color: #2f3a36 #000;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--black);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-0);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+html.intro-lock,
+html.intro-lock body {
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol,
+dl,
+dd,
+figure,
+blockquote {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+img,
+svg,
+canvas,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--plasma-ice);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--emerald);
+  color: #000;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: -6rem;
+  z-index: 200;
+  padding: 0.6rem 1rem;
+  background: var(--ink);
+  color: var(--black);
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+.wrap {
+  width: min(100% - var(--gutter) * 2, var(--wrap));
+  margin-inline: auto;
+}
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.num {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.num b {
+  font-weight: inherit;
+}
+
+/* Symbols around a figure (~, %, +, K) take the accent, so the eye lands on them. */
+.num i {
+  font-style: normal;
+  color: var(--accent);
+}
+
+/* Section shell --------------------------------------------------- */
+main {
+  counter-reset: sec -1;
+}
+
+main > section {
+  counter-increment: sec;
+  /* Every chapter paints its own ground: a cut one must cover what it overlaps. */
+  background: var(--black);
+}
+
+.section {
+  position: relative;
+  padding-block: var(--section-y);
+}
+
+.section[id] {
+  scroll-margin-top: calc(var(--bar) + 1rem);
+}
+
+.section--paper {
+  background: var(--graphite);
+}
+
+/* Chapters far below the fold are not styled, laid out or painted until the
+   reader gets near them. Projects and Contact are left out on purpose: their
+   hover previews are position: fixed, which this containment would trap.
+   The first in-page jump switches it off (html.all-in), so anchors land exactly. */
+html:not(.all-in) .tools,
+html:not(.all-in) .talks,
+html:not(.all-in) .creds,
+html:not(.all-in) .exp,
+html:not(.all-in) .about {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 70rem;
+}
+
+/* Hard diagonal seam: the section overlaps the one above and is cut at an
+   angle, so two colour worlds meet on a blade instead of a flat line. */
+.cut,
+.cut-r {
+  margin-top: calc(var(--cut) * -1);
+  clip-path: polygon(0 var(--cut), 100% 0, 100% 100%, 0 100%);
+}
+
+.cut-r {
+  clip-path: polygon(0 0, 100% var(--cut), 100% 100%, 0 100%);
+}
+
+/* The cut itself: a faint emerald hairline, and a short bright glint that
+   runs along it and back, like a blade catching the light. Both are SVG
+   strokes stretched over the cut, so the diagonal is anti-aliased instead of
+   stepping pixel by pixel. */
+.cut::before,
+.cut-r::before,
+.cut::after,
+.cut-r::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 1px;
+  z-index: 4;
+  width: 100%;
+  height: var(--cut);
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0 100L100 0' fill='none' stroke='%2310b981' stroke-width='1.25' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+  opacity: 0.6;
+}
+
+.cut-r::before,
+.cut-r::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0 0L100 100' fill='none' stroke='%2310b981' stroke-width='1.25' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
+}
+
+.cut::after,
+.cut-r::after {
+  width: 16%;
+  height: calc(var(--cut) * 0.16);
+  top: calc(var(--cut) * 0.84 + 1px);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0 100L100 0' fill='none' stroke='%23a7f3d0' stroke-width='2.5' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
+  opacity: 1;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 40%, #000 60%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 40%, #000 60%, transparent);
+  filter: drop-shadow(0 0 5px var(--emerald));
+  animation: seam-up 2.6s cubic-bezier(0.7, 0, 0.3, 1) infinite alternate;
+  will-change: transform;
+}
+
+.cut-r::after {
+  top: 1px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0 0L100 100' fill='none' stroke='%23a7f3d0' stroke-width='2.5' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
+  animation-name: seam-down;
+  animation-duration: 3.1s;
+}
+
+@keyframes seam-up {
+  from {
+    transform: translate(-100%, 100%);
+  }
+  to {
+    transform: translate(625%, -625%);
+  }
+}
+
+@keyframes seam-down {
+  from {
+    transform: translate(-100%, -100%);
+  }
+  to {
+    transform: translate(625%, 625%);
+  }
+}
+
+/* Straight version, for sections that pin their content: a diagonal cut would
+   slice through whatever is pinned at the edge. */
+.seam-flat {
+  border-top: 1px solid rgb(16 185 129 / 0.45);
+}
+
+.seam-flat::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -1px;
+  z-index: 4;
+  width: 16%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #a7f3d0 40%, #a7f3d0 60%, transparent);
+  box-shadow: 0 0 10px var(--emerald);
+  pointer-events: none;
+  animation: seam-flat 3.1s cubic-bezier(0.7, 0, 0.3, 1) infinite alternate;
+  will-change: transform;
+}
+
+@keyframes seam-flat {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(625%);
+  }
+}
+
+.section.cut,
+.section.cut-r {
+  padding-top: calc(var(--section-y) + var(--cut));
+}
+
+.section__head {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: clamp(2.5rem, 6vw, 5rem);
+  max-width: 62rem;
+}
+
+/* "03 / Tools": every chapter is numbered, with a rule that draws itself. */
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+
+.eyebrow::before {
+  content: counter(sec, decimal-leading-zero);
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 0;
+  color: var(--accent);
+}
+
+.eyebrow[data-n]::before {
+  content: attr(data-n);
+}
+
+.eyebrow::after {
+  content: '';
+  flex: 1;
+  max-width: 14rem;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+  transform-origin: left;
+}
+
+.js [data-rise] .eyebrow::after {
+  transform: scaleX(0);
+  transition: transform 1.1s var(--ease-out) 0.2s;
+}
+
+.js [data-rise].is-in .eyebrow::after {
+  transform: none;
+}
+
+.section__title {
+  font-size: var(--step-3);
+}
+
+.section__lede {
+  max-width: 44rem;
+  font-size: var(--step-1);
+  line-height: 1.4;
+  color: var(--ink-dim);
+}
+
+/* Buttons and links: square, with a fill that wipes in from the left. */
+.btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 3rem;
+  padding: 0.75rem 1.4rem;
+  border: 1px solid var(--line);
+  font-weight: 600;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  transition:
+    color 0.3s var(--ease-out),
+    border-color 0.3s var(--ease-out),
+    transform 0.25s var(--ease-out);
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.45s var(--ease-out);
+}
+
+.btn:hover {
+  color: var(--black);
+  border-color: var(--ink);
+}
+
+.btn:hover::before {
+  transform: none;
+  transform-origin: left;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn--solid {
+  background: var(--emerald);
+  border-color: var(--emerald);
+  color: #00130c;
+}
+
+.btn--solid::before {
+  background: var(--accent);
+}
+
+.btn--solid:hover {
+  border-color: var(--accent);
+  color: #1a0006;
+}
+
+.ext {
+  width: 0.7em;
+  height: 0.7em;
+  flex: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--line);
+  font-size: var(--step--1);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* Reveal: one restrained entrance for headings only ---------------- */
+.js [data-rise] {
+  opacity: 0;
+  transform: translateY(1.5rem);
+  transition:
+    opacity 0.9s var(--ease-out),
+    transform 0.9s var(--ease-out);
+}
+
+.js [data-rise].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-rise] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Product reels ----------------------------------------------------------
+   Each flagship shows three screens. Stacked by default (phones, short
+   windows); inside a pinned scene they become a vertical carousel where the
+   neighbours wait above and below, small, dimmed and out of focus. */
+.mock {
+  container-type: inline-size;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+
+.mock > div {
+  font-size: 1.55cqw;
+  line-height: 1.3;
+}
+
+/* Stacked, the extra screens sit far down the page: skip rendering them until
+   the reader is near. Their box is known from the aspect ratio alone. */
+@media (max-width: 999.98px) {
+  .mock {
+    content-visibility: auto;
+  }
+
+  /* Same for the two product bodies themselves, which are plain flow here. */
+  html:not(.all-in) .vm__stage,
+  html:not(.all-in) .expo__pin {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 150rem;
+  }
+}
+
+.mock--dark {
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.14),
+    0 40px 80px -30px rgb(0 0 0 / 0.8);
+}
+
+.mock--light {
+  box-shadow:
+    0 0 0 1px #e3ddd3,
+    0 40px 70px -40px rgb(39 32 23 / 0.45);
+}
+
+.reel__slide {
+  min-width: 0;
+  margin: 0;
+}
+
+.reel__slide figcaption {
+  margin-top: 0.75rem;
+  font-size: var(--step--1);
+  text-align: center;
+  opacity: 0.65;
+}
+
+.reel__nav {
+  display: none;
+}
+
+.reel-copy__item {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.reel-copy__name {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.reel-copy__name b {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 0;
+  color: var(--accent);
+}
+
+.reel-copy__text {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.reel-copy__list {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.reel-copy__list li {
+  position: relative;
+  padding-left: 1.35rem;
+  line-height: 1.75rem;
+  opacity: 0.85;
+}
+
+.reel-copy__list li::before {
+  content: '';
+  position: absolute;
+  left: 0.15rem;
+  top: 0.65rem;
+  width: 0.42rem;
+  height: 0.42rem;
+  background: var(--accent);
+  rotate: 45deg;
+}
+
+/* Stacked: each screen sits right under the copy that explains it. */
+@media (max-width: 999.98px) {
+  :is(.vm, .expo) :is(.vm__copy, .expo__copy, .reel-copy, .reel, .reel__track) {
+    display: contents;
+  }
+
+  .reel-copy__item {
+    margin-top: 1.25rem;
+  }
+
+  .reel-copy__item[data-slide='0'] {
+    order: 10;
+  }
+
+  .reel__slide[data-slide='0'] {
+    order: 11;
+  }
+
+  .reel-copy__item[data-slide='1'] {
+    order: 20;
+  }
+
+  .reel__slide[data-slide='1'] {
+    order: 21;
+  }
+
+  .reel-copy__item[data-slide='2'] {
+    order: 30;
+  }
+
+  .reel__slide[data-slide='2'] {
+    order: 31;
+  }
+}
+
+@media (min-width: 1000px) {
+  .reel__track {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  .reel-copy {
+    display: grid;
+    gap: 2rem;
+  }
+}
+
+/* Carousel (set up by scenes.ts on a pinned section) */
+/* The reel is a window: its own size drives the screens, and the neighbours
+   fade out against its top and bottom edges. */
+.is-scene .reel {
+  position: relative;
+  min-height: 0;
+  container-type: size;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(transparent, #000 9%, #000 91%, transparent);
+  mask-image: linear-gradient(transparent, #000 9%, #000 91%, transparent);
+}
+
+/* The track is exactly one screen tall and centred, so the screens waiting
+   above and below show a strip of themselves at the edges of the viewport. */
+.is-scene .reel__track {
+  position: absolute;
+  top: 50%;
+  right: 3.5rem;
+  display: block;
+  width: min(100cqw - 3.5rem, 80cqh * 1.4545);
+  aspect-ratio: 16 / 11;
+  /* A container too, so a screen can size itself by the height it is given. */
+  container-type: size;
+  translate: 0 -50%;
+}
+
+.expo.is-scene .reel__track {
+  right: auto;
+  left: 3.5rem;
+}
+
+.is-scene .reel__slide {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  width: auto;
+  justify-self: stretch;
+  opacity: 0;
+  transform: translateY(190%) scale(0.8);
+  filter: blur(1.5px);
+  pointer-events: none;
+  transition:
+    transform 0.85s var(--ease-out),
+    opacity 0.6s var(--ease-out),
+    filter 0.6s var(--ease-out);
+  will-change: transform;
+}
+
+.is-scene .reel__slide.is-up {
+  transform: translateY(-190%) scale(0.8);
+}
+
+.is-scene .reel__slide.is-prev,
+.is-scene .reel__slide.is-next {
+  opacity: 0.5;
+  transform: translateY(-94%) scale(0.82);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.is-scene .reel__slide.is-next {
+  transform: translateY(94%) scale(0.82);
+}
+
+.is-scene .reel__slide.is-prev:hover,
+.is-scene .reel__slide.is-next:hover {
+  opacity: 0.8;
+}
+
+/* Tall screens have room to spare: the screen in focus gives some of it up so
+   the ones before and after show a real slice of themselves, not a sliver. */
+@media (min-height: 1000px) {
+  .is-scene .reel {
+    -webkit-mask-image: linear-gradient(transparent, #000 5%, #000 95%, transparent);
+    mask-image: linear-gradient(transparent, #000 5%, #000 95%, transparent);
+  }
+
+  .is-scene .reel__track {
+    width: min(100cqw - 3.5rem, 70cqh * 1.4545);
+  }
+
+  .is-scene .reel__slide.is-prev {
+    transform: translateY(-91%) scale(0.82);
+  }
+
+  .is-scene .reel__slide.is-next {
+    transform: translateY(91%) scale(0.82);
+  }
+}
+
+.is-scene .reel__slide.is-on {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  pointer-events: auto;
+}
+
+.is-scene .reel__slide:not(.is-on) figcaption {
+  opacity: 0;
+}
+
+.is-scene .reel__slide:not(.is-on) [data-demo] * {
+  animation-play-state: paused !important;
+}
+
+.is-scene .reel__nav {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  z-index: 1;
+  display: grid;
+  gap: 0.4rem;
+  translate: 0 -50%;
+}
+
+.expo.is-scene .reel__nav {
+  right: auto;
+  left: 0;
+}
+
+.reel__nav button {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 1px solid currentColor;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 800;
+  opacity: 0.55;
+  transition:
+    opacity 0.2s,
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.reel__nav button:hover {
+  opacity: 1;
+}
+
+.reel__nav button[aria-current='true'] {
+  opacity: 1;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #1a0006;
+}
+
+.reel__nav button:disabled {
+  opacity: 0.2;
+  cursor: default;
+}
+
+.is-scene .reel-copy {
+  display: grid;
+  gap: 0;
+}
+
+.is-scene .reel-copy__item {
+  grid-area: 1 / 1;
+  align-content: start;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(0.9rem);
+  transition:
+    opacity 0.45s var(--ease-out),
+    transform 0.6s var(--ease-out),
+    visibility 0s 0.45s;
+}
+
+.is-scene .reel-copy__item.is-on {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0.15s, 0.15s, 0s;
+}
+
+/* Figures ---------------------------------------------------------------- */
+:is(.vm__stats, .expo__stats) .num {
+  position: relative;
+  justify-self: start;
+  isolation: isolate;
+}
+
+/* When a figure lands on its final value it flashes, like the stars below. */
+:is(.about__stats, .vm__stats, .expo__stats) .num::before,
+:is(.about__stats, .vm__stats, .expo__stats) .num::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: -1;
+  width: 4em;
+  height: 4em;
+  margin: -2em 0 0 -2em;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+:is(.about__stats, .vm__stats, .expo__stats) .num::before {
+  background: radial-gradient(circle, rgb(16 185 129 / 0.6), transparent 65%);
+}
+
+:is(.about__stats, .vm__stats, .expo__stats) .num::after {
+  border: 2px solid var(--accent);
+}
+
+:is(.about__stats, .vm__stats, .expo__stats) .num.is-pop {
+  animation: kpi-pop 0.6s var(--ease-back);
+}
+
+:is(.about__stats, .vm__stats, .expo__stats) .num.is-pop::before {
+  animation: kpi-glow 0.9s var(--ease-out);
+}
+
+:is(.about__stats, .vm__stats, .expo__stats) .num.is-pop::after {
+  animation: kpi-ring 0.8s var(--ease-out);
+}
+
+@keyframes kpi-pop {
+  35% {
+    transform: scale(1.14);
+    color: var(--emerald-ice);
+  }
+}
+
+@keyframes kpi-glow {
+  from {
+    opacity: 1;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+@keyframes kpi-ring {
+  from {
+    opacity: 0.9;
+    transform: scale(0.25);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+}
+
+.spark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 7px;
+  height: 7px;
+  background: var(--spark, var(--emerald-ice));
+  rotate: 45deg;
+  pointer-events: none;
+}
+
+.spark--alt {
+  background: var(--spark-alt, var(--accent));
+}
+
+.vm__stats {
+  --spark: #8fb4ff;
+  --spark-alt: #ff5a5a;
+}
+
+.expo__stats {
+  --spark: #b36139;
+  --spark-alt: #1b4132;
+}
+
+/* On the products the landing is louder: a bigger jump to go with the sparks. */
+:is(.vm__stats, .expo__stats) .num.is-pop {
+  animation: kpi-jump 0.75s var(--ease-back);
+}
+
+@keyframes kpi-jump {
+  30% {
+    transform: scale(1.32);
+  }
+}

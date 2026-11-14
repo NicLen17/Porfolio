@@ -1,0 +1,410 @@
+---
+/**
+ * Volley Manager, voice scouting ("Dictado en vivo"): the scout says the play,
+ * the transcript appears, and each phrase becomes an action card and a
+ * trajectory on the court. The phrases are real ones the parser accepts; they
+ * stay in Spanish because that is the language the product listens in.
+ */
+import type { Lang } from '../../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const L = {
+  en: {
+    title: 'Live dictation',
+    actions: 'actions',
+    court: 'Court · live dictation',
+    stop: 'Stop and send',
+    skills: ['Reception', 'Serve', 'Attack', 'Attack'],
+    notes: ['perfect · zone 5', 'error · long', 'blocked', 'positive · 4 → 1'],
+  },
+  es: {
+    title: 'Dictado en vivo',
+    actions: 'acciones',
+    court: 'Cancha · dictado en vivo',
+    stop: 'Detener y enviar',
+    skills: ['Recepción', 'Saque', 'Ataque', 'Ataque'],
+    notes: ['perfecta · zona 5', 'error · largo', 'bloqueado', 'positiva · 4 → 1'],
+  },
+}[Astro.props.lang];
+
+// The first three are already in the log; the last one is being said right now.
+const said = 'la 7 atacó bien desde 4 a 1';
+const cards = [
+  { n: '#9', grade: '#', tone: '#8fb4ff' },
+  { n: '#4', grade: '=', tone: '#ff8f8f' },
+  { n: '#13', grade: '/', tone: '#facc15' },
+  { n: '#7', grade: '+', tone: '#34d399' },
+];
+const bars = Array.from({ length: 22 }, (_, i) => 0.25 + ((i * 53) % 17) / 22);
+---
+
+<div class="mock mock--dark" data-demo data-film="0.04,0.64" aria-hidden="true">
+  <div class="vv">
+    <div class="vv__head">
+      <i class="vv__mic"><svg viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM6 11a6 6 0 0 0 12 0M12 17v4" /></svg></i>
+      <b>{L.title}</b>
+      <span class="vv__pill"><i class="vv__count"><i>3</i><i>4</i></i> {L.actions}</span>
+    </div>
+
+    <div class="vv__body">
+      <ol class="vv__cards">
+        {
+          cards.map((card, i) => (
+            <li class:list={['vv__card', { 'vv__card--new': i === cards.length - 1 }]}>
+              <b>{card.n}</b>
+              <span>
+                <strong>{L.skills[i]}</strong>
+                <em>{L.notes[i]}</em>
+              </span>
+              <i style={`background:${card.tone}`}>{card.grade}</i>
+            </li>
+          ))
+        }
+      </ol>
+
+      <figure class="vv__court">
+        <svg viewBox="0 0 200 120">
+          <rect width="200" height="120" fill="#94a3b8"></rect>
+          <rect x="14" y="12" width="172" height="96" fill="#1d4ed8"></rect>
+          <g fill="none" stroke="#fff">
+            <rect x="14" y="12" width="172" height="96" stroke-width="2"></rect>
+            <path d="M100 8v104" stroke-width="2.5"></path>
+            <path d="M71 12v96M129 12v96" stroke-width="1" opacity=".5"></path>
+          </g>
+          <circle cx="78" cy="30" r="7" fill="#ef4444" stroke="#fff" stroke-width="1.5"></circle>
+          <text x="78" y="33">7</text>
+          <path class="vv__shot" d="M78 30Q112 6 160 34" fill="none" stroke="#fde047" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="96 96"></path>
+          <circle class="vv__land" cx="160" cy="34" r="4.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle>
+        </svg>
+        <figcaption>{L.court}</figcaption>
+      </figure>
+    </div>
+
+    <div class="vv__foot">
+      <p class="vv__wave">{bars.map((h, i) => <i style={`--h:${h.toFixed(2)};--i:${i}`} />)}</p>
+      <p class="vv__said"><span class="vv__line">“{said}”</span></p>
+      <span class="vv__btn">{L.stop}</span>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  .vv {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 1.1em;
+    height: 100%;
+    padding: 1.4em;
+    background: #0b1120;
+    color: #e2e8f0;
+  }
+
+  .vv__head {
+    display: flex;
+    align-items: center;
+    gap: 0.8em;
+    font-size: 1.2em;
+  }
+
+  .vv__mic {
+    display: grid;
+    place-items: center;
+    width: 2.2em;
+    height: 2.2em;
+    border-radius: 50%;
+    background: #ffe0e7;
+    animation: vv-pulse 1.6s var(--ease-in-out) infinite;
+  }
+
+  .vv__mic svg {
+    width: 1.2em;
+    height: 1.2em;
+    fill: none;
+    stroke: #be123c;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .vv__pill {
+    margin-left: auto;
+    padding: 0.3em 0.8em;
+    background: #1e293b;
+    font-size: 0.7em;
+    font-weight: 700;
+    color: #94a3b8;
+  }
+
+  .vv__pill i {
+    font-style: normal;
+    color: #fff;
+  }
+
+  .vv__body {
+    display: grid;
+    grid-template-columns: 0.9fr 1.2fr;
+    gap: 1.1em;
+    min-height: 0;
+  }
+
+  .vv__cards {
+    display: grid;
+    align-content: start;
+    gap: 0.7em;
+  }
+
+  .vv__card {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.8em;
+    padding: 0.75em 0.9em;
+    background: #111a2e;
+    border: 1px solid #1e293b;
+  }
+
+  /* The play being dictated: it lands in the log once the phrase is complete. */
+  .vv__card--new {
+    opacity: 0;
+    animation: vv-card 8s var(--ease-out) infinite;
+  }
+
+  /* The counter turns over with it. */
+  .vv__count {
+    display: inline-grid;
+    font-style: normal;
+  }
+
+  .vv__count i {
+    grid-area: 1 / 1;
+    animation: vv-count 8s steps(1, end) infinite;
+  }
+
+  .vv__count i + i {
+    animation-name: vv-count-next;
+  }
+
+  .vv__card > b {
+    display: grid;
+    place-items: center;
+    min-width: 2.4em;
+    height: 2.4em;
+    border-radius: 50%;
+    background: #ef4444;
+    color: #fff;
+    font-weight: 800;
+  }
+
+  .vv__card span {
+    display: grid;
+    line-height: 1.25;
+  }
+
+  .vv__card em {
+    font-size: 0.82em;
+    font-style: normal;
+    color: #94a3b8;
+  }
+
+  .vv__card > i {
+    display: grid;
+    place-items: center;
+    width: 1.9em;
+    height: 1.9em;
+    color: #0b1120;
+    font-style: normal;
+    font-weight: 800;
+  }
+
+  .vv__court {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: 0.5em;
+    min-height: 0;
+    margin: 0;
+  }
+
+  .vv__court svg {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .vv__court text {
+    font-size: 8px;
+    font-weight: 800;
+    fill: #fff;
+    text-anchor: middle;
+  }
+
+  .vv__court figcaption {
+    font-size: 0.72em;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #64748b;
+  }
+
+  .vv__shot {
+    stroke-dashoffset: 96;
+    animation: vv-shot 8s var(--ease-out) infinite;
+  }
+
+  .vv__land {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: vv-land 8s var(--ease-back) infinite;
+  }
+
+  .vv__foot {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.1em;
+    padding-top: 1em;
+    border-top: 1px solid #1e293b;
+  }
+
+  .vv__wave {
+    display: flex;
+    align-items: center;
+    gap: 0.22em;
+    height: 2.4em;
+  }
+
+  .vv__wave i {
+    width: 0.22em;
+    height: calc(var(--h) * 100%);
+    background: #ff8f8f;
+    animation: vv-wave 0.9s var(--ease-in-out) infinite alternate;
+    animation-delay: calc(var(--i) * -0.07s);
+  }
+
+  .vv__said {
+    position: relative;
+    height: 1.5em;
+    font-size: 1.05em;
+    font-weight: 600;
+    overflow: hidden;
+  }
+
+  /* Each phrase is typed out, held while its card lands, then cleared. */
+  .vv__line {
+    position: absolute;
+    left: 0;
+    top: 0;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 0;
+    animation: vv-say 8s steps(30, end) infinite;
+  }
+
+  .vv__btn {
+    padding: 0.7em 1.1em;
+    background: #9c1616;
+    color: #fff;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  @keyframes vv-pulse {
+    50% {
+      box-shadow: 0 0 0 0.5em rgb(255 143 143 / 0.18);
+    }
+  }
+
+  @keyframes vv-wave {
+    to {
+      transform: scaleY(0.35);
+    }
+  }
+
+  @keyframes vv-say {
+    0%,
+    6% {
+      width: 0;
+    }
+    40%,
+    64% {
+      width: 31ch;
+    }
+    66%,
+    100% {
+      width: 0;
+    }
+  }
+
+  @keyframes vv-card {
+    0%,
+    42% {
+      opacity: 0;
+      transform: translateY(0.9em);
+    }
+    48%,
+    94% {
+      opacity: 1;
+      transform: none;
+    }
+    100% {
+      opacity: 0;
+      transform: none;
+    }
+  }
+
+  @keyframes vv-count {
+    0%,
+    45% {
+      opacity: 1;
+    }
+    46%,
+    97% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes vv-count-next {
+    0%,
+    45% {
+      opacity: 0;
+    }
+    46%,
+    97% {
+      opacity: 1;
+    }
+    98%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes vv-shot {
+    0%,
+    44% {
+      stroke-dashoffset: 96;
+    }
+    56%,
+    94% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: 96;
+    }
+  }
+
+  @keyframes vv-land {
+    0%,
+    55% {
+      transform: scale(0);
+    }
+    60%,
+    94% {
+      transform: none;
+    }
+    100% {
+      transform: scale(0);
+    }
+  }
+</style>

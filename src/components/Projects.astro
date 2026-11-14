@@ -1,0 +1,214 @@
+---
+import Ambient from './Ambient.astro';
+import { Image } from 'astro:assets';
+import { media } from '../data/media';
+import { projects } from '../data/projects';
+import type { Content } from '../i18n/content';
+import Ext from './Ext.astro';
+
+interface Props {
+  t: Content;
+}
+
+const { t } = Astro.props;
+---
+
+<section class="section section--paper projects" id="projects" data-live aria-labelledby="projects-title">
+  <Ambient kind="stars" />
+  <div class="wrap">
+    <header class="section__head" data-rise>
+      <p class="eyebrow">{t.nav.projects}</p>
+      <h2 class="section__title display" id="projects-title">{t.projects.title}</h2>
+      <p class="section__lede">{t.projects.lede}</p>
+    </header>
+
+    <ul class="proj" data-peek>
+      {
+        projects.map((project, i) => (
+          <li>
+            <a class="proj__row" href={project.href} target="_blank" rel="noopener" style={`--i:${i}`}>
+              <span class="proj__peek">
+                <Image src={media(project.image)} alt="" widths={[160, 480, 720]} sizes="(hover: hover) and (min-width: 900px) 22rem, 5rem" format="avif" quality={55} loading="lazy" decoding="async" />
+              </span>
+              <span class="proj__name display">{project.name}</span>
+              <span class="proj__kind">{t.projects.kinds[project.key]}</span>
+              <span class="proj__meta">
+                {project.wip ? <span class="chip proj__wip">{t.projects.wip}</span> : <span>{project.year}</span>}
+              </span>
+              <span class="proj__go">
+                <span class="sr-only">{t.projects.visit}</span>
+                <Ext />
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style is:global>
+  .projects {
+    padding-top: 0;
+  }
+
+  .proj {
+    border-top: 1px solid var(--paper-line);
+  }
+
+  .proj__row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr) auto;
+    grid-template-areas:
+      'peek name go'
+      'peek kind go';
+    align-items: center;
+    column-gap: 1rem;
+    row-gap: 0.15rem;
+    padding: 0.9rem 0.25rem;
+    border-bottom: 1px solid var(--paper-line);
+    transition:
+      background-color 0.35s var(--ease-out),
+      color 0.35s var(--ease-out),
+      padding 0.35s var(--ease-out);
+  }
+
+  .proj__peek {
+    grid-area: peek;
+    overflow: hidden;
+    background: var(--graphite-2);
+  }
+
+  .proj__peek img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .proj__name {
+    grid-area: name;
+    font-size: var(--step-1);
+    align-self: end;
+  }
+
+  .proj__kind {
+    grid-area: kind;
+    align-self: start;
+    font-size: var(--step--1);
+    color: var(--paper-dim);
+    transition: color 0.35s var(--ease-out);
+  }
+
+  .proj__meta {
+    display: none;
+    font-size: var(--step--1);
+    color: var(--paper-dim);
+    font-variant-numeric: tabular-nums;
+    transition: color 0.35s var(--ease-out);
+  }
+
+  .proj__wip {
+    border-color: currentColor;
+    color: var(--accent);
+  }
+
+  .proj__go {
+    grid-area: go;
+    font-size: 1.1rem;
+  }
+
+  @media (min-width: 900px) {
+    .proj__row {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr) 11rem 1.5rem;
+      grid-template-areas: 'name kind meta go';
+      column-gap: 2rem;
+      padding: 1.35rem 1rem;
+    }
+
+    .proj__name {
+      font-size: var(--step-2);
+      align-self: center;
+    }
+
+    .proj__kind {
+      align-self: center;
+      font-size: var(--step-0);
+    }
+
+    .proj__meta {
+      grid-area: meta;
+      display: block;
+      justify-self: end;
+    }
+
+    .proj__peek {
+      grid-area: name;
+      width: 4rem;
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+    }
+  }
+
+  /* Pointer devices: the screenshot follows the cursor instead of sitting in the row. */
+  @media (hover: hover) and (min-width: 900px) {
+    .proj__row:hover,
+    .proj__row:focus-visible {
+      background: var(--emerald);
+      color: #00130c;
+      padding-left: 1.75rem;
+    }
+
+    .proj__row:hover .proj__kind,
+    .proj__row:hover .proj__meta {
+      color: #033a2a;
+    }
+
+    .proj__peek {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 30;
+      width: 22rem;
+      border: 1px solid var(--accent);
+      box-shadow:
+        6px 6px 0 #7a1027,
+        0 30px 60px -20px rgb(0 0 0 / 0.7);
+      transform: translate3d(var(--px, 0), var(--py, 0), 0) translateY(-50%) scale(0.92);
+      transition:
+        opacity 0.25s var(--ease-out),
+        scale 0.4s var(--ease-out);
+    }
+
+    .proj__row:hover .proj__peek {
+      opacity: 1;
+      scale: 1.08;
+    }
+
+    /* Teaser: the first time the list comes on screen every row flashes its
+       screenshot for a moment, so it is obvious that hovering shows one. */
+    .proj.is-tease .proj__peek,
+    .proj.is-tease-out .proj__peek {
+      /* Out of its grid cell, or "right" would be measured from the name column. */
+      grid-area: auto;
+      position: absolute;
+      left: auto;
+      right: 10.5rem;
+      top: 50%;
+      z-index: 2;
+      width: 9rem;
+      transform: translateY(-50%) rotate(-3deg);
+      scale: 0.8;
+      transition:
+        opacity 0.3s var(--ease-out) calc(var(--i) * 50ms),
+        scale 0.45s var(--ease-back) calc(var(--i) * 50ms);
+    }
+
+    .proj.is-tease .proj__peek {
+      opacity: 1;
+      scale: 1;
+    }
+  }
+</style>

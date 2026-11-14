@@ -23,3 +23,8 @@ npm-debug.log*
 .temp/
 .tmp/
 .verify/
+
+# Build output
+dist/
+.astro/
+.vercel/

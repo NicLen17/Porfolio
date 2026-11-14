@@ -1,0 +1,272 @@
+---
+import Ambient from './Ambient.astro';
+import type { Content, Lang } from '../i18n/content';
+import { experienceDeep } from '../i18n/experience-deep';
+
+interface Props {
+  t: Content;
+  lang: Lang;
+}
+
+const { t, lang } = Astro.props;
+const deep = experienceDeep[lang];
+const x = t.exp;
+---
+
+<section class="section exp cut-r" id="experience" data-live aria-labelledby="exp-title">
+  <Ambient kind="glyphs" />
+  <div class="wrap">
+    <header class="exp__head" data-rise>
+      <div>
+        <p class="eyebrow">{t.nav.experience}</p>
+        <h2 class="section__title display" id="exp-title">{x.title}</h2>
+      </div>
+      <button class="btn exp__toggle" type="button" data-exp-toggle data-expand={x.expand} data-collapse={x.collapse} aria-pressed="false">{x.expand}</button>
+    </header>
+
+    <ol class="exp__list">
+      {
+        x.roles.map((role, i) => (
+          <li class="exp__item">
+            <p class="exp__when">{role.when}</p>
+            <div class="exp__main">
+              <h3 class="exp__role">
+                {role.role}
+                <span>{role.company}</span>
+              </h3>
+              <p class="exp__line">{role.line}</p>
+              <details class="exp__details" data-fold>
+                <summary>{x.details}</summary>
+                <div class="exp__more" data-fold-body>
+                  <ul>
+                    {role.bullets.map((bullet) => <li>{bullet}</li>)}
+                  </ul>
+                  {deep[i] && (
+                    <details class="exp__deep" data-fold>
+                      <summary>{x.deeper}</summary>
+                      <div class="exp__deep-body" data-fold-body>
+                        <p>{deep[i].summary}</p>
+                        <ul>
+                          {deep[i].points.map((point) => <li>{point}</li>)}
+                        </ul>
+                      </div>
+                    </details>
+                  )}
+                </div>
+              </details>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style is:global>
+  .exp__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.25rem 2rem;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+
+  .exp__toggle {
+    display: none;
+    font-size: var(--step--1);
+  }
+
+  .js .exp__toggle {
+    display: inline-flex;
+  }
+
+  .exp__list {
+    border-top: 1px solid var(--line);
+  }
+
+  .exp__item {
+    display: grid;
+    gap: 0.4rem 2rem;
+    padding: clamp(1.25rem, 2.5vw, 1.9rem) 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  @media (min-width: 800px) {
+    .exp__item {
+      grid-template-columns: 13rem minmax(0, 1fr);
+    }
+  }
+
+  .exp__when {
+    font-family: var(--font-display);
+    font-size: var(--step--1);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
+    padding-top: 0.3em;
+  }
+
+  .exp__main {
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .exp__role {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  .exp__role span {
+    display: block;
+    margin-top: 0.3rem;
+    font-family: var(--font-text);
+    font-size: var(--step-0);
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--ink-dim);
+  }
+
+  .exp__line {
+    max-width: 46rem;
+    color: var(--ink-dim);
+  }
+
+  .exp__details summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    font-size: var(--step--1);
+    color: var(--ink-dim);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .exp__details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .exp__details summary::before {
+    content: '+';
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--accent);
+    transition: transform 0.45s var(--ease-out);
+  }
+
+  .exp__details.is-open > summary::before,
+  .exp__deep.is-open > summary::before,
+  html:not(.js) .exp__details[open] > summary::before {
+    transform: rotate(135deg);
+  }
+
+  /* Height is animated by page.ts; this only hides what overflows meanwhile. */
+  .exp__more {
+    overflow: hidden;
+  }
+
+  /* The whole row opens its details, not just the small "Details" link. */
+  .js .exp__item {
+    cursor: pointer;
+  }
+
+  .exp__deep {
+    margin-bottom: 0.5rem;
+  }
+
+  .exp__deep-body {
+    overflow: hidden;
+  }
+
+  .exp__deep-body p {
+    max-width: 46rem;
+    padding-bottom: 0.6rem;
+    color: var(--ink);
+  }
+
+  .js .exp__more li {
+    opacity: 0;
+    transform: translateX(-0.75rem);
+    transition:
+      opacity 0.8s var(--ease-out),
+      transform 0.8s var(--ease-out);
+  }
+
+  /* The lines wait for the row to start opening, then come in one after another. */
+  .js .exp__details.is-open .exp__more li {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0.3s;
+  }
+
+  .js .exp__details.is-open .exp__more li:nth-child(2) {
+    transition-delay: 0.42s;
+  }
+
+  .js .exp__details.is-open .exp__more li:nth-child(3) {
+    transition-delay: 0.54s;
+  }
+
+  .js .exp__details.is-open .exp__more li:nth-child(n + 4) {
+    transition-delay: 0.66s;
+  }
+
+  .exp__item {
+    position: relative;
+  }
+
+  .exp__item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 1px;
+    background: var(--emerald);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.6s var(--ease-out);
+  }
+
+  .exp__item:hover::before,
+  .exp__item:has(.is-open)::before {
+    transform: none;
+  }
+
+  .exp__details summary:hover {
+    color: var(--ink);
+  }
+
+  .exp__details ul {
+    display: grid;
+    gap: 0.5rem;
+    max-width: 46rem;
+    padding: 0.25rem 0 0.5rem;
+    color: var(--ink-dim);
+  }
+
+  /* Own markers: native ones sit outside the box and were clipped by the fold. */
+  .exp__details li {
+    position: relative;
+    padding-left: 1.35rem;
+  }
+
+  .exp__details li::before {
+    content: '';
+    position: absolute;
+    left: 0.15rem;
+    top: 0.55em;
+    width: 0.4rem;
+    height: 0.4rem;
+    background: var(--accent);
+    rotate: 45deg;
+  }
+</style>
