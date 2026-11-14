@@ -1,6 +1,8 @@
 ---
-import { getImage } from 'astro:assets';
-import { heroShots, media } from '../data/media';
+import atlas from '../assets/hero/atlas.json';
+import atlasLg from '../assets/hero/atlas-lg.avif?url';
+import atlasSm from '../assets/hero/atlas-sm.avif?url';
+import { heroShots } from '../data/media';
 import { LINKS, type Content } from '../i18n/content';
 
 interface Props {
@@ -34,17 +36,13 @@ const orderOf = new Map(dropOrder.map((cell, n) => [cell.i, n]));
 // The intro waits for this key: the last one to land among those every screen shows.
 const lastCell = [...dropOrder].reverse().find((cell) => cell.side <= 3)!;
 
-const shots = await Promise.all(
-  heroShots.map(async (shot) => {
-    const src = media(shot.file);
-    const opts = { src, format: 'avif' as const, quality: 44, fit: 'cover' as const, position: 'top' };
-    const [small, large] = await Promise.all([
-      getImage({ ...opts, width: 280, height: 280 }),
-      getImage({ ...opts, width: 440, height: 440 }),
-    ]);
-    return { ...shot, small: small.src, large: large.src };
-  }),
-);
+// Every picture lives in one atlas per screen size (scripts/hero-atlas.mjs), so
+// the board is one download, not fifty. A tile only needs its cell in the sheet.
+if (atlas.files.join() !== heroShots.map((shot) => shot.file).join()) {
+  throw new Error('The hero atlas is out of date: run `npm run atlas` and commit the result.');
+}
+const shots = heroShots.map((shot, i) => ({ ...shot, col: i % atlas.cols, row: Math.floor(i / atlas.cols) }));
+const sheet = `.tiles__grid{--cols:${atlas.cols};--rows:${atlas.rows};--atlas:url(${atlasSm})}@media (min-width:700px){.tiles__grid{--atlas:url(${atlasLg})}}`;
 
 const lanes = Array.from({ length: N }, (_, r) =>
   cells
@@ -54,7 +52,6 @@ const lanes = Array.from({ length: N }, (_, r) =>
       dist: Math.round(cell.dist * 10) / 10,
       last: cell.i === lastCell.i,
       shot: shots[shotAt.get(cell.i)!],
-      first: shotAt.get(cell.i)! < 4 && cell.dist < 1.6,
     })),
 );
 
@@ -87,17 +84,7 @@ const cta = [
               <div class="tile" style={`--o:${tile.order};--d:${tile.dist}`} data-last={tile.last ? '' : undefined}>
                 <span class="tile__cap">
                   <span class="tile__up">
-                    <img
-                      class="tile__img"
-                      alt=""
-                      width="440"
-                      height="440"
-                      decoding="async"
-                      src={tile.shot.small}
-                      srcset={`${tile.shot.small} 280w, ${tile.shot.large} 440w`}
-                      sizes="(min-width: 700px) 24vw, 56vw"
-                      fetchpriority={tile.first ? 'high' : 'low'}
-                    />
+                    <span class="tile__img" style={`--ax:${tile.shot.col};--ay:${tile.shot.row}`} />
                     <span class="tile__label">{tile.shot.label}</span>
                   </span>
                 </span>
@@ -108,7 +95,7 @@ const cta = [
       }
     </div>
   </div>
-  <style set:html={bands}></style>
+  <style set:html={bands + sheet}></style>
   <div class="hero__shade" aria-hidden="true"></div>
 
   <canvas class="hero__fx" aria-hidden="true"></canvas>
@@ -249,9 +236,11 @@ const cta = [
     left: 50%;
     top: 50%;
     width: 141.5%;
-    max-width: none;
     height: 141.5%;
-    object-fit: cover;
+    /* Its cell of the atlas: the sheet is scaled to cols x rows tiles, then slid into place. */
+    background-image: var(--atlas);
+    background-size: calc(var(--cols) * 100%) calc(var(--rows) * 100%);
+    background-position: calc(var(--ax) / (var(--cols) - 1) * 100%) calc(var(--ay) / (var(--rows) - 1) * 100%);
     transform: translate(-50%, -50%) rotate(-45deg);
     opacity: 0.36;
     transition: opacity 1.2s var(--ease-out);

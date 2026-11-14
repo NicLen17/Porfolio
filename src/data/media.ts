@@ -19,6 +19,10 @@ export interface Shot {
  * Hero mosaic, most important first: the first ones land closest to the centre.
  * Every fourth tile is a drawn vignette (a chart, a schema, a flow) instead of
  * a screenshot, so the board reads as "software being built" at a glance.
+ *
+ * The board is served as one atlas image per screen size, built from this list:
+ * after changing it (or any of its pictures) run `npm run atlas` and commit the
+ * files it writes to src/assets/hero. The build fails if they are out of date.
  */
 export const heroShots: Shot[] = [
   { file: 'VolleyManager.webp', label: 'Volley Manager', href: '#volley-manager' },
