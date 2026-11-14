@@ -584,7 +584,7 @@ const es: typeof en = {
     langs: 'Español (nativo), inglés (C1), portugués y japonés (básico)',
   },
   contact: {
-    title: '¿Qué construimos?',
+    title: 'Entonces, ¿qué armamos?',
     text: 'Abierto a roles senior de ingeniería y full stack donde importen el ownership técnico y el diseño de sistemas.',
     email: 'Escribime',
     copy: 'Copiar email',

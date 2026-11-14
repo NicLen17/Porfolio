@@ -353,6 +353,12 @@ for (let axis = 0; axis < 3; axis++) {
       radial-gradient(40rem 26rem at 5% 90%, rgb(156 22 22 / 0.2), transparent 70%),
       repeating-linear-gradient(90deg, rgb(255 255 255 / 0.035) 0 1px, transparent 1px 9rem),
       repeating-linear-gradient(0deg, rgb(255 255 255 / 0.035) 0 1px, transparent 1px 9rem);
+    /* The grid lines drift with the scroll (scenes.ts sets --par) for as long as the section is on screen. */
+    background-position:
+      0 0,
+      0 0,
+      0 calc(var(--par, 0) * 1px),
+      0 calc(var(--par, 0) * 1px);
     pointer-events: none;
   }
 
@@ -530,7 +536,7 @@ for (let axis = 0; axis < 3; axis++) {
   }
 
   .vm__btn {
-    justify-self: start;
+    justify-self: center;
   }
 
   .vm__btn {
@@ -967,7 +973,7 @@ for (let axis = 0; axis < 3; axis++) {
 
   /* Desktop: the whole section pins; the gate lies over the stage. */
   .vm.is-scene {
-    height: 407vh;
+    height: 373vh;
   }
 
   .vm.is-scene .vm__pin {

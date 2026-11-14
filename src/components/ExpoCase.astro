@@ -315,6 +315,13 @@ const legend = ['#3b82f6', '#16a34a', '#f59e0b', '#ef4444'];
       radial-gradient(30rem 20rem at 70% 8%, rgb(253 224 71 / 0.14), transparent 70%),
       repeating-linear-gradient(90deg, rgb(39 32 23 / 0.05) 0 1px, transparent 1px 3rem),
       repeating-linear-gradient(0deg, rgb(39 32 23 / 0.05) 0 1px, transparent 1px 3rem);
+    /* The plan grid drifts with the scroll (scenes.ts sets --par) for as long as the section is on screen. */
+    background-position:
+      0 0,
+      0 0,
+      0 0,
+      0 calc(var(--par, 0) * 1px),
+      0 calc(var(--par, 0) * 1px);
     pointer-events: none;
   }
 
@@ -609,7 +616,7 @@ const legend = ['#3b82f6', '#16a34a', '#f59e0b', '#ef4444'];
   }
 
   .expo__btn {
-    justify-self: start;
+    justify-self: center;
     background: var(--expo-green);
     border-color: var(--expo-green);
     color: #fff;

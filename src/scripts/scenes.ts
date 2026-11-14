@@ -57,7 +57,49 @@ function settle() {
   }, 0);
   jobs.forEach((job) => job.apply());
   if (shift > 0) scrollTo({ top: scrollY - shift, behavior: 'instant' });
+  // That jump is bookkeeping, not travel: the drifting backgrounds must not follow it.
+  rebase.forEach((mark) => mark());
   ScrollTrigger.refresh();
+}
+
+/**
+ * The background grid of a product keeps drifting for as long as any part of
+ * the section is on screen: while it comes in, while it is pinned, and while it
+ * leaves. It moves at a fraction of the scroll, so it always slides against the
+ * content in front of it. The drift is added up from scroll deltas (not read
+ * from the position), so handing scroll back does not make it jump.
+ */
+const rebase = new Set<() => void>();
+function parallax(root: HTMLElement) {
+  let last = scrollY;
+  let drift = 0;
+  let seen = false;
+  let queued = false;
+  const paint = () => {
+    queued = false;
+    root.style.setProperty('--par', drift.toFixed(1));
+  };
+  rebase.add(() => {
+    last = scrollY;
+  });
+  new IntersectionObserver(([entry]) => {
+    seen = entry.isIntersecting;
+    last = scrollY;
+  }).observe(root);
+  addEventListener(
+    'scroll',
+    () => {
+      const delta = scrollY - last;
+      last = scrollY;
+      if (!seen) return;
+      drift += delta * 0.42;
+      if (!queued) {
+        queued = true;
+        requestAnimationFrame(paint);
+      }
+    },
+    { passive: true },
+  );
 }
 function onRest(ask: Settle) {
   if (!settlers.size) {
@@ -408,8 +450,9 @@ function initVolley(mm: gsap.MatchMedia) {
 
   // Scroll budget of the pinned scene, in viewport heights: the lead (the
   // title alone until READ, then the ball) and a short hold per screen.
-  const LEAD = 162;
-  const READ = 38;
+  const LEAD = 128;
+  // The ball starts as soon as the title is on screen: no dead scroll before it.
+  const READ = 4;
   const SPAN = [55, 45, 45];
   const KEEP = 10;
   const MARKS = [LEAD, LEAD + SPAN[0], LEAD + SPAN[0] + SPAN[1]];
@@ -818,4 +861,5 @@ export function initScenes() {
   const mm = gsap.matchMedia();
   initVolley(mm);
   initExpo(mm);
+  document.querySelectorAll<HTMLElement>('.vm, .expo').forEach(parallax);
 }
