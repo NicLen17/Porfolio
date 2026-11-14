@@ -23,11 +23,30 @@ const cells = Array.from({ length: N * (N + 1) }, (_, i) => {
   return { i, r, c, dist: Math.hypot(dx, dy), depth: dx + dy, side: Math.abs(dx - dy) };
 });
 
-// A skewed walk through the list: neighbours never match and a repeat is at
-// least seven keys away. The offset puts the first shots at the centre.
+// Which picture goes on which key. The lanes slide against each other and the
+// whole board travels across them, so "far apart at build time" is not enough:
+// two copies of a picture could drift side by side. The rule that survives any
+// movement is structural. The list is dealt into five hands (every fifth
+// picture), and a lane only ever shows one hand, without repeats. With ten
+// lanes, two lanes share a hand only when they are five apart, and that stays
+// true when the board wraps round: the same picture is never closer than five
+// lanes away, wherever the lanes have slid to.
+// Fewer pictures means fewer hands (and copies a little closer), never a broken build.
 const total = heroShots.length;
+const HANDS = Math.min(5, Math.floor(total / (N + 1)));
+if (HANDS < 2) throw new Error(`The hero needs at least ${2 * (N + 1)} pictures to keep duplicates apart; it has ${total}.`);
+const hands = Array.from({ length: HANDS }, (_, hand) => heroShots.map((_, i) => i).filter((i) => i % HANDS === hand));
+// Columns from the centre outwards: the list is in order of importance, and the first of each hand should land in the middle.
+const inward = Array.from({ length: N + 1 }, (_, c) => c).sort((x, y) => Math.abs(x - N / 2) - Math.abs(y - N / 2) || x - y);
 const shotAt = new Map<number, number>();
-cells.forEach((cell) => shotAt.set(cell.i, (((cell.c + 7 * cell.r - (N / 2 + 7 * (N / 2 - 1))) % total) + total) % total));
+for (let r = 0; r < N; r++) {
+  const hand = hands[r % HANDS];
+  // Lanes that share a hand start at different places in it, the central lane first.
+  const twins = Array.from({ length: N }, (_, lane) => lane).filter((lane) => lane % HANDS === r % HANDS);
+  twins.sort((x, y) => Math.abs(x + 0.5 - N / 2) - Math.abs(y + 0.5 - N / 2));
+  const turn = twins.indexOf(r) * 5;
+  inward.forEach((c, k) => shotAt.set(r * (N + 1) + c, hand[(k + turn) % hand.length]));
+}
 
 // Drop order: the far end of the board first, so near keys land over far ones.
 const jitter = (i: number) => ((i * 7919) % 17) / 17;

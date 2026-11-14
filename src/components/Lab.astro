@@ -1,0 +1,178 @@
+---
+/**
+ * The frame of a hands-on demo: a layer over the whole page with a margin all
+ * round (so it reads as a layer, not as a new page), a bar with what it is and
+ * a way out, and the demo itself in the body. Opened by any
+ * `[data-lab-open="<id>"]`; scripts/labs.ts does the rest.
+ *
+ * It is a plain fixed layer rather than a <dialog>: the site's own cursor is
+ * drawn in the page, and the browser's top layer would sit above it.
+ */
+interface Props {
+  id: string;
+  product: string;
+  title: string;
+  kicker: string;
+  note: string;
+  close: string;
+  reset: string;
+}
+
+const { id, product, title, kicker, note, close, reset } = Astro.props;
+---
+
+<div class={`lab lab--${id}`} data-lab={id} role="dialog" aria-modal="true" aria-labelledby={`lab-${id}-title`} hidden>
+  <div class="lab__panel">
+    <header class="lab__bar">
+      <div class="lab__what">
+        <p class="lab__kicker"><b>{product}</b> · {kicker}</p>
+        <h2 class="lab__title display" id={`lab-${id}-title`}>{title}</h2>
+      </div>
+      <button class="lab__reset" type="button" data-lab-reset>
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.5-3.5M13 2v3h-3" fill="none" stroke="currentColor" stroke-width="1.6"></path></svg>
+        {reset}
+      </button>
+      <button class="lab__close" type="button" data-lab-close aria-label={close}>
+        <svg viewBox="0 0 12 12" width="14" height="14" aria-hidden="true"><path d="M1 1l10 10M11 1 1 11" fill="none" stroke="currentColor" stroke-width="1.6"></path></svg>
+      </button>
+    </header>
+    <div class="lab__body">
+      <slot />
+    </div>
+    <p class="lab__note">{note}</p>
+  </div>
+</div>
+
+<style is:global>
+  .lab {
+    --lab-bg: #0b1120;
+    --lab-ink: #e2e8f0;
+    --lab-dim: #94a3b8;
+    --lab-line: #1e293b;
+    --lab-mark: var(--accent);
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: grid;
+    padding: clamp(0.6rem, 2.4vw, 2rem);
+    background: rgb(0 0 0 / 0.72);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-out);
+  }
+
+  .lab[hidden] {
+    display: none;
+  }
+
+  .lab.is-open {
+    opacity: 1;
+  }
+
+  .lab__panel {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    min-height: 0;
+    background: var(--lab-bg);
+    color: var(--lab-ink);
+    border: 1px solid var(--lab-mark);
+    box-shadow: 10px 10px 0 rgb(0 0 0 / 0.5);
+    transform: translateY(1.25rem) scale(0.985);
+    transition: transform 0.45s var(--ease-out);
+    overflow: hidden;
+  }
+
+  .lab.is-open .lab__panel {
+    transform: none;
+  }
+
+  .lab__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 0.7rem 0.7rem clamp(0.9rem, 2vw, 1.4rem);
+    border-bottom: 1px solid var(--lab-line);
+  }
+
+  .lab__what {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .lab__kicker {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--lab-dim);
+  }
+
+  .lab__kicker b {
+    color: var(--lab-mark);
+  }
+
+  .lab__title {
+    margin-top: 0.2rem;
+    font-size: clamp(1.05rem, 0.8rem + 1vw, 1.6rem);
+  }
+
+  .lab__reset,
+  .lab__close {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding-inline: 0.9rem;
+    border: 1px solid var(--lab-line);
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--lab-ink);
+    transition:
+      background-color 0.2s,
+      color 0.2s,
+      border-color 0.2s;
+  }
+
+  .lab__close {
+    width: 2.75rem;
+    padding: 0;
+  }
+
+  .lab__reset:hover,
+  .lab__close:hover {
+    background: var(--lab-mark);
+    border-color: var(--lab-mark);
+    color: #fff;
+  }
+
+  .lab__body {
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  .lab__note {
+    padding: 0.55rem clamp(0.9rem, 2vw, 1.4rem);
+    border-top: 1px solid var(--lab-line);
+    font-size: 0.72rem;
+    color: var(--lab-dim);
+  }
+
+  /* The page behind stays put while a demo is open. */
+  html.lab-open,
+  html.lab-open body {
+    overflow: hidden;
+  }
+
+  @media (max-width: 599.98px) {
+    .lab__reset {
+      width: 2.75rem;
+      padding: 0;
+      font-size: 0;
+      gap: 0;
+    }
+  }
+</style>

@@ -55,6 +55,11 @@ if (scenes.length) {
   addEventListener('scroll', load, { passive: true });
 }
 
+// Hands-on demos: their code is fetched the first time one is opened.
+document.querySelectorAll<HTMLElement>('[data-lab-open]').forEach((button) =>
+  button.addEventListener('click', () => import('./labs').then((mod) => mod.openLab(button.dataset.labOpen!, button))),
+);
+
 // Far sections skip rendering until needed (see global.css). An in-page jump
 // needs their real heights first, or it would land in the wrong place.
 addEventListener('click', (event) => (event.target as Element).closest?.('a[href^="#"]') && document.documentElement.classList.add('all-in'), { capture: true });

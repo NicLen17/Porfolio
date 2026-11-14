@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import { free, legend, rows, SIZE, stands, stroke, total } from '../data/expo-map';
 import { media } from '../data/media';
 import { LINKS, type Content, type Lang } from '../i18n/content';
 import { mark } from '../i18n/mark';
@@ -16,31 +17,6 @@ interface Props {
 const { t, lang } = Astro.props;
 const e = t.expo;
 
-// A generic fair, laid out like the product's own seeded demo map:
-// rows of stands in the organizer's colours, with the status drawn as
-// a coloured outline plus a hatch (never as the fill).
-const SIZE = 46;
-const STEP = 62;
-const rows = [
-  { id: 'G', y: 188, x: 470, n: 10, fill: '#fdba74' },
-  { id: 'F', y: 250, x: 470, n: 10, fill: '#86efac' },
-  { id: 'E', y: 350, x: 594, n: 8, fill: '#93c5fd' },
-  { id: 'D', y: 450, x: 250, n: 12, fill: '#c4b5fd' },
-  { id: 'C', y: 590, x: 420, n: 10, fill: '#fde047' },
-  { id: 'A', y: 670, x: 420, n: 10, fill: '#fca5a5' },
-];
-
-const taken = new Set(['G2', 'G3', 'G7', 'F1', 'F5', 'F9', 'E4', 'E6', 'D3', 'D4', 'D10', 'C2', 'C8', 'A6']);
-const waiting = new Set(['G9', 'E2', 'D7', 'A3']);
-
-const stands = rows.flatMap((row) =>
-  Array.from({ length: row.n }, (_, i) => {
-    const code = `${row.id}${i + 1}`;
-    const status: 'taken' | 'wait' | 'free' = taken.has(code) ? 'taken' : waiting.has(code) ? 'wait' : 'free';
-    return { code, row: row.id, x: row.x + STEP * i, y: row.y, fill: row.fill, status };
-  }),
-);
-
 // A branch for the corners: a curved stem with leaves alternating along it.
 const twigs = Array.from({ length: 9 }, (_, i) => {
   const t = (i + 1) / 10;
@@ -50,10 +26,6 @@ const twigs = Array.from({ length: 9 }, (_, i) => {
   return { x: x.toFixed(1), y: y.toFixed(1), turn: Math.round(125 + t * 20 + side * 62), size: (1.7 - t * 0.7).toFixed(2) };
 });
 
-const total = stands.length;
-const free = stands.filter((s) => s.status === 'free').length;
-const stroke = { free: '#16a34a', wait: '#f59e0b', taken: '#ef4444' } as const;
-const legend = ['#3b82f6', '#16a34a', '#f59e0b', '#ef4444'];
 ---
 
 <section class="expo seam-flat" id="expologic" data-live data-scene="expo" aria-labelledby="expo-title">
@@ -145,6 +117,11 @@ const legend = ['#3b82f6', '#16a34a', '#f59e0b', '#ef4444'];
         }
       </ul>
       <div class="expo__foot">
+        <button class="btn cta-wide expo__btn" type="button" data-lab-open="expo" aria-haspopup="dialog">
+          <span class="cta-wide__label">{t.lab.try}</span>
+          <i class="cta-wide__rule" aria-hidden="true"></i>
+          <svg class="ext" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1.5v9l8-4.5z" fill="currentColor"></path></svg>
+        </button>
         <p class="expo__role">{e.role}</p>
       </div>
     </div>

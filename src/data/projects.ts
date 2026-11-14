@@ -55,11 +55,7 @@ export const projects: Project[] = [
   { key: 'leyenda', name: 'La Leyenda', image: 'la-leyenda.webp', year: '2026', href: 'https://la-leyenda-counter-strike.vercel.app' },
   { key: 'cba', name: 'CBA VolleyStar', image: 'CBA.webp', year: '2026', href: 'https://cba-volleystar.vercel.app' },
   { key: 'cancha', name: 'Cancha Manager', image: 'cancha-manager.webp', year: '2026', href: 'https://la-diagonal.vercel.app' },
-  { key: 'potrero', name: 'Mix Potrero', image: 'mix-potrero.webp', year: '2026', href: 'https://mix-potrero.vercel.app' },
-  { key: 'congreso', name: 'LA Congreso', image: 'la-congreso.webp', year: '2026', href: 'https://la-congreso.vercel.app' },
   { key: 'reaction', name: 'Reaction', image: 'Reaction.webp', year: '2026', href: 'https://reaction-app-alpha.vercel.app/' },
-  { key: 'terradeco', name: 'Terradeco', image: 'Terradeco.webp', year: '2026', href: 'https://www.terradeco.online/' },
-  { key: 'sublim', name: 'Sublimspace', image: 'Sublimspace.webp', year: '2026', href: 'https://sublimspacetuc.vercel.app' },
   { key: 'futcam', name: 'FutCam', image: 'futcam.webp', year: '2026', href: 'https://github.com/NicLen17/fut-camara', wip: true },
 ];
 

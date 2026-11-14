@@ -1,0 +1,521 @@
+---
+/**
+ * ExpoLogic, hands on: the same two-click booking the carousel plays by
+ * itself, but here the visitor does the clicking. Pick a stand on the map,
+ * confirm it on the sheet, and it changes colour for everyone. State lives in
+ * the DOM (data-status on each stand); scripts/labs.ts drives it.
+ */
+import { free, legend, rows, SIZE, stands, stroke, total } from '../data/expo-map';
+import type { Content } from '../i18n/content';
+import Lab from './Lab.astro';
+
+interface Props {
+  t: Content;
+}
+
+const { t } = Astro.props;
+const e = t.expo;
+const L = t.lab;
+const x = L.expo;
+const words = { free: e.legend[1], wait: e.legend[2], taken: e.legend[3] };
+---
+
+<Lab id="expo" product={e.name} title={x.title} kicker={L.demo} note={L.note} close={L.close} reset={L.reset}>
+  <div class="xl" data-xl data-total={total} data-free={free} data-done-text={x.doneText}>
+    <div class="xl__main">
+      <div class="xl__top">
+        <ul class="xl__legend">
+          {
+            e.legend.map((label, i) => (
+              <li>
+                <i style={`background:${legend[i]}`} />
+                {label}
+              </li>
+            ))
+          }
+        </ul>
+        <p class="xl__count">
+          <span>{e.available}</span>
+          <b><span data-xl-free>{free}</span> / {total}</b>
+          <i><i data-xl-meter style={`transform:scaleX(${free / total})`}></i></i>
+        </p>
+      </div>
+
+      <div class="xl__map">
+        <svg viewBox="-111 0 1422 800" role="group" aria-label={e.demoLabel}>
+          <defs>
+            {
+              (['wait', 'taken'] as const).map((kind) => (
+                <pattern id={`xl-hatch-${kind}`} width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                  <rect width="8" height="8" fill={stroke[kind]} opacity=".12" />
+                  <rect width="1.5" height="8" fill={stroke[kind]} opacity=".5" />
+                </pattern>
+              ))
+            }
+          </defs>
+          <rect x="-111" width="1422" height="800" fill="#fff"></rect>
+          <rect x="-71" y="40" width="1342" height="720" fill="#486749" fill-opacity=".12" stroke="#486749" stroke-width="2"></rect>
+
+          <g class="xl__zones">
+            <rect x="430" y="64" width="340" height="72" fill="#fecaca" fill-opacity=".55" stroke="#64748b" stroke-width="1.5"></rect>
+            <text x="600" y="106" text-anchor="middle">{e.stage}</text>
+            <rect x="-30" y="560" width="300" height="156" fill="#bbf7d0" fill-opacity=".6" stroke="#64748b" stroke-width="1.5"></rect>
+            <text x="120" y="644" text-anchor="middle">{e.park}</text>
+            <text x="-30" y="172">{e.food}</text>
+            {[190, 262, 334].map((y, i) => (
+              <g>
+                <rect x="-30" y={y} width="150" height="52" fill="#b91c1c" />
+                <text x="45" y={y + 31} text-anchor="middle" fill="#fff" class="xl__code xl__code--light">FT{i + 1}</text>
+              </g>
+            ))}
+            <rect x="1130" y="560" width="100" height="156" fill="#bfdbfe" fill-opacity=".7" stroke="#64748b" stroke-width="1.5"></rect>
+            <text x="1180" y="644" text-anchor="middle">Info</text>
+            <rect x="1130" y="188" width="100" height="108" fill="#e9d5ff" fill-opacity=".7" stroke="#64748b" stroke-width="1.5"></rect>
+            <text x="1180" y="248" text-anchor="middle">WC</text>
+            <rect x="470" y="738" width="260" height="34" fill="#1e293b"></rect>
+            <text x="600" y="760" text-anchor="middle" class="xl__code xl__code--light">↑ {e.entrance}</text>
+          </g>
+
+          <g class="xl__rows">
+            {rows.map((row) => <text x={row.x - 14} y={row.y + 30} text-anchor="end">{e.sheet.row} {row.id}</text>)}
+          </g>
+
+          {
+            stands.map((stand) => (
+              <g
+                class="xl__stand"
+                role="button"
+                tabindex="0"
+                data-code={stand.code}
+                data-row={stand.row}
+                data-status={stand.status}
+                data-initial={stand.status}
+                aria-label={`${e.sheet.title} ${stand.code}, ${words[stand.status]}`}
+                transform={`translate(${stand.x} ${stand.y})`}
+              >
+                <rect width={SIZE} height={SIZE} fill={stand.fill} />
+                <rect class="xl__hatch" width={SIZE} height={SIZE} />
+                <rect class="xl__edge" width={SIZE} height={SIZE} fill="none" />
+                <text x={SIZE / 2} y={SIZE / 2 + 4} text-anchor="middle" class="xl__code">{stand.code}</text>
+              </g>
+            ))
+          }
+        </svg>
+      </div>
+    </div>
+
+    <aside class="xl__side" aria-live="polite">
+      <ol class="xl__steps">
+        {e.steps.map((step, n) => <li data-xl-step={n}>{step}</li>)}
+      </ol>
+
+      <div class="xl__sheet" data-xl-view="idle">
+        <div data-view="idle">
+          <p class="xl__hint">{x.idle}</p>
+        </div>
+
+        <div data-view="pick" hidden>
+          <p class="xl__status xl__status--free">{e.sheet.status}</p>
+          <p class="xl__name display">{e.sheet.title} <span data-xl-code></span></p>
+          <dl>
+            <div><dt>{e.sheet.row}</dt><dd data-xl-row></dd></div>
+            <div><dt>{e.sheet.size}</dt><dd>{e.sheet.sizeValue}</dd></div>
+          </dl>
+          <button class="xl__confirm" type="button" data-xl-confirm>{e.sheet.confirm}</button>
+        </div>
+
+        <div data-view="taken" hidden>
+          <p class="xl__status xl__status--taken">{x.taken}</p>
+          <p class="xl__name display">{e.sheet.title} <span data-xl-code></span></p>
+          <p class="xl__hint">{x.takenText}</p>
+        </div>
+
+        <div data-view="wait" hidden>
+          <p class="xl__status xl__status--wait">{x.wait}</p>
+          <p class="xl__name display">{e.sheet.title} <span data-xl-code></span></p>
+          <p class="xl__hint">{x.waitText}</p>
+        </div>
+
+        <div data-view="done" hidden>
+          <svg class="xl__check" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true"><rect width="48" height="48" fill="#1b4132"></rect><path d="M13 25l8 8 15-17" fill="none" stroke="#fff" stroke-width="4" pathLength="1"></path></svg>
+          <p class="xl__name display">{e.toast}</p>
+          <p class="xl__hint" data-xl-done></p>
+          <p class="xl__ticket">{e.done.code} <b data-xl-ticket></b></p>
+          <button class="xl__confirm xl__confirm--again" type="button" data-xl-again>{x.again}</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</Lab>
+
+<style is:global>
+  .lab--expo {
+    --lab-bg: #f5f0dd;
+    --lab-ink: #272017;
+    --lab-dim: #685b4b;
+    --lab-line: #dcd4c2;
+    --lab-mark: #b36139;
+  }
+
+  .lab--expo .lab__title {
+    color: #1b4132;
+  }
+
+  .xl {
+    display: grid;
+    gap: 1rem;
+    min-height: 100%;
+    padding: clamp(0.75rem, 2vw, 1.4rem);
+  }
+
+  @media (min-width: 900px) {
+    .xl {
+      grid-template-columns: minmax(0, 1fr) clamp(15rem, 24vw, 21rem);
+      align-items: start;
+    }
+  }
+
+  .xl__main {
+    display: grid;
+    gap: 0;
+    background: #fdfcf6;
+    border: 1px solid var(--lab-line);
+  }
+
+  .xl__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1.25rem;
+    padding: 0.65rem 0.9rem;
+    border-bottom: 1px solid var(--lab-line);
+    font-size: 0.78rem;
+    color: var(--lab-dim);
+  }
+
+  .xl__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.9rem;
+  }
+
+  .xl__legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+  }
+
+  .xl__legend i {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+  }
+
+  .xl__count {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 0.25rem 0.6rem;
+    align-items: baseline;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .xl__count b {
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--lab-ink);
+    text-align: right;
+  }
+
+  .xl__count > i {
+    grid-column: 1 / -1;
+    height: 4px;
+    background: var(--lab-line);
+    overflow: hidden;
+  }
+
+  .xl__count > i > i {
+    display: block;
+    height: 100%;
+    background: #16a34a;
+    transform-origin: left;
+    transition: transform 0.5s var(--ease-out);
+  }
+
+  /* On a phone the plan keeps a size a finger can hit, and scrolls sideways. */
+  .xl__map {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
+  .xl__map svg {
+    display: block;
+    width: 100%;
+    min-width: 42rem;
+    height: auto;
+  }
+
+  .xl__zones text,
+  .xl__rows text {
+    font-size: 15px;
+    font-weight: 600;
+    fill: #1e293b;
+  }
+
+  .xl__code {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12px;
+    font-weight: 600;
+    fill: #1e293b;
+    pointer-events: none;
+  }
+
+  .xl__zones .xl__code--light {
+    fill: #fff;
+  }
+
+  /* A stand: the organizer's colour as the fill, the status as outline and hatch. */
+  .xl__stand {
+    cursor: pointer;
+    outline: none;
+  }
+
+  .xl__stand .xl__edge {
+    stroke: #16a34a;
+    stroke-width: 2;
+    transition:
+      stroke 0.2s,
+      stroke-width 0.2s;
+  }
+
+  .xl__stand .xl__hatch {
+    fill: none;
+  }
+
+  .xl__stand[data-status='taken'] .xl__edge {
+    stroke: #ef4444;
+  }
+
+  .xl__stand[data-status='taken'] .xl__hatch {
+    fill: url(#xl-hatch-taken);
+  }
+
+  .xl__stand[data-status='wait'] .xl__edge,
+  .xl__stand[data-status='mine'] .xl__edge {
+    stroke: #f59e0b;
+  }
+
+  .xl__stand[data-status='wait'] .xl__hatch,
+  .xl__stand[data-status='mine'] .xl__hatch {
+    fill: url(#xl-hatch-wait);
+  }
+
+  .xl__stand[data-status='free']:hover .xl__edge,
+  .xl__stand:focus-visible .xl__edge {
+    stroke: #3b82f6;
+    stroke-width: 4;
+  }
+
+  .xl__stand.is-picked .xl__edge {
+    stroke: #3b82f6;
+    stroke-width: 5;
+  }
+
+  .xl__stand.is-new {
+    animation: xl-pop 0.6s var(--ease-back);
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  @keyframes xl-pop {
+    40% {
+      scale: 1.35;
+    }
+  }
+
+  .xl__side {
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+  }
+
+  .xl__steps {
+    display: grid;
+    gap: 0.5rem;
+    counter-reset: xl;
+  }
+
+  .xl__steps li {
+    counter-increment: xl;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.7rem;
+    align-items: center;
+    color: var(--lab-dim);
+    transition: color 0.3s;
+  }
+
+  .xl__steps li::before {
+    content: counter(xl);
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition:
+      background-color 0.3s,
+      color 0.3s,
+      border-color 0.3s;
+  }
+
+  .xl__steps li.is-on {
+    color: var(--lab-ink);
+    font-weight: 600;
+  }
+
+  .xl__steps li.is-on::before {
+    background: #b36139;
+    border-color: #b36139;
+    color: #fff;
+  }
+
+  .xl__steps li.is-past::before {
+    background: #1b4132;
+    border-color: #1b4132;
+    color: #fff;
+  }
+
+  .xl__sheet {
+    padding: 1.1rem;
+    background: #fdfcf6;
+    border: 1px solid var(--lab-line);
+    box-shadow: 6px 6px 0 rgb(39 32 23 / 0.12);
+  }
+
+  .xl__sheet > div {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .xl__sheet > div[hidden] {
+    display: none;
+  }
+
+  .xl__sheet > div:not([hidden]) {
+    animation: xl-in 0.35s var(--ease-out);
+  }
+
+  @keyframes xl-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+  }
+
+  .xl__hint {
+    line-height: 1.45;
+    color: var(--lab-dim);
+  }
+
+  .xl__status {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .xl__status--free {
+    color: #15803d;
+  }
+
+  .xl__status--taken {
+    color: #b91c1c;
+  }
+
+  .xl__status--wait {
+    color: #a16207;
+  }
+
+  .xl__name {
+    font-size: var(--step-2);
+    line-height: 1.05;
+    color: #1b4132;
+  }
+
+  .xl__sheet dl {
+    display: grid;
+    gap: 0.35rem;
+    padding-block: 0.6rem;
+    border-block: 1px solid var(--lab-line);
+  }
+
+  .xl__sheet dl div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .xl__sheet dt {
+    color: var(--lab-dim);
+  }
+
+  .xl__sheet dd {
+    font-weight: 600;
+  }
+
+  .xl__confirm {
+    min-height: 3rem;
+    padding: 0.7rem 1rem;
+    background: #486749;
+    color: #fff;
+    font-weight: 700;
+    transition:
+      background-color 0.2s,
+      transform 0.15s;
+  }
+
+  .xl__confirm:hover {
+    background: #b36139;
+  }
+
+  .xl__confirm:active {
+    transform: scale(0.98);
+  }
+
+  .xl__confirm--again {
+    background: #b36139;
+  }
+
+  .xl__confirm--again:hover {
+    background: #1b4132;
+  }
+
+  .xl__check path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: xl-draw 0.45s var(--ease-out) 0.15s forwards;
+  }
+
+  @keyframes xl-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .xl__ticket {
+    justify-self: start;
+    padding: 0.4rem 0.8rem;
+    border: 1px dashed #486749;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 0.85rem;
+  }
+</style>

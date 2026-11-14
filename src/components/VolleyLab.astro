@@ -1,0 +1,750 @@
+---
+/**
+ * Volley Manager, hands on: live scouting the way the scout does it from the
+ * bench, following the real console's rules.
+ *
+ * - The keypad only logs our own team. One tap picks skill and grade at once
+ *   (a column per skill, a row per grade) and needs a player first.
+ * - Reception, block and dig are saved at once. An attack then asks for where
+ *   the ball went: a zone on the far half, the block that stopped it, or the
+ *   kind of error.
+ * - Our serve has its own flow: the server is picked for you, you mark where
+ *   it lands and then grade it.
+ * - Points follow from the grade, and winning the rally on the rival's serve
+ *   rotates the lineup.
+ *
+ * State lives in scripts/lab-volley.ts; this file is the board it plays on.
+ */
+import type { Content } from '../i18n/content';
+import Lab from './Lab.astro';
+
+interface Props {
+  t: Content;
+}
+
+const { t } = Astro.props;
+const v = t.vm;
+const L = t.lab;
+const x = L.vm;
+
+// Same court as the product: own half on the left, net in the middle, two
+// columns by three rows of zones per half, the front row next to the net.
+const C = { x: 60, y: 50, w: 840, h: 440 };
+const half = C.w / 2;
+const col = half / 2;
+const row = C.h / 3;
+const netX = C.x + half;
+const cx = (n: number) => C.x + col * n + col / 2;
+const cy = (n: number) => C.y + row * n + row / 2;
+const rx = (n: number) => netX + col * n + col / 2;
+
+const homeZones = [
+  [5, 4],
+  [6, 3],
+  [1, 2],
+];
+const awayZones = [
+  [2, 1],
+  [3, 6],
+  [4, 5],
+];
+
+// Where a player stands for each zone of our half.
+const spots = Object.fromEntries(homeZones.flatMap((pair, r) => pair.map((zone, c) => [zone, { x: cx(c), y: cy(r) }])));
+const lineup = [
+  { zone: 1, n: 9 },
+  { zone: 6, n: 5 },
+  { zone: 5, n: 12 },
+  { zone: 4, n: 7 },
+  { zone: 3, n: 10 },
+  { zone: 2, n: 4 },
+];
+const geometry = { netX, top: C.y, col, row, away: awayZones, spots };
+---
+
+<Lab id="vm" product={v.name} title={x.title} kicker={L.demo} note={L.note} close={L.close} reset={L.reset}>
+  <div class="vl" data-vl data-step="player" data-copy={JSON.stringify(x.copy)} data-court={JSON.stringify(geometry)} data-lineup={JSON.stringify(lineup)}>
+    <div class="vl__main">
+      <!-- Quick points, either side of the scoreboard: for rallies that end without one of our touches. -->
+      <div class="vl__bar">
+        <div class="vl__quick">
+          <button type="button" data-vl-quick="home" class="is-solid">{x.quick.home}</button>
+          <button type="button" data-vl-quick="home">{x.quick.rivalError}</button>
+        </div>
+        <p class="vl__score">
+          <span class="vl__team" data-vl-serve="home"><i aria-hidden="true"></i>CBA</span>
+          <b data-vl-home>12</b>
+          <em>-</em>
+          <b data-vl-away>9</b>
+          <span class="vl__team is-away" data-vl-serve="away">{v.away}<i aria-hidden="true"></i></span>
+        </p>
+        <div class="vl__quick is-away">
+          <button type="button" data-vl-quick="away">{x.quick.ownError}</button>
+          <button type="button" data-vl-quick="away" class="is-solid">{x.quick.away}</button>
+        </div>
+      </div>
+
+      <div class="vl__board">
+        <svg class="vl__court" viewBox="0 0 960 540" role="group" aria-label={v.demoLabel}>
+          <rect width="960" height="540" fill="#94a3b8"></rect>
+          <rect x={C.x} y={C.y} width={C.w} height={C.h} fill="#1d4ed8"></rect>
+
+          <g fill="none" stroke="#fff">
+            <path d={`M${netX - half / 3} ${C.y}v${C.h}M${netX + half / 3} ${C.y}v${C.h}`} stroke-width="3" opacity=".5"></path>
+            <path d={`M${C.x} ${C.y + row}h${C.w}M${C.x} ${C.y + row * 2}h${C.w}M${C.x + col} ${C.y}v${C.h}M${netX + col} ${C.y}v${C.h}`} stroke-width="1" opacity=".22"></path>
+            <rect x={C.x} y={C.y} width={C.w} height={C.h} stroke-width="6"></rect>
+            <path d={`M${netX} ${C.y - 14}v${C.h + 28}`} stroke-width="7"></path>
+          </g>
+
+          <g class="vl__zones" text-anchor="middle">
+            {homeZones.flatMap((pair, r) => pair.map((zone, c) => <text x={cx(c)} y={cy(r) + 14}>{zone}</text>))}
+            {awayZones.flatMap((pair, r) => pair.map((zone, c) => <text x={rx(c)} y={cy(r) + 14}>{zone}</text>))}
+          </g>
+
+          <text x={C.x + 10} y={C.y - 16} class="vl__side">{v.home}</text>
+          <text x={C.x + C.w - 10} y={C.y - 16} class="vl__side" text-anchor="end">{v.away}</text>
+
+          <!-- Where the ball can land: lit while the scout has to mark it. -->
+          <g class="vl__targets">
+            {
+              awayZones.flatMap((pair, r) =>
+                pair.map((zone, c) => (
+                  <rect class="vl__target" role="button" aria-label={`${x.copy.zone} ${zone}`} data-target={zone} x={netX + col * c} y={C.y + row * r} width={col} height={row} />
+                )),
+              )
+            }
+          </g>
+
+          <g class="vl__shots" data-vl-shots></g>
+
+          <g class="vl__players" text-anchor="middle">
+            {
+              lineup.map((p) => (
+                <g class="vl__player" role="button" tabindex="0" aria-label={`${x.copy.player} ${p.n}`} data-player={p.n} style={`transform:translate(${spots[p.zone].x}px,${spots[p.zone].y}px)`}>
+                  <circle class="vl__ring" r="38" fill="none" stroke="#fde047" stroke-width="7" />
+                  <circle r="27" fill="#ef4444" stroke="#fff" stroke-width="5" />
+                  <text y="9" fill="#fff">{p.n}</text>
+                </g>
+              ))
+            }
+          </g>
+        </svg>
+
+        <p class="vl__hint" aria-live="polite"><b data-vl-mark>1</b><span data-vl-hint></span></p>
+
+        <!-- Follow-up questions (which block, what error, how was the serve) appear here. -->
+        <div class="vl__ask" data-vl-ask hidden></div>
+      </div>
+    </div>
+
+    <aside class="vl__side-col">
+      <div class="vl__pad" data-vl-pad>
+        <p class="vl__pad-title">
+          <span>{v.pad}</span>
+          <button type="button" data-vl-enf disabled>{x.enf}</button>
+        </p>
+        <div class="vl__grid">
+          {
+            x.skills.map((skill) => (
+              <div class="vl__col" data-col={skill.id}>
+                <span data-label={skill.short} data-counter={skill.counter ?? ''}>{skill.short}</span>
+                {x.grades.map((grade) => (
+                  <button type="button" data-skill={skill.id} data-grade={grade} aria-label={`${skill.label} ${grade}`} class:list={{ 'is-err': grade === '=' }} disabled>
+                    {grade}
+                  </button>
+                ))}
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="vl__log">
+        <p class="vl__log-head">
+          <span>{x.log}</span>
+          <button type="button" data-vl-undo disabled>{x.undo}</button>
+        </p>
+        <ol data-vl-log aria-live="polite"></ol>
+        <p class="vl__empty" data-vl-empty>{x.empty}</p>
+      </div>
+    </aside>
+  </div>
+</Lab>
+
+<style is:global>
+  .lab--vm {
+    --lab-bg: #0a0f1f;
+    --lab-ink: #e2e8f0;
+    --lab-dim: #94a3b8;
+    --lab-line: #1e293b;
+    --lab-mark: #ef4444;
+  }
+
+  .vl {
+    display: grid;
+    gap: 1rem;
+    min-height: 100%;
+    padding: clamp(0.75rem, 2vw, 1.4rem);
+  }
+
+  @media (min-width: 1000px) {
+    .vl {
+      grid-template-columns: minmax(0, 1fr) clamp(17rem, 27vw, 24rem);
+      align-items: start;
+    }
+  }
+
+  .vl__main {
+    background: #0b1120;
+    border: 1px solid var(--lab-line);
+  }
+
+  /* Top bar ------------------------------------------------------------- */
+  .vl__bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--lab-line);
+  }
+
+  .vl__quick {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .vl__quick.is-away {
+    justify-content: flex-end;
+  }
+
+  .vl__quick button {
+    min-height: 2.5rem;
+    padding: 0.3rem 0.7rem;
+    background: #dbeafe;
+    color: #1e3a8a;
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1.15;
+    transition:
+      filter 0.15s,
+      transform 0.1s;
+  }
+
+  .vl__quick button.is-solid {
+    background: #2563eb;
+    color: #fff;
+  }
+
+  .vl__quick.is-away button {
+    background: #ffe4e6;
+    color: #9f1239;
+  }
+
+  .vl__quick.is-away button.is-solid {
+    background: #e11d48;
+    color: #fff;
+  }
+
+  .vl__quick button:hover {
+    filter: brightness(1.1);
+  }
+
+  .vl__quick button:active {
+    transform: scale(0.96);
+  }
+
+  .vl__score {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.3rem 0.9rem;
+    background: #020617;
+    border: 1px solid var(--lab-line);
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .vl__score b {
+    min-width: 1.5em;
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    color: #fff;
+  }
+
+  .vl__score b.is-up {
+    animation: vl-up 0.5s var(--ease-back);
+  }
+
+  @keyframes vl-up {
+    30% {
+      scale: 1.6;
+      color: #34d399;
+    }
+  }
+
+  .vl__score em {
+    font-style: normal;
+    color: var(--lab-dim);
+  }
+
+  .vl__team {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6ee7b7;
+  }
+
+  .vl__team.is-away {
+    color: #fca5a5;
+  }
+
+  /* A dot next to whoever is serving. */
+  .vl__team i {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: #fde047;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .vl__team.is-serving i {
+    opacity: 1;
+  }
+
+  /* Court ------------------------------------------------------------------ */
+  .vl__board {
+    position: relative;
+  }
+
+  .vl__court {
+    display: block;
+    width: 100%;
+    height: auto;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .vl__zones text {
+    font-family: var(--font-display);
+    font-size: 40px;
+    font-weight: 800;
+    fill: rgb(255 255 255 / 0.16);
+    pointer-events: none;
+  }
+
+  .vl__side {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    fill: #1e293b;
+  }
+
+  .vl__target {
+    fill: transparent;
+    stroke: none;
+    pointer-events: none;
+    outline: none;
+  }
+
+  /* Marking a destination: the far half lights up, zone by zone under the pointer. */
+  .vl:is([data-step='dest'], [data-step='serve']) .vl__target {
+    pointer-events: auto;
+    cursor: crosshair;
+    fill: rgb(253 224 71 / 0.07);
+    stroke: #fde047;
+    stroke-width: 3;
+    stroke-dasharray: 12 9;
+  }
+
+  .vl:is([data-step='dest'], [data-step='serve']) .vl__target:is(:hover, :focus-visible) {
+    fill: rgb(253 224 71 / 0.3);
+  }
+
+  .vl__target.is-hit {
+    animation: vl-hit 0.9s var(--ease-out);
+  }
+
+  @keyframes vl-hit {
+    from {
+      fill: rgb(239 68 68 / 0.75);
+    }
+    to {
+      fill: transparent;
+    }
+  }
+
+  .vl__player {
+    cursor: pointer;
+    outline: none;
+    transition: transform 0.7s var(--ease-out);
+  }
+
+  .vl__player text {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 800;
+    pointer-events: none;
+  }
+
+  .vl__ring {
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .vl__player:is(:hover, :focus-visible) .vl__ring {
+    opacity: 0.45;
+  }
+
+  .vl__player.is-on .vl__ring {
+    opacity: 1;
+  }
+
+  /* Waiting for a player: they breathe until one is picked. */
+  .vl[data-step='player'] .vl__player > circle:nth-child(2) {
+    animation: vl-breathe 1.4s var(--ease-in-out) infinite alternate;
+  }
+
+  @keyframes vl-breathe {
+    to {
+      stroke-width: 10;
+    }
+  }
+
+  /* While a destination is being marked the other players step back. */
+  .vl:is([data-step='dest'], [data-step='serve'], [data-step='ask']) .vl__player:not(.is-on) {
+    opacity: 0.25;
+    pointer-events: none;
+  }
+
+  .vl__shot line {
+    stroke: #ef4444;
+    stroke-width: 6;
+    stroke-linecap: round;
+  }
+
+  .vl__shot polygon {
+    fill: #ef4444;
+  }
+
+  .vl__shot circle {
+    fill: #22c55e;
+    stroke: #fff;
+    stroke-width: 3;
+  }
+
+  .vl__shot {
+    pointer-events: none;
+    transition: opacity 0.9s;
+  }
+
+  .vl__shot.is-old {
+    opacity: 0;
+  }
+
+  .vl__hint {
+    position: absolute;
+    left: 50%;
+    top: 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    max-width: calc(100% - 1.5rem);
+    padding: 0.35rem 0.8rem 0.35rem 0.35rem;
+    background: #0b1120;
+    border: 1px solid #334155;
+    font-size: var(--step--1);
+    font-weight: 600;
+    translate: -50% 0;
+    pointer-events: none;
+  }
+
+  .vl__hint b {
+    flex: none;
+    display: grid;
+    place-items: center;
+    min-width: 1.6rem;
+    height: 1.6rem;
+    padding-inline: 0.3rem;
+    background: #fde047;
+    color: #0b1120;
+    font-family: var(--font-display);
+  }
+
+  .vl__hint[data-tone='good'] b {
+    background: #34d399;
+  }
+
+  .vl__hint[data-tone='bad'] b {
+    background: #f87171;
+  }
+
+  /* Follow-up question: a row of answers across the bottom of the court. */
+  .vl__ask {
+    position: absolute;
+    inset: auto 0.6rem 0.6rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.5rem;
+    background: rgb(2 6 23 / 0.9);
+    border: 1px solid #334155;
+    animation: xl-in 0.3s var(--ease-out);
+  }
+
+  .vl__ask[hidden] {
+    display: none;
+  }
+
+  .vl__ask button {
+    min-height: 2.75rem;
+    padding: 0.4rem 0.9rem;
+    background: #1e3a8a;
+    color: #fff;
+    font-size: var(--step--1);
+    font-weight: 800;
+    transition: background-color 0.15s;
+  }
+
+  .vl__ask button b {
+    margin-right: 0.4rem;
+    font-family: var(--font-display);
+    color: #fde047;
+  }
+
+  .vl__ask button:hover {
+    background: #2563eb;
+  }
+
+  .vl__ask button.is-err {
+    background: #e11d48;
+  }
+
+  .vl__ask button.is-quiet {
+    background: transparent;
+    border: 1px solid #475569;
+    color: var(--lab-dim);
+  }
+
+  /* Keypad: a column per skill, a row per grade, one tap for both. ----------- */
+  .vl__side-col {
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+  }
+
+  .vl__pad {
+    display: grid;
+    gap: 0.6rem;
+    padding: 0.8rem;
+    background: #dbe4f0;
+    color: #0f172a;
+  }
+
+  .vl__pad-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #475569;
+  }
+
+  .vl__pad-title button {
+    padding: 0.4rem 0.6rem;
+    background: #ffe4e6;
+    color: #9f1239;
+    font: inherit;
+    letter-spacing: 0.04em;
+  }
+
+  .vl__pad-title button:disabled {
+    opacity: 0.4;
+  }
+
+  .vl__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+
+  .vl__col {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0.3rem;
+    transition:
+      background-color 0.25s,
+      opacity 0.25s;
+  }
+
+  .vl__col > span {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-align: center;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* The likely next touch is lit; the rest stay available, just quieter. */
+  .vl__col.is-next {
+    background: #bfdbfe;
+  }
+
+  .vl__grid.has-next .vl__col:not(.is-next) {
+    opacity: 0.55;
+  }
+
+  .vl__col button {
+    min-height: 2.6rem;
+    background: #1e3a8a;
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 800;
+    transition:
+      background-color 0.15s,
+      transform 0.1s,
+      opacity 0.2s;
+  }
+
+  .vl__col button.is-err {
+    background: #e11d48;
+  }
+
+  .vl__col button:not(:disabled):hover {
+    background: #2563eb;
+  }
+
+  .vl__col button.is-err:not(:disabled):hover {
+    background: #be123c;
+  }
+
+  .vl__col button:not(:disabled):active {
+    transform: scale(0.94);
+  }
+
+  .vl__col button:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+
+  /* Play by play ------------------------------------------------------------- */
+  .vl__log {
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.8rem;
+    background: #111a2e;
+    border: 1px solid var(--lab-line);
+  }
+
+  .vl__log-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--lab-dim);
+  }
+
+  .vl__log-head button {
+    padding: 0.35rem 0.6rem;
+    border: 1px solid #334155;
+    font: inherit;
+    letter-spacing: 0.08em;
+    color: var(--lab-ink);
+  }
+
+  .vl__log-head button:disabled {
+    opacity: 0.35;
+  }
+
+  .vl__log-head button:not(:disabled):hover {
+    background: #ef4444;
+    border-color: #ef4444;
+  }
+
+  .vl__log ol {
+    display: grid;
+    gap: 0.35rem;
+    max-height: min(15rem, 30vh);
+    overflow: auto;
+  }
+
+  .vl__log li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.45rem 0.6rem;
+    background: #0b1120;
+    border-left: 3px solid #64748b;
+    font-size: var(--step--1);
+    animation: xl-in 0.35s var(--ease-out);
+  }
+
+  .vl__log li[data-tone='good'] {
+    border-left-color: #34d399;
+  }
+
+  .vl__log li[data-tone='bad'] {
+    border-left-color: #f87171;
+  }
+
+  .vl__log li b {
+    font-family: var(--font-display);
+    color: #fff;
+  }
+
+  .vl__log li span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .vl__log li i {
+    font-style: normal;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--lab-dim);
+    white-space: nowrap;
+  }
+
+  .vl__empty {
+    font-size: var(--step--1);
+    color: var(--lab-dim);
+  }
+
+  .vl__empty[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 599.98px) {
+    .vl__bar {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .vl__score {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      justify-content: center;
+    }
+
+    .vl__quick button {
+      flex: 1;
+    }
+  }
+</style>

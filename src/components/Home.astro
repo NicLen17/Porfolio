@@ -11,6 +11,8 @@ import Credentials from './Credentials.astro';
 import Experience from './Experience.astro';
 import About from './About.astro';
 import Contact from './Contact.astro';
+import ExpoLab from './ExpoLab.astro';
+import VolleyLab from './VolleyLab.astro';
 import { content, type Lang } from '../i18n/content';
 
 interface Props {
@@ -35,6 +37,8 @@ const t = content[lang];
     <About t={t} />
   </main>
   <Contact t={t} />
+  <ExpoLab t={t} />
+  <VolleyLab t={t} />
 </Base>
 
 <script>
