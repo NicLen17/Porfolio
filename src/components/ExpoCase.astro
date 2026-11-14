@@ -151,6 +151,7 @@ const legend = ['#3b82f6', '#16a34a', '#f59e0b', '#ef4444'];
 
     <div class="reel" data-reel>
       <div class="reel__track">
+        <i class="reel__bar" aria-hidden="true"><i></i></i>
     <figure class="reel__slide expo__demo" data-slide="0">
       <div class="expo__ui">
         <div class="expo__legend">
@@ -603,6 +604,10 @@ const legend = ['#3b82f6', '#16a34a', '#f59e0b', '#ef4444'];
     gap: 0.75rem;
   }
 
+  .expo__head > .expo__brand {
+    grid-row: span 2;
+  }
+
   .expo__btn {
     justify-self: start;
     background: var(--expo-green);
@@ -921,7 +926,8 @@ const legend = ['#3b82f6', '#16a34a', '#f59e0b', '#ef4444'];
     .expo__head {
       grid-column: 1 / -1;
       order: 0;
-      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 0.75rem 3rem;
       align-items: end;
     }
 
@@ -940,7 +946,7 @@ const legend = ['#3b82f6', '#16a34a', '#f59e0b', '#ef4444'];
 
   /* Pinned scene: set up by scenes.ts */
   .expo.is-scene {
-    height: 560vh;
+    height: 250vh;
   }
 
   .expo.is-scene .expo__pin {
@@ -971,7 +977,7 @@ const legend = ['#3b82f6', '#16a34a', '#f59e0b', '#ef4444'];
     align-items: center;
     --edge: max(var(--gutter), (100vw - var(--wrap)) / 2);
     margin-inline: calc(var(--edge) * -1);
-    padding: 1.5rem var(--edge) 2.5rem;
+    padding: 1.5rem var(--edge) 2rem;
     background: rgb(253 252 246 / 0.7);
     border-top: 1px solid rgb(39 32 23 / 0.16);
     -webkit-backdrop-filter: blur(16px) saturate(1.2);

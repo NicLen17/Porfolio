@@ -1,4 +1,5 @@
 ---
+import Ambient from './Ambient.astro';
 import { tools } from '../data/projects';
 import type { Content } from '../i18n/content';
 import Ext from './Ext.astro';
@@ -11,7 +12,8 @@ const { t } = Astro.props;
 const main = tools;
 ---
 
-<section class="section section--paper tools seam-flat" id="tools" aria-labelledby="tools-title">
+<section class="section section--paper tools seam-flat" id="tools" data-live aria-labelledby="tools-title">
+  <Ambient kind="stars" seed={3} />
   <div class="wrap">
     <header class="section__head" data-rise>
       <p class="eyebrow">{t.nav.tools}</p>

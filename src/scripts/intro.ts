@@ -2,8 +2,8 @@ import { plasmaReveal, type PlasmaHandle } from './plasma';
 
 /**
  * Hero intro in three acts: the keys fall onto the board and come into focus
- * (pure CSS, already running before this script loads), the pictures switch
- * off, and the name condenses out of light. Any scroll, key press or tap
+ * blank (pure CSS, already running before this script loads), one pulse runs
+ * through them from the centre, and the name condenses out of light there. Any scroll, key press or tap
  * skips to the end. Afterwards the lanes of the board drift and a click on
  * any key sends a pulse through the rest.
  */
@@ -112,7 +112,7 @@ function playFull() {
     // A beat to take in the finished board before the lights go out.
     later(() => {
       root.classList.add('intro--dark');
-      later(reveal, 380);
+      later(reveal, 140);
     }, 220);
   };
   const onEnd = (event: AnimationEvent) => {
@@ -172,13 +172,29 @@ const lanes = Array.from(hero?.querySelectorAll<HTMLElement>('.lane') ?? []).map
 const canDrift = () => live && !document.hidden && (root.classList.contains('intro-done') || root.classList.contains('intro--reveal'));
 
 /**
- * Every lane slides along its own axis, neighbours in opposite directions.
- * When a key has fully left one end it is moved to the other, so the lane
- * never runs out and no key is duplicated.
+ * The board moves in two alternating ways. First every lane slides along its
+ * own axis, neighbours in opposite directions. Then they ease to a stop and the
+ * whole board travels across the lanes instead, from the bottom left of the
+ * screen to the top right. Whatever leaves one side (a key, or a whole lane)
+ * is moved to the other, so nothing runs out and nothing is duplicated.
  */
+const ALONG = 13; // seconds sliding along the lanes
+const ACROSS = 11; // seconds travelling across them
+const EASE = 1.6; // seconds to speed up or slow down
+const CLIMB = 0.085; // lanes per second while travelling across
+let clock = 0;
+let rise = 0;
+
+/** 0 to 1 and back: how fast a movement runs `t` seconds into a stretch of `length`. */
+const swell = (t: number, length: number) => {
+  const x = Math.min(1, Math.max(0, Math.min(t, length - t) / EASE));
+  return x * x * (3 - 2 * x);
+};
+
 function drift() {
   if (drifting || calm || !lanes.length || !canDrift()) return;
   drifting = true;
+  const grid = lanes[0].el.parentElement!;
   let before = performance.now();
   let size = lanes[0].el.firstElementChild!.clientWidth;
   let width = innerWidth;
@@ -194,8 +210,18 @@ function drift() {
     }
     const dt = Math.min(0.05, (now - before) / 1000);
     before = now;
+    clock = (clock + dt) % (ALONG + ACROSS);
+    const along = clock < ALONG ? swell(clock, ALONG) : 0;
+    const across = clock < ALONG ? 0 : swell(clock - ALONG, ACROSS);
+
+    // Across: towards the top right of the screen is "up" the list of lanes.
+    rise -= CLIMB * across * dt;
+    if (rise < -0.5) {
+      rise += 1;
+      grid.append(grid.firstElementChild!);
+    }
     for (const lane of lanes) {
-      lane.off += lane.dir * lane.speed * dt;
+      lane.off += lane.dir * lane.speed * along * dt;
       if (lane.off <= -1) {
         lane.off += 1;
         lane.el.append(lane.el.firstElementChild!);
@@ -203,7 +229,7 @@ function drift() {
         lane.off -= 1;
         lane.el.prepend(lane.el.lastElementChild!);
       }
-      lane.el.style.transform = `translate3d(${(lane.off * size).toFixed(2)}px,0,0)`;
+      lane.el.style.transform = `translate3d(${(lane.off * size).toFixed(2)}px,${(rise * size).toFixed(2)}px,0)`;
     }
     requestAnimationFrame(tick);
   };

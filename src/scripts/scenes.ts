@@ -1,5 +1,6 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { given } from './given';
 
 /**
  * Product scenes. Loaded on demand (see page.ts) so the animation library
@@ -13,12 +14,15 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
  *   two-click reservation plays out with the scroll, then the organizer
  *   dashboard and the map builder follow.
  *
- * Everything here runs one way. Scrolling forward plays it; scrolling back
- * finds it already played and the carousel on the last screen reached. The
- * scroll already spent is taken out of the section whenever the page comes to
- * rest, so the way back up is a few lines long, not the whole scene again.
- * A screen picked by hand (its number, the arrows, or the screen itself)
- * comes into focus without scrolling and plays its film by itself.
+ * Only the ball is tied to the scroll. The screens of each carousel play
+ * their own film as soon as they come into focus, with a progress line above
+ * the carousel showing how much of it is left; each screen holds the scroll
+ * for a short stretch only, so staying to watch is the reader's choice.
+ * Everything runs one way: scrolling back finds the films already played and
+ * the carousel on the last screen reached, and the scroll already spent is
+ * taken out of the section whenever the page comes to rest, so the way back
+ * up is a few lines long. A screen picked by hand (its number, the arrows, or
+ * the screen itself) comes into focus without scrolling and plays again.
  */
 
 const clamp = gsap.utils.clamp;
@@ -71,16 +75,16 @@ function onRest(ask: Settle) {
 }
 
 /**
- * A mock screen's CSS film, driven by hand. Each mock names the stretch of its
- * loop that is the build-up (`data-film="from,to"`, as fractions); `p` (0 to 1)
- * is how far through that stretch the reader has scrolled. It only ever moves
- * forward and stays on its last frame. Short ambient loops inside the mock (a
- * voice meter, a pulsing light) are left running.
+ * A mock screen's CSS film, played by hand. Each mock names the stretch of its
+ * loop that is the build-up (`data-film="from,to"`, as fractions). The film
+ * starts held on its first frame, plays that stretch once when its screen
+ * comes into focus, and stays on the last frame. Short ambient loops inside
+ * the mock (a voice meter, a pulsing light) are left running.
  */
 function film(mock: HTMLElement | null) {
   const [from, to] = (mock?.dataset.film ?? '0,0.9').split(',').map(Number);
   const head = { p: 0 };
-  let far = -1;
+  let played = false;
   let auto: gsap.core.Tween | null = null;
   const show = (p: number) => {
     if (!mock) return;
@@ -94,24 +98,28 @@ function film(mock: HTMLElement | null) {
     });
   };
   return {
-    to(p: number) {
-      if (auto || p <= far) return;
-      far = p;
-      show(far);
+    /** How much of the film has played, 0 to 1. */
+    get p() {
+      return head.p;
     },
-    /** Plays the whole build-up by itself, from the start: for a screen opened by hand. */
-    play() {
+    hold() {
+      if (!played) show(0);
+    },
+    /** Plays the build-up once; `again` replays it from the start. */
+    play(again = false) {
+      if (played && !again) return;
+      played = true;
       auto?.kill();
-      far = 1;
       head.p = 0;
-      auto = gsap.to(head, { p: 1, duration: 2.8, ease: 'power1.inOut', onUpdate: () => show(head.p), onComplete: () => void (auto = null) });
+      auto = gsap.to(head, { p: 1, duration: 4.5, ease: 'power1.inOut', onUpdate: () => show(head.p), onComplete: () => void (auto = null) });
     },
     /** Hands the film back to its own CSS loop. */
     free() {
       auto?.kill();
       auto = null;
       if (!mock) return;
-      far = -1;
+      played = false;
+      head.p = 0;
       mock.style.display = 'none';
       void mock.offsetWidth;
       mock.style.display = '';
@@ -399,30 +407,32 @@ function initVolley(mm: gsap.MatchMedia) {
   });
 
   // Scroll budget of the pinned scene, in viewport heights: the lead (the
-  // title alone until READ, then the ball) and one stretch per screen.
+  // title alone until READ, then the ball) and a short hold per screen.
   const LEAD = 162;
   const READ = 38;
-  const SPAN = [140, 124, 114];
+  const SPAN = [55, 45, 45];
   const KEEP = 10;
   const MARKS = [LEAD, LEAD + SPAN[0], LEAD + SPAN[0] + SPAN[1]];
   const WHOLE = MARKS[2] + SPAN[2];
   const films = [1, 2].map((n) => film(root.querySelector<HTMLElement>(`.reel__slide[data-slide="${n}"] [data-demo]`)));
+  const bar = root.querySelector<HTMLElement>('.reel__bar i');
   let opened = false;
   // The furthest point reached, and how much scroll has been taken out from the top.
   let reached = 0;
   let gone = 0;
 
   // Desktop: the section pins. First the title, alone; then the ball uncovers
-  // the product; then the scroll walks through its three screens.
+  // the product; then each screen plays by itself while it is in focus.
   mm.add(PINNED, () => {
     root.classList.add('is-scene');
     pinned = true;
     const left = () => WHOLE - gone;
     const size = () => {
       root.style.height = `${left() + 100}vh`;
+      given.set(root, gone);
     };
     size();
-    films.forEach((item) => item.to(0));
+    films.forEach((item) => item.hold());
 
     // The screen in focus: the furthest one the scroll reached, unless one was picked by hand.
     let picked: number | null = null;
@@ -433,6 +443,11 @@ function initVolley(mm: gsap.MatchMedia) {
     const state = { p: 0 };
     const far = { v: opened ? 1 : 0 };
     let auto: gsap.core.Tween | null = null;
+    // A screen's film starts when it is in focus and the ball is out of the way.
+    const roll = (again = false) => {
+      if (!uncovered || reel.active < 1) return;
+      films[reel.active - 1].play(again);
+    };
     const paint = () => {
       gate.draw(far.v);
       // The coach starts from the first play the moment the screen is uncovered,
@@ -442,9 +457,18 @@ function initVolley(mm: gsap.MatchMedia) {
         if (uncovered) root.querySelectorAll('[data-num]').forEach((el) => el.dispatchEvent(new Event('recount')));
         if (uncovered && reel.active === 0) demo?.restart();
         else sync();
+        roll();
       }
       if (far.v >= 1) opened = true;
     };
+    // The line above the carousel: how far the film of the screen in focus has got.
+    const meter = () => {
+      if (!bar) return;
+      const p = reel.active === 0 ? (uncovered ? (demo?.progress() ?? 0) : 0) : (films[reel.active - 1]?.p ?? 0);
+      bar.style.transform = `scaleX(${p.toFixed(4)})`;
+    };
+    gsap.ticker.add(meter);
+
     // The first update can arrive while the tween is still being created.
     let live: ScrollTrigger | undefined;
     const tween = gsap.to(state, {
@@ -461,8 +485,7 @@ function initVolley(mm: gsap.MatchMedia) {
           if (byScroll() !== before) picked = null;
         }
         show();
-        films[0].to(clamp(0, 1, (reached - MARKS[1]) / (SPAN[1] * 0.8)));
-        films[1].to(clamp(0, 1, (reached - MARKS[2]) / (SPAN[2] * 0.8)));
+        roll();
         // The ball follows the smoothed scroll and never rolls back: if the
         // reader turns round half way, it finishes crossing by itself.
         if (!opened && !auto) {
@@ -479,7 +502,7 @@ function initVolley(mm: gsap.MatchMedia) {
     reel.onGo((i) => {
       picked = i;
       show();
-      if (i > 0) films[i - 1].play();
+      roll(true);
     });
     // Whenever the page comes to rest inside (or past) the scene, the scroll
     // already used is removed: going back up leaves the product in a few lines.
@@ -505,6 +528,7 @@ function initVolley(mm: gsap.MatchMedia) {
     paint();
     return () => {
       rest();
+      gsap.ticker.remove(meter);
       auto?.kill();
       trigger.kill();
       tween.kill();
@@ -513,6 +537,7 @@ function initVolley(mm: gsap.MatchMedia) {
       reel.onGo(() => {});
       films.forEach((item) => item.free());
       pinned = false;
+      given.delete(root);
       root.style.height = '';
       root.classList.remove('is-scene');
       sync();
@@ -640,14 +665,13 @@ function initExpo(mm: gsap.MatchMedia) {
 
   const tidy = () => gsap.set([sheet, done, card, check, pointer, ...lifts], { clearProps: 'all' });
 
-  // Scroll budget of the pinned scene, in viewport heights: the reservation
-  // plays over FLOW, then each screen has its stretch.
-  const FLOW = 230;
-  const MARKS = [0, 253, 359];
-  const WHOLE = 460;
-  const SPAN = [MARKS[1], MARKS[2] - MARKS[1], WHOLE - MARKS[2]];
+  // Scroll budget of the pinned scene, in viewport heights: a short hold per screen.
+  const SPAN = [60, 45, 45];
+  const MARKS = [0, SPAN[0], SPAN[0] + SPAN[1]];
+  const WHOLE = MARKS[2] + SPAN[2];
   const KEEP = 10;
   const films = [1, 2].map((n) => film(root.querySelector<HTMLElement>(`.reel__slide[data-slide="${n}"] [data-demo]`)));
+  const bar = root.querySelector<HTMLElement>('.reel__bar i');
   let booked = false;
   let reached = 0;
   let gone = 0;
@@ -658,25 +682,20 @@ function initExpo(mm: gsap.MatchMedia) {
     const left = () => WHOLE - gone;
     const size = () => {
       root.style.height = `${left() + 100}vh`;
+      given.set(root, gone);
     };
     size();
-    films.forEach((item) => item.to(0));
+    films.forEach((item) => item.hold());
 
     let picked: number | null = null;
     const byScroll = () => (reached < MARKS[1] ? 0 : reached < MARKS[2] ? 1 : 2);
     const show = () => reel.set(picked ?? byScroll());
 
+    // The reservation plays once by itself, then hands over to a loop of the same thing.
     let flow: gsap.core.Timeline | null = booked ? null : build(true);
     let loop: gsap.core.Timeline | null = null;
-    let far = 0;
     let seen = false;
-    const sync = () => {
-      if (!booked) return;
-      if (!seen || reel.active !== 0) return void loop?.pause();
-      loop ??= build(false);
-      loop.play();
-    };
-    // The booking has played to the end: from here on it is a loop, not a scrub.
+    let started = false;
     const handOver = () => {
       if (booked || !flow) return;
       booked = true;
@@ -689,21 +708,38 @@ function initExpo(mm: gsap.MatchMedia) {
       loop.time(loop.duration() - 2).pause();
       sync();
     };
-    // One way: the playhead only ever chases the furthest point asked for.
-    const chase = (p: number, seconds: number) => {
-      if (!flow || p <= far) return;
-      far = p;
-      gsap.to(flow, { progress: far, duration: seconds, ease: seconds > 1 ? 'none' : 'power2.out', overwrite: true, onComplete: () => void (far >= 1 && handOver()) });
+    const sync = () => {
+      const here = seen && reel.active === 0;
+      if (flow) {
+        if (here && !started) {
+          started = true;
+          gsap.to(flow, { progress: 1, duration: flow.duration() * 0.9, ease: 'none', onComplete: handOver });
+        }
+        return;
+      }
+      if (!here) return void loop?.pause();
+      loop ??= build(false);
+      loop.play();
     };
+    const roll = (again = false) => {
+      if (reel.active > 0) films[reel.active - 1].play(again);
+      sync();
+    };
+    const meter = () => {
+      if (!bar) return;
+      const p = reel.active === 0 ? (flow ? flow.progress() : (loop?.progress() ?? 1)) : (films[reel.active - 1]?.p ?? 0);
+      bar.style.transform = `scaleX(${p.toFixed(4)})`;
+    };
+    gsap.ticker.add(meter);
     const io = new IntersectionObserver(
       ([entry]) => {
         seen = entry.isIntersecting;
         sync();
       },
-      { threshold: 0.3 },
+      { threshold: 0.6 },
     );
     io.observe(map);
-    reel.onChange(sync);
+    reel.onChange(() => roll());
 
     const whole = ScrollTrigger.create({
       trigger: root,
@@ -717,17 +753,12 @@ function initExpo(mm: gsap.MatchMedia) {
           if (byScroll() !== before) picked = null;
         }
         show();
-        films[0].to(clamp(0, 1, (reached - MARKS[1]) / (SPAN[1] * 0.8)));
-        films[1].to(clamp(0, 1, (reached - MARKS[2]) / (SPAN[2] * 0.8)));
-        chase(clamp(0, 1, reached / FLOW), 0.5);
       },
     });
     reel.onGo((i) => {
       picked = i;
       show();
-      if (i > 0) films[i - 1].play();
-      // The map, opened by hand before the booking was scrolled through: it plays out by itself.
-      else if (flow) chase(1, 5 * (1 - far));
+      roll(true);
     });
     const rest = onRest(() => {
       const used = whole.progress * left() - KEEP;
@@ -743,6 +774,7 @@ function initExpo(mm: gsap.MatchMedia) {
     });
     return () => {
       rest();
+      gsap.ticker.remove(meter);
       io.disconnect();
       whole.kill();
       if (flow) gsap.killTweensOf(flow);
@@ -752,6 +784,7 @@ function initExpo(mm: gsap.MatchMedia) {
       reel.onGo(() => {});
       reel.onChange(() => {});
       films.forEach((item) => item.free());
+      given.delete(root);
       root.style.height = '';
       root.classList.remove('is-scene');
       tidy();

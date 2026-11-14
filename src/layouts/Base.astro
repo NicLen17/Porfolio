@@ -13,7 +13,7 @@ const t = content[lang];
 const path = lang === 'en' ? '/' : '/es/';
 const canonical = new URL(path, Astro.site).href;
 // One card per language; the version bumps when the picture changes, so chats refetch it.
-const ogImage = new URL(`/og-${lang}.jpg?v=2`, Astro.site).href;
+const ogImage = new URL(`/og-${lang}.jpg?v=3`, Astro.site).href;
 const onVercel = import.meta.env.PROD && Boolean(process.env.VERCEL);
 
 const fontFaces = `

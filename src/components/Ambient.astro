@@ -16,9 +16,11 @@
  */
 interface Props {
   kind: 'stars' | 'signal' | 'binary' | 'glyphs' | 'sonar' | 'embers';
+  /** A different number gives the same kind a different layout. */
+  seed?: number;
 }
 
-const { kind } = Astro.props;
+const { kind, seed = 0 } = Astro.props;
 
 // Seeded, so the build is the same every time and nothing shifts between deploys.
 const seeded = (seed: number) => () => {
@@ -27,13 +29,15 @@ const seeded = (seed: number) => () => {
   t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
   return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 };
-const rand = seeded(kind.length * 7919 + kind.charCodeAt(0));
+const rand = seeded(kind.length * 7919 + kind.charCodeAt(0) + seed * 104729);
 const between = (a: number, b: number) => a + (b - a) * rand();
 const fix = (n: number, digits = 1) => n.toFixed(digits);
 
-const stars = Array.from({ length: 46 }, (_, i) => ({
+// Every third star is kept in the top quarter, so the head of a section is never bare.
+const stars = Array.from({ length: 54 }, (_, i) => ({
   x: fix(between(1, 99)),
-  y: fix(between(2, 98)),
+  y: fix(i % 3 === 0 ? between(1, 26) : between(2, 98)),
+  float: fix(between(0.6, 1.8)),
   size: fix(between(2, 5)),
   time: fix(between(2.6, 7)),
   delay: fix(-between(0, 7)),
@@ -64,10 +68,14 @@ const hexes = codes.map((text, i) => ({
   rose: i % 4 === 2,
 }));
 
-const columns = Array.from({ length: 9 }, (_, i) => {
+// Columns come in clusters of 2, 3, 1, 3 and 2: denser than a single row of
+// evenly spaced streams, with a rhythm to it.
+const column = (i: number) => {
   const bits = Array.from({ length: 44 }, () => (rand() > 0.5 ? '1' : '0'));
-  return { text: [...bits, ...bits].join('\n'), time: fix(between(26, 48), 0), down: i % 2 === 1, rose: i === 3 || i === 7, dim: fix(between(0.35, 1), 2) };
-});
+  return { text: [...bits, ...bits].join('\n'), time: fix(between(22, 46), 0), down: i % 2 === 1, rose: i % 5 === 3, dim: fix(between(0.4, 1), 2) };
+};
+let streams = 0;
+const clusters = [2, 3, 1, 3, 2].map((count) => Array.from({ length: count }, () => column(streams++)));
 
 // Placed in rem from the top, not in percent: the section grows when a role is
 // opened, and the marks must stay where they are instead of sliding with it.
@@ -98,7 +106,7 @@ const glyphs = [...marks, ...marks, ...marks].map((text, i) => ({
     kind === 'stars' && (
       <>
         {stars.map((star) => (
-          <i class:list={['amb__star', { 'amb__star--spark': star.spark }]} style={`--x:${star.x}%;--y:${star.y}%;--s:${star.size}px;--d:${star.time}s;--delay:${star.delay}s`} />
+          <i class:list={['amb__star', { 'amb__star--spark': star.spark }]} style={`--x:${star.x}%;--y:${star.y}%;--s:${star.size}px;--d:${star.time}s;--delay:${star.delay}s;--f:${star.float}rem`} />
         ))}
         {streaks.map((streak) => (
           <i class="amb__streak" style={`--x:${streak.x}%;--y:${streak.y}%;--d:${streak.time}s;--delay:${streak.delay}s`} />
@@ -126,9 +134,13 @@ const glyphs = [...marks, ...marks, ...marks].map((text, i) => ({
   {
     kind === 'binary' && (
       <div class="amb__rain">
-        {columns.map((column) => (
-          <span class:list={['amb__bits', { 'is-down': column.down, 'is-rose': column.rose }]} style={`--d:${column.time}s;--o:${column.dim}`}>
-            {column.text}
+        {clusters.map((cluster) => (
+          <span class="amb__cluster">
+            {cluster.map((column) => (
+              <span class:list={['amb__bits', { 'is-down': column.down, 'is-rose': column.rose }]} style={`--d:${column.time}s;--o:${column.dim}`}>
+                {column.text}
+              </span>
+            ))}
           </span>
         ))}
       </div>
@@ -146,15 +158,21 @@ const glyphs = [...marks, ...marks, ...marks].map((text, i) => ({
     kind === 'sonar' && (
       <>
         <i class="amb__dots" />
+        <i class="amb__dots amb__dots--top" />
+        <i class="amb__dots amb__dots--mid" />
         <i class="amb__glow" />
+        <i class="amb__glow amb__glow--b" />
+        <i class="amb__glow amb__glow--c" />
         <i class="amb__ring" />
         <i class="amb__ring" style="--delay:-2.4s" />
         <i class="amb__ring" style="--delay:-4.8s" />
         <i class="amb__ring amb__ring--far" style="--delay:-1.2s" />
         <i class="amb__ring amb__ring--far" style="--delay:-3.6s" />
         <i class="amb__ring amb__ring--far" style="--delay:-6s" />
-        {Array.from({ length: 5 }, (_, i) => (
-          <i class="amb__blip" style={`--x:${[62, 71, 83, 90, 77][i]}%;--y:${[9, 17, 6, 14, 23][i]}rem;--delay:${-i * 1.3}s`} />
+        {[
+          [62, 9], [71, 17], [83, 6], [90, 14], [77, 23], [6, 8], [14, 19], [24, 5], [3, 30], [44, 34], [52, 12], [36, 48], [58, 58], [18, 64], [88, 52],
+        ].map(([x, y], i) => (
+          <i class="amb__blip" style={`--x:${x}%;--y:${y}rem;--delay:${(-i * 0.83).toFixed(2)}s`} />
         ))}
       </>
     )
@@ -208,7 +226,19 @@ const glyphs = [...marks, ...marks, ...marks].map((text, i) => ({
     height: var(--s);
     background: var(--emerald-ice);
     opacity: 0.12;
-    animation: amb-twinkle var(--d) var(--ease-in-out) var(--delay) infinite alternate;
+    animation:
+      amb-twinkle var(--d) var(--ease-in-out) var(--delay) infinite alternate,
+      amb-float calc(var(--d) * 2.3) var(--ease-in-out) var(--delay) infinite alternate;
+  }
+
+  /* Pulse is the scale and opacity; float is a slow rise and fall on top of it. */
+  @keyframes amb-float {
+    from {
+      translate: 0 calc(var(--f, 1rem) * -1);
+    }
+    to {
+      translate: 0 var(--f, 1rem);
+    }
   }
 
   /* A few are four-pointed and rose: the ones the eye lands on. */
@@ -235,11 +265,11 @@ const glyphs = [...marks, ...marks, ...marks].map((text, i) => ({
   @keyframes amb-twinkle {
     from {
       opacity: 0.08;
-      transform: scale(0.6);
+      transform: scale(0.5);
     }
     to {
-      opacity: 0.75;
-      transform: scale(1.15);
+      opacity: 0.85;
+      transform: scale(1.35);
     }
   }
 
@@ -394,12 +424,18 @@ const glyphs = [...marks, ...marks, ...marks].map((text, i) => ({
     inset: 0 0 0 auto;
     display: flex;
     justify-content: space-between;
-    width: 33%;
-    padding-inline: 1.5rem;
+    width: 34%;
+    padding-inline: 1.25rem;
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 55%), linear-gradient(transparent, #000 18%, #000 82%, transparent);
     -webkit-mask-composite: source-in;
     mask-image: linear-gradient(90deg, transparent, #000 55%), linear-gradient(transparent, #000 18%, #000 82%, transparent);
     mask-composite: intersect;
+  }
+
+  .amb__cluster {
+    display: flex;
+    gap: 0.55rem;
+    align-self: start;
   }
 
   .amb__bits {
@@ -437,9 +473,10 @@ const glyphs = [...marks, ...marks, ...marks].map((text, i) => ({
     font-weight: 700;
     line-height: 1;
     color: transparent;
-    -webkit-text-stroke: 1px var(--emerald);
+    -webkit-text-stroke: 1.5px var(--emerald-ice);
     white-space: nowrap;
-    opacity: 0.2;
+    opacity: 0.3;
+    filter: drop-shadow(0 0 10px rgb(16 185 129 / 0.75));
     rotate: var(--r);
     animation: amb-drift var(--d) var(--ease-in-out) var(--delay) infinite alternate;
   }
@@ -451,11 +488,11 @@ const glyphs = [...marks, ...marks, ...marks].map((text, i) => ({
   @keyframes amb-drift {
     from {
       transform: translate3d(0, 1.6rem, 0) rotate(-5deg);
-      opacity: 0.08;
+      opacity: 0.16;
     }
     to {
       transform: translate3d(0.8rem, -1.6rem, 0) rotate(6deg);
-      opacity: 0.26;
+      opacity: 0.5;
     }
   }
 
@@ -463,9 +500,56 @@ const glyphs = [...marks, ...marks, ...marks].map((text, i) => ({
   .amb__dots {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle, rgb(110 231 183 / 0.22) 1px, transparent 1.6px) 0 0 / 1.75rem 1.75rem;
+    background: radial-gradient(circle, rgb(110 231 183 / 0.5) 1.1px, transparent 1.8px) 0 0 / 1.75rem 1.75rem;
     -webkit-mask-image: radial-gradient(60rem 34rem at 8% 100%, #000, transparent 75%);
     mask-image: radial-gradient(60rem 34rem at 8% 100%, #000, transparent 75%);
+    animation: amb-breathe 6s var(--ease-in-out) infinite alternate;
+  }
+
+  /* The same grid again at the top left and across the middle, each on its own breath. */
+  .amb__dots--top {
+    -webkit-mask-image: radial-gradient(46rem 26rem at 0% 0%, #000, transparent 72%);
+    mask-image: radial-gradient(46rem 26rem at 0% 0%, #000, transparent 72%);
+    animation-duration: 7.5s;
+    animation-delay: -3s;
+  }
+
+  .amb__dots--mid {
+    -webkit-mask-image: radial-gradient(38rem 20rem at 52% 46%, #000, transparent 70%);
+    mask-image: radial-gradient(38rem 20rem at 52% 46%, #000, transparent 70%);
+    animation-duration: 9s;
+    animation-delay: -5s;
+  }
+
+  @keyframes amb-breathe {
+    from {
+      opacity: 0.3;
+      translate: 0 0.5rem;
+    }
+    to {
+      opacity: 1;
+      translate: 0 -0.5rem;
+    }
+  }
+
+  .amb__glow--b {
+    left: 4%;
+    top: 4%;
+    width: 26rem;
+    height: 26rem;
+    background: radial-gradient(circle, rgb(110 231 183 / 0.16), transparent 65%);
+    animation-duration: 17s;
+    animation-delay: -6s;
+  }
+
+  .amb__glow--c {
+    left: 34%;
+    top: 55%;
+    width: 30rem;
+    height: 30rem;
+    background: radial-gradient(circle, rgb(255 77 109 / 0.1), transparent 65%);
+    animation-duration: 26s;
+    animation-delay: -11s;
   }
 
   .amb__glow {
@@ -475,7 +559,7 @@ const glyphs = [...marks, ...marks, ...marks].map((text, i) => ({
     width: 38rem;
     height: 38rem;
     border-radius: 50%;
-    background: radial-gradient(circle, rgb(16 185 129 / 0.14), transparent 65%);
+    background: radial-gradient(circle, rgb(16 185 129 / 0.22), transparent 65%);
     animation: amb-wander 22s var(--ease-in-out) infinite alternate;
   }
 
@@ -509,9 +593,10 @@ const glyphs = [...marks, ...marks, ...marks].map((text, i) => ({
     position: absolute;
     left: var(--x);
     top: var(--y);
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     background: var(--emerald-ice);
+    box-shadow: 0 0 14px 3px rgb(16 185 129 / 0.7);
     rotate: 45deg;
     opacity: 0;
     animation: amb-blip 6.5s var(--ease-out) var(--delay) infinite;

@@ -1,4 +1,5 @@
 /** Page-level behaviour: heading reveals and lazy loading of the heavy scenes. */
+import { given } from './given';
 
 // One restrained entrance, for section headings only.
 const rise = new IntersectionObserver(
@@ -11,7 +12,25 @@ const rise = new IntersectionObserver(
   },
   { rootMargin: '0px 0px -12% 0px' },
 );
-document.querySelectorAll('[data-rise]').forEach((el) => rise.observe(el));
+const rising = Array.from(document.querySelectorAll<HTMLElement>('[data-rise]'));
+rising.forEach((el) => rise.observe(el));
+// Belt and braces: a heading inside a section that was skipping rendering can
+// miss its observer callback, so the scroll handler checks the stragglers too.
+const riseLate = () => {
+  for (let i = rising.length - 1; i >= 0; i--) {
+    const el = rising[i];
+    if (el.classList.contains('is-in')) {
+      rising.splice(i, 1);
+      continue;
+    }
+    const box = el.getBoundingClientRect();
+    if (box.height > 0 && box.top < innerHeight * 0.9 && box.bottom > 0) {
+      el.classList.add('is-in');
+      rise.unobserve(el);
+      rising.splice(i, 1);
+    }
+  }
+};
 
 // The animation library and the product scenes stay out of the first paint:
 // they load once the page has finished loading, or sooner if someone scrolls.
@@ -111,8 +130,19 @@ if (header) {
   let queued = false;
   const progress = () => {
     queued = false;
-    const max = document.documentElement.scrollHeight - innerHeight;
-    bar?.style.setProperty('--p', (max > 0 ? Math.min(1, scrollY / max) : 0).toFixed(4));
+    riseLate();
+    // The product scenes hand scroll back once it is used up. Count it as still
+    // there (eased in across what is left of each scene), so the line never retreats.
+    let extra = 0;
+    let passed = 0;
+    for (const [scene, vh] of given) {
+      const px = (vh * innerHeight) / 100;
+      const into = (scrollY - scene.offsetTop) / Math.max(1, scene.offsetHeight - innerHeight);
+      extra += px;
+      passed += px * Math.min(1, Math.max(0, into));
+    }
+    const max = document.documentElement.scrollHeight - innerHeight + extra;
+    bar?.style.setProperty('--p', (max > 0 ? Math.min(1, (scrollY + passed) / max) : 0).toFixed(4));
   };
   addEventListener(
     'scroll',

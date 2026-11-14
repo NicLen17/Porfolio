@@ -70,6 +70,9 @@ void main(){
   float flash = smoothstep(0.42, 0.72, uP) * (1.0 - smoothstep(0.76, 1.0, uP));
   vec3 glow = vec3(0.06, 0.73, 0.5) * halo * flash * 1.5;
 
+  // The letters themselves step aside as the real heading comes up underneath; only the glow lingers.
+  v *= 1.0 - smoothstep(0.72, 0.84, uP);
+
   o = vec4(col * v + glow, clamp(v + halo * flash, 0.0, 1.0));
 }`;
 
@@ -120,8 +123,8 @@ export function plasmaReveal(
   if (!gl) return null;
 
   const box = hero.getBoundingClientRect();
-  // The picture is a blur for most of its life: ~900 px wide is plenty.
-  const scale = Math.min(1, 900 / box.width) * Math.min(window.devicePixelRatio || 1, 1.5);
+  // Sharp enough that the last frames never look upscaled, capped so the shader stays cheap.
+  const scale = Math.min(Math.min(window.devicePixelRatio || 1, 2), 1800 / box.width);
   const tex = drawName(hero, name, scale);
   canvas.width = tex.width;
   canvas.height = tex.height;
@@ -189,7 +192,7 @@ export function plasmaReveal(
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
-    if (!sharp && x > 0.7) {
+    if (!sharp && x > 0.68) {
       sharp = true;
       onSharp();
     }

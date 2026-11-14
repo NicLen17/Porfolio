@@ -73,6 +73,8 @@ html {
   text-size-adjust: 100%;
   scrollbar-color: #2f3a36 #000;
   scroll-behavior: smooth;
+  /* The scrollbar's room is always there, so nothing shifts when the intro releases the page. */
+  scrollbar-gutter: stable;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -696,8 +698,18 @@ html:not(.all-in) .about {
   min-height: 0;
   container-type: size;
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(transparent, #000 9%, #000 91%, transparent);
-  mask-image: linear-gradient(transparent, #000 9%, #000 91%, transparent);
+}
+
+/* The fade lives on the waiting screens, not on the window (so the progress
+   line stays solid): each one dissolves towards the edge it peeks in from. */
+.is-scene .reel__slide.is-prev {
+  -webkit-mask-image: linear-gradient(transparent 62%, #000 96%);
+  mask-image: linear-gradient(transparent 62%, #000 96%);
+}
+
+.is-scene .reel__slide.is-next {
+  -webkit-mask-image: linear-gradient(#000 4%, transparent 38%);
+  mask-image: linear-gradient(#000 4%, transparent 38%);
 }
 
 /* The track is exactly one screen tall and centred, so the screens waiting
@@ -761,11 +773,6 @@ html:not(.all-in) .about {
 /* Tall screens have room to spare: the screen in focus gives some of it up so
    the ones before and after show a real slice of themselves, not a sliver. */
 @media (min-height: 1000px) {
-  .is-scene .reel {
-    -webkit-mask-image: linear-gradient(transparent, #000 5%, #000 95%, transparent);
-    mask-image: linear-gradient(transparent, #000 5%, #000 95%, transparent);
-  }
-
   .is-scene .reel__track {
     width: min(100cqw - 3.5rem, 70cqh * 1.4545);
   }
@@ -792,6 +799,31 @@ html:not(.all-in) .about {
 
 .is-scene .reel__slide:not(.is-on) [data-demo] * {
   animation-play-state: paused !important;
+}
+
+/* How much of the film in focus is left: a hairline along the top of the carousel. */
+.reel__bar {
+  display: none;
+}
+
+.is-scene .reel__bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -0.9rem;
+  z-index: 2;
+  display: block;
+  height: 3px;
+  background: rgb(127 127 127 / 0.28);
+  overflow: hidden;
+}
+
+.is-scene .reel__bar i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
 }
 
 .is-scene .reel__nav {

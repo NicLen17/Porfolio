@@ -316,12 +316,19 @@ const [talkClip, tallClip, wideClip] = talks.clips;
     min-height: 30rem;
   }
 
+  /* LinkedIn draws a white hairline round its player: the frame is trimmed by
+     two pixels on every side, over black, so only the post shows. */
+  .talks__clip {
+    background: #000;
+  }
+
   .talks__clip iframe {
     flex: 1;
     width: 100%;
     min-height: 0;
     border: 0;
-    background: #fff;
+    background: #000;
+    clip-path: inset(2px);
   }
 
   /* Click-to-load player: no third-party request until someone asks for it. */
@@ -560,6 +567,8 @@ const [talkClip, tallClip, wideClip] = talks.clips;
     flex: 1;
     display: grid;
     align-content: center;
+    justify-items: center;
+    text-align: center;
     gap: 0.9rem;
     padding: 2rem clamp(1.25rem, 3vw, 2.5rem);
   }
@@ -576,6 +585,7 @@ const [talkClip, tallClip, wideClip] = talks.clips;
   .talks__more-cta {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 0.9rem;
     margin-top: 0.5rem;
     padding-right: 5px;
@@ -586,6 +596,7 @@ const [talkClip, tallClip, wideClip] = talks.clips;
     position: relative;
     display: grid;
     align-content: space-between;
+    text-align: left;
     width: clamp(7.5rem, 11vw, 9rem);
     aspect-ratio: 1;
     padding: 0.9rem;
@@ -634,6 +645,9 @@ const [talkClip, tallClip, wideClip] = talks.clips;
   .talks__play {
     display: flex;
     align-items: flex-start;
+    justify-content: center;
+    justify-self: stretch;
+    text-align: left;
     gap: 0.7rem;
     margin-top: 0.4rem;
     padding-top: 0.9rem;
