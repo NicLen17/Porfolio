@@ -6,9 +6,9 @@ import { given } from './given';
  * Product scenes. Loaded on demand (see page.ts) so the animation library
  * never weighs on the first paint.
  *
- * - Volley Manager: once the title has been read, a match ball the size of
- *   the screen rolls from left to right with the scroll and wipes the page
- *   into the product. Scrolling on moves through three screens (live
+ * - Volley Manager: on desktop, a match ball the size of the screen rolls
+ *   from left to right with the scroll and wipes the page into the product
+ *   (small screens skip this and open on the product). Scrolling on moves through three screens (live
  *   scouting, match dashboard, voice scouting).
  * - ExpoLogic: the fair map builds from the entrance upwards and the
  *   two-click reservation plays out with the scroll, then the organizer
@@ -587,29 +587,8 @@ function initVolley(mm: gsap.MatchMedia) {
     };
   });
 
-  // Smaller screens: the gate is its own pinned screen above the content.
-  mm.add(`not all and ${PINNED}`, () => {
-    root.classList.add('is-gate');
-    const state = { p: 0 };
-    let far = opened ? 1 : 0;
-    const tween = gsap.to(state, {
-      p: 1,
-      ease: 'none',
-      scrollTrigger: { trigger: root.querySelector('.vm__gate'), start: 'top top', end: 'bottom bottom', scrub: 0.4 },
-      onUpdate: () => {
-        far = Math.max(far, clamp(0, 1, (state.p - 0.12) / 0.8));
-        if (far >= 1) opened = true;
-        gate.draw(far);
-      },
-    });
-    gate.draw(far);
-    return () => {
-      tween.scrollTrigger?.kill();
-      tween.kill();
-      gate.clear();
-      root.classList.remove('is-gate');
-    };
-  });
+  // Phones and small windows get no gate at all: no pinned title screen and no
+  // ball. The section opens with its heading and goes straight to the product.
 }
 
 /* ExpoLogic ----------------------------------------------------------- */

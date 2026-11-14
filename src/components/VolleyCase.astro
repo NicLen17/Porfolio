@@ -890,30 +890,15 @@ for (let axis = 0; axis < 3; axis++) {
   }
 
   /* The gate, live (set up by scenes.ts) --------------------------------- */
-  .vm.is-gate .vm__pin,
   .vm.is-scene .vm__pin {
     padding-top: 0;
   }
 
-  .vm.is-gate .vm__gate,
   .vm.is-scene .vm__gate {
     margin-inline: calc(var(--gutter) * -1);
   }
 
-  .vm.is-gate .vm__gate {
-    height: 230svh;
-  }
-
-  .vm.is-gate .vm__gate-pin {
-    position: sticky;
-    top: 0;
-    height: 100svh;
-    overflow: hidden;
-  }
-
-  .vm.is-gate .vm__under,
-  .vm.is-scene .vm__cover,
-  .vm.is-gate .vm__cover {
+  .vm.is-scene .vm__cover {
     position: absolute;
     inset: 0;
     width: auto;
@@ -924,11 +909,6 @@ for (let axis = 0; axis < 3; axis++) {
     text-align: center;
   }
 
-  .vm.is-gate .vm__under {
-    background: var(--vm-navy);
-  }
-
-  .vm.is-gate .vm__cover,
   .vm.is-scene .vm__cover {
     background: #000;
     will-change: clip-path;
@@ -938,7 +918,6 @@ for (let axis = 0; axis < 3; axis++) {
     color: var(--emerald-ice);
   }
 
-  .vm.is-gate .vm__ball,
   .vm.is-scene .vm__ball {
     --ball: max(104svh, 62vw);
     display: block;
