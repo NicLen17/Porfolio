@@ -685,7 +685,11 @@ function initExpo(mm: gsap.MatchMedia) {
     return tl;
   };
 
-  const tidy = () => gsap.set([sheet, done, card, check, pointer, ...lifts], { clearProps: 'all' });
+  // Everything a timeline touches, back to its stylesheet state. The plan's own
+  // furniture (venue, zones, row labels) is in the list too: a timeline rewound
+  // and killed leaves them faded out, and the next one would take that as "shown".
+  const furniture = [map.querySelector('.expo__venue')!, ...map.querySelectorAll('.expo__zones > g'), ...map.querySelectorAll('.expo__rows text')];
+  const tidy = () => gsap.set([sheet, done, card, check, pointer, ...lifts, ...furniture], { clearProps: 'all' });
 
   // Scroll budget of the pinned scene, in viewport heights: a short hold per screen.
   const SPAN = [60, 45, 45];
