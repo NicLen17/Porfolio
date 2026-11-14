@@ -1,0 +1,552 @@
+---
+import Ambient from './Ambient.astro';
+import { Image } from 'astro:assets';
+import { media } from '../data/media';
+import { LINKS, type Content } from '../i18n/content';
+import Ext from './Ext.astro';
+import Num from './Num.astro';
+
+interface Props {
+  t: Content;
+}
+
+const { t } = Astro.props;
+const a = t.about;
+
+// Highlights mark their key words with **double asterisks** in the copy.
+const strong = (text: string) => text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+---
+
+<section class="section section--paper about cut" id="about" data-live aria-labelledby="about-title">
+  <Ambient kind="sonar" />
+  <div class="wrap">
+    <header class="section__head" data-rise>
+      <p class="eyebrow">{a.label}</p>
+      <h2 class="section__title display" id="about-title">{a.title}</h2>
+    </header>
+
+    <!-- The portrait is the core; the stack he builds with orbits it. Who he is
+         sits on one side, the rest of the toolbox on the other. -->
+    <div class="about__sheet">
+      <div class="about__bio">
+        {a.bio.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+
+      <div class="orbit">
+        <i class="orbit__track orbit__track--outer" aria-hidden="true"></i>
+        <i class="orbit__track orbit__track--inner" aria-hidden="true"></i>
+        <figure class="orbit__core">
+          <span class="orbit__frame">
+            <Image src={media('profile.png')} alt={a.photoAlt} widths={[220, 440]} sizes="13rem" format="avif" quality={62} loading="lazy" decoding="async" />
+          </span>
+          <i class="orbit__corners" aria-hidden="true"></i>
+          <figcaption>{t.hero.place}</figcaption>
+        </figure>
+        <ul class="orbit__ring" aria-label={a.stackTitle}>
+          {
+            a.stack.map((item, i) => (
+              <li style={`--a:${Math.round((360 / a.stack.length) * i)}deg`}>
+                <span>{item}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <dl class="about__spec">
+        <div>
+          <dt>{a.alsoTitle}</dt>
+          <dd>{a.also}</dd>
+        </div>
+        <div>
+          <dt>{a.langsTitle}</dt>
+          <dd>{a.langs}</dd>
+        </div>
+      </dl>
+    </div>
+
+    <ul class="about__stats" aria-label={a.statsLabel}>
+      {
+        a.stats.map((stat) => (
+          <li>
+            <Num value={stat.n} />
+            <span>{stat.l}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <h3 class="about__label">{a.winsTitle}</h3>
+    <ul class="about__wins" data-rise>
+      {
+        a.wins.map((win, i) => (
+          <li style={`--i:${i}`}>
+            <span class="about__star" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 1.5l2.9 7.1 7.6.6-5.8 5 1.8 7.4L12 17.6l-6.5 4 1.8-7.4-5.8-5 7.6-.6z" /></svg>
+            </span>
+            <p>
+              <Fragment set:html={strong(win)} />
+              {i === 0 && (
+                <a href={LINKS.gaceta} target="_blank" rel="noopener">
+                  {a.press}
+                  <Ext />
+                </a>
+              )}
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style is:global>
+  .about .section__head {
+    margin-bottom: clamp(1.75rem, 3.5vw, 2.75rem);
+  }
+
+  .about__sheet {
+    display: grid;
+    gap: 2.5rem clamp(1.5rem, 3vw, 3rem);
+    align-items: center;
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+    padding-block: clamp(1.5rem, 3vw, 2.5rem);
+    border-block: 1px solid var(--line);
+  }
+
+  @media (min-width: 1000px) {
+    .about__sheet {
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    }
+  }
+
+  .about__bio {
+    display: grid;
+    gap: 1rem;
+    color: var(--ink-dim);
+    text-wrap: pretty;
+  }
+
+  .about__bio p:first-child {
+    font-size: var(--step-1);
+    line-height: 1.35;
+    color: var(--ink);
+  }
+
+  .about__spec {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .about__spec > div {
+    display: grid;
+    gap: 0.5rem;
+    padding-left: 1.1rem;
+    border-left: 2px solid var(--emerald);
+  }
+
+  .about__spec dt,
+  .about__label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--emerald-ice);
+  }
+
+  .about__spec dd {
+    color: var(--ink-dim);
+  }
+
+  .about__label {
+    margin: clamp(2.5rem, 5vw, 4rem) 0 0.5rem;
+  }
+
+  /* The orbit ------------------------------------------------------------ */
+  .orbit {
+    --size: min(27rem, 74vw);
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: var(--size);
+    aspect-ratio: 1;
+    margin-inline: auto;
+  }
+
+  .orbit__track {
+    position: absolute;
+    border: 1px dashed rgb(110 231 183 / 0.32);
+    border-radius: 50%;
+  }
+
+  .orbit__track--outer {
+    inset: 6%;
+    animation: orbit-spin 90s linear infinite reverse;
+  }
+
+  .orbit__track--inner {
+    inset: 21%;
+    border-style: solid;
+    border-color: rgb(255 77 109 / 0.22);
+  }
+
+  /* A lit segment that travels the inner ring. */
+  .orbit__track--inner::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent 0 82%, var(--accent) 96%, transparent);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+    animation: orbit-spin 7s linear infinite;
+  }
+
+  .orbit__core {
+    position: relative;
+    width: 44%;
+    margin: 0;
+  }
+
+  /* The portrait frame: a hard square with light running round its edge. */
+  .orbit__frame {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    padding: 3px;
+    overflow: hidden;
+    background: #06100c;
+  }
+
+  .orbit__frame::before {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    background: conic-gradient(from 0deg, transparent 0 50%, var(--emerald) 72%, #d1fae5 80%, var(--accent) 90%, transparent);
+    animation: orbit-spin 5s linear infinite;
+  }
+
+  .orbit__frame img {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Corner brackets standing off the frame, like a viewfinder. */
+  .orbit__corners {
+    --c: var(--emerald-ice);
+    position: absolute;
+    inset: -0.7rem -0.7rem calc(-0.7rem + 1.9rem);
+    background:
+      linear-gradient(var(--c), var(--c)) 0 0 / 1.1rem 2px,
+      linear-gradient(var(--c), var(--c)) 0 0 / 2px 1.1rem,
+      linear-gradient(var(--c), var(--c)) 100% 0 / 1.1rem 2px,
+      linear-gradient(var(--c), var(--c)) 100% 0 / 2px 1.1rem,
+      linear-gradient(var(--c), var(--c)) 0 100% / 1.1rem 2px,
+      linear-gradient(var(--c), var(--c)) 0 100% / 2px 1.1rem,
+      linear-gradient(var(--c), var(--c)) 100% 100% / 1.1rem 2px,
+      linear-gradient(var(--c), var(--c)) 100% 100% / 2px 1.1rem;
+    background-repeat: no-repeat;
+    animation: orbit-breathe 3.2s var(--ease-in-out) infinite alternate;
+    pointer-events: none;
+  }
+
+  .orbit__core figcaption {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 1.9rem;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    white-space: nowrap;
+  }
+
+  .orbit__core figcaption b {
+    padding: 0.1rem 0.35rem;
+    background: var(--emerald);
+    color: #00130c;
+    letter-spacing: 0;
+  }
+
+  /* The stack: the ring turns, each name counter-turns so it stays readable. */
+  .orbit__ring {
+    position: absolute;
+    inset: 0;
+    animation: orbit-spin 60s linear infinite;
+  }
+
+  .orbit__ring li {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: rotate(var(--a)) translateY(calc(var(--size) * -0.44)) rotate(calc(var(--a) * -1));
+  }
+
+  .orbit__ring span {
+    display: block;
+    translate: -50% -50%;
+    padding: 0.35rem 0.65rem;
+    background: var(--black);
+    border: 1px solid var(--emerald);
+    box-shadow: 3px 3px 0 var(--emerald-deep);
+    font-family: var(--font-display);
+    font-size: clamp(0.72rem, 0.6rem + 0.4vw, 0.95rem);
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+    animation: orbit-spin 60s linear infinite reverse;
+  }
+
+  /* Green, rose, green, rose: one of each all the way round. */
+  .orbit__ring li:nth-child(even) span {
+    border-color: var(--accent);
+    box-shadow: 3px 3px 0 #7a1027;
+  }
+
+  .about:not(.is-live) .orbit * ,
+  .about:not(.is-live) .orbit *::before,
+  .about:not(.is-live) .orbit *::after {
+    animation-play-state: paused;
+  }
+
+  @keyframes orbit-spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+
+  @keyframes orbit-breathe {
+    to {
+      inset: -1rem -1rem calc(-1rem + 1.9rem);
+      opacity: 0.6;
+    }
+  }
+
+  /* The hairlines are the list's own background showing through 1px gaps, so one
+     light under the whole grid (page.ts moves it) brightens only the stretch of
+     border the pointer is near, across cells. */
+  .about__stats {
+    --mx: -40rem;
+    --my: -40rem;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    padding: 1px;
+    background: var(--line-soft);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .about__stats::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(11rem circle at var(--mx) var(--my), var(--emerald-ice), var(--emerald) 35%, var(--accent) 62%, transparent 78%);
+    opacity: 0;
+    transition: opacity 0.45s var(--ease-out);
+  }
+
+  .about__stats.is-lit::before,
+  .about__stats.is-lit li::before {
+    opacity: 1;
+  }
+
+  /* The same light, seen through each cell: every cell draws it at the shared
+     position, offset by where the cell sits, so it reads as one spot. */
+  .about__stats li::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+      17rem circle at calc(var(--mx) - var(--ox, 0px)) calc(var(--my) - var(--oy, 0px)),
+      rgb(16 185 129 / 0.3),
+      rgb(16 185 129 / 0.1) 45%,
+      transparent 72%
+    );
+    opacity: 0;
+    transition: opacity 0.45s var(--ease-out);
+    pointer-events: none;
+  }
+
+  @media (min-width: 900px) {
+    .about__stats {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .about__stats li {
+    position: relative;
+    display: grid;
+    gap: 0.4rem;
+    align-content: start;
+    padding: clamp(1rem, 2.2vw, 1.75rem);
+    background: var(--black);
+    font-size: var(--step--1);
+    line-height: 1.3;
+    color: var(--ink-dim);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .about__stats .num {
+    position: relative;
+    justify-self: start;
+    font-size: var(--step-2);
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  /* Highlights: full width, two even columns, each one pinned with a star. */
+  .about__wins {
+    display: grid;
+    gap: 0 clamp(1.5rem, 4vw, 4rem);
+  }
+
+  @media (min-width: 760px) {
+    .about__wins {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .about__wins li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+    padding: 1.15rem 0;
+    border-top: 1px solid var(--line);
+    font-size: var(--step-0);
+    color: var(--ink-dim);
+    text-wrap: pretty;
+  }
+
+  .about__wins strong {
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .about__wins a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-left: 0.25rem;
+    color: var(--emerald-ice);
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+    white-space: nowrap;
+  }
+
+  .about__star {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin-top: -0.05rem;
+  }
+
+  .about__star svg {
+    position: relative;
+    width: 1.4rem;
+    height: 1.4rem;
+    fill: var(--emerald);
+  }
+
+  /* The star is stamped in: it spins down to size while a ring and four
+     rays burst out of it. One after another down the list. */
+  .about__star::before,
+  .about__star::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .about__star::before {
+    border: 2px solid var(--emerald-ice);
+    border-radius: 50%;
+  }
+
+  .about__star::after {
+    background:
+      linear-gradient(var(--emerald-ice), var(--emerald-ice)) center / 2px 100% no-repeat,
+      linear-gradient(var(--emerald-ice), var(--emerald-ice)) center / 100% 2px no-repeat;
+    rotate: 45deg;
+  }
+
+  .js .about__wins .about__star svg {
+    opacity: 0;
+  }
+
+  .js .about__wins.is-in .about__star svg {
+    animation: star-stamp 0.7s var(--ease-back) both;
+    animation-delay: calc(var(--i) * 0.13s + 0.2s);
+  }
+
+  .js .about__wins.is-in .about__star::before {
+    animation: star-ring 0.75s var(--ease-out) both;
+    animation-delay: calc(var(--i) * 0.13s + 0.38s);
+  }
+
+  .js .about__wins.is-in .about__star::after {
+    animation: star-rays 0.75s var(--ease-out) both;
+    animation-delay: calc(var(--i) * 0.13s + 0.38s);
+  }
+
+  @keyframes star-stamp {
+    from {
+      opacity: 0;
+      transform: scale(2.4) rotate(-140deg);
+      fill: #fff;
+      filter: drop-shadow(0 0 14px #fff);
+    }
+    55% {
+      opacity: 1;
+      fill: #fff;
+      filter: drop-shadow(0 0 16px var(--emerald-ice));
+    }
+    to {
+      opacity: 1;
+      transform: none;
+      fill: var(--emerald);
+      filter: drop-shadow(0 0 0 transparent);
+    }
+  }
+
+  @keyframes star-ring {
+    from {
+      opacity: 0.9;
+      transform: scale(0.3);
+    }
+    to {
+      opacity: 0;
+      transform: scale(2.6);
+    }
+  }
+
+  @keyframes star-rays {
+    from {
+      opacity: 1;
+      transform: scale(0.4);
+    }
+    to {
+      opacity: 0;
+      transform: scale(2.4);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .js .about__wins .about__star svg {
+      opacity: 1;
+    }
+  }
+</style>

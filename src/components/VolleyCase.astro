@@ -1,0 +1,1051 @@
+---
+import { Image } from 'astro:assets';
+import { media } from '../data/media';
+import { LINKS, type Content, type Lang } from '../i18n/content';
+import { mark } from '../i18n/mark';
+import VmDashboard from './mocks/VmDashboard.astro';
+import VmVoice from './mocks/VmVoice.astro';
+import Ext from './Ext.astro';
+import Num from './Num.astro';
+
+interface Props {
+  t: Content;
+  lang: Lang;
+}
+
+const { t, lang } = Astro.props;
+const v = t.vm;
+
+// Court geometry, mirroring the real scout court: horizontal, our half on the
+// left, net in the middle, two columns by three rows of zones per half.
+const C = { x: 60, y: 50, w: 840, h: 440 };
+const half = C.w / 2;
+const col = half / 2;
+const row = C.h / 3;
+const netX = C.x + half;
+const cx = (n: number) => C.x + col * n + col / 2;
+const cy = (n: number) => C.y + row * n + row / 2;
+const rx = (n: number) => netX + col * n + col / 2;
+
+const homeZones = [
+  [5, 4],
+  [6, 3],
+  [1, 2],
+];
+const awayZones = [
+  [2, 1],
+  [3, 6],
+  [4, 5],
+];
+
+const players = [
+  { n: 12, x: cx(0), y: cy(0) },
+  { n: 1, x: cx(0), y: cy(1), libero: true },
+  { n: 9, x: cx(0), y: cy(2) },
+  { n: 7, x: cx(1), y: cy(0) },
+  { n: 10, x: cx(1), y: cy(1) },
+  { n: 4, x: cx(1), y: cy(2) },
+];
+
+// One trajectory per scripted play. Hidden until the demo draws them.
+const shots = [
+  { from: [cx(1), cy(0)], to: [rx(1), cy(0) + 10], bend: -80 },
+  { from: [cx(0), cy(2)], to: [rx(1), cy(2) - 8], bend: -150 },
+  { from: [cx(1), cy(2)], to: [rx(1), cy(1) + 6], bend: -70 },
+].map((s) => ({
+  ...s,
+  d: `M${s.from[0]} ${s.from[1]}Q${(s.from[0] + s.to[0]) / 2} ${(s.from[1] + s.to[1]) / 2 + s.bend} ${s.to[0]} ${s.to[1]}`,
+}));
+
+const keys = ['#', '+', '!', '-', '/', '='];
+
+// The match ball, built the way a real one is: six faces of a cube blown up
+// into a sphere, each face cut into three strips, and neighbouring faces
+// turned a quarter so their strips never line up. The 18 panels are projected
+// from 3D, so the seams curve like they do on a real ball.
+type V3 = [number, number, number];
+const norm = (v: V3): V3 => {
+  const l = Math.hypot(...v);
+  return [v[0] / l, v[1] / l, v[2] / l];
+};
+const dot = (a: V3, b: V3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const cross = (a: V3, b: V3): V3 => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+// Looking at the ball slightly off one corner, where three panel groups meet.
+const view = norm([1, 0.82, 0.66]);
+const right = norm(cross([0, 0, 1], view));
+const up = cross(view, right);
+
+const project = (p: V3) => {
+  let x = dot(p, right);
+  let y = -dot(p, up);
+  if (dot(p, view) < 0) {
+    // Behind the horizon: slide the point out to the rim, the clip hides the rest.
+    const l = Math.hypot(x, y) || 1;
+    x = (x / l) * 1.04;
+    y = (y / l) * 1.04;
+  }
+  return `${(50 + x * 49).toFixed(1)} ${(50 + y * 49).toFixed(1)}`;
+};
+
+const ballPanels: { d: string; fill: string }[] = [];
+const ballFills = ['url(#vm-red)', 'url(#vm-white)', 'url(#vm-blue)'];
+for (let axis = 0; axis < 3; axis++) {
+  for (const sign of [1, -1]) {
+    // (u, v) span the face; strips are cut along u.
+    const point = (u: number, v: number): V3 => {
+      const p: V3 = [0, 0, 0];
+      p[axis] = sign;
+      p[(axis + 1) % 3] = u;
+      p[(axis + 2) % 3] = v;
+      return norm(p);
+    };
+    for (let strip = 0; strip < 3; strip++) {
+      const u0 = -1 + (strip * 2) / 3;
+      const u1 = u0 + 2 / 3;
+      const edge: V3[] = [];
+      const LONG = 12;
+      const SHORT = 4;
+      for (let i = 0; i < LONG; i++) edge.push(point(u0, -1 + (2 * i) / LONG));
+      for (let i = 0; i < SHORT; i++) edge.push(point(u0 + ((u1 - u0) * i) / SHORT, 1));
+      for (let i = 0; i < LONG; i++) edge.push(point(u1, 1 - (2 * i) / LONG));
+      for (let i = 0; i < SHORT; i++) edge.push(point(u1 - ((u1 - u0) * i) / SHORT, -1));
+      if (!edge.some((p) => dot(p, view) > 0.02)) continue;
+      ballPanels.push({ d: `M${edge.map(project).join('L')}Z`, fill: ballFills[sign === 1 ? strip : 2 - strip] });
+    }
+  }
+}
+---
+
+<section class="vm" id="volley-manager" data-scene="vm" aria-labelledby="vm-title">
+  <div class="vm__pin">
+    <!-- The gate: a match ball rolls across the screen and wipes the page into the product. -->
+    <div class="vm__gate">
+      <div class="vm__gate-pin">
+        <header class="vm__under">
+          <p class="vm__kicker">{v.name}</p>
+          <h2 class="vm__title display" id="vm-title" set:html={mark(v.title)} />
+        </header>
+        <div class="vm__cover" aria-hidden="true">
+          <p class="vm__kicker">{v.name}</p>
+          <p class="vm__title display" set:html={mark(v.title)} />
+        </div>
+        <div class="vm__ball" aria-hidden="true">
+          <svg class="vm__ball-spin" viewBox="0 0 100 100">
+            <defs>
+              <clipPath id="vm-ball-clip"><circle cx="50" cy="50" r="49"></circle></clipPath>
+              <radialGradient id="vm-white" gradientUnits="userSpaceOnUse" cx="50" cy="50" r="50"><stop offset="0" stop-color="#fbfbf7"></stop><stop offset=".7" stop-color="#ebeae3"></stop><stop offset="1" stop-color="#cfcec6"></stop></radialGradient>
+              <radialGradient id="vm-red" gradientUnits="userSpaceOnUse" cx="50" cy="50" r="50"><stop offset="0" stop-color="#c81e2b"></stop><stop offset="1" stop-color="#8a0c16"></stop></radialGradient>
+              <radialGradient id="vm-blue" gradientUnits="userSpaceOnUse" cx="50" cy="50" r="50"><stop offset="0" stop-color="#1c3394"></stop><stop offset="1" stop-color="#0b1855"></stop></radialGradient>
+              <pattern id="vm-grain" width=".9" height=".9" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><circle cx=".45" cy=".45" r=".13" fill="#000" opacity=".07"></circle></pattern>
+            </defs>
+            <circle cx="50" cy="50" r="49" fill="url(#vm-white)"></circle>
+            <g clip-path="url(#vm-ball-clip)" stroke="#070b18" stroke-width=".45" stroke-linejoin="round">
+              {ballPanels.map((panel) => <path d={panel.d} fill={panel.fill} />)}
+              <rect width="100" height="100" fill="url(#vm-grain)" stroke="none"></rect>
+            </g>
+          </svg>
+          <i class="vm__ball-light"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="vm__stage">
+      <!-- What the product is, across the full width. Beside the screens only
+           the steps, the numbers and the way in remain. -->
+      <header class="vm__head">
+        <div class="vm__brand">
+          <Image class="vm__logo" src={media('logo-volley-manager.png')} alt="" width={112} height={112} format="avif" quality={70} loading="lazy" decoding="async" />
+          <div>
+            <p class="vm__kicker vm__kicker--small">{v.name}</p>
+            <p class="vm__headline display" aria-hidden="true" set:html={mark(v.title)} />
+          </div>
+        </div>
+        <p class="vm__lede">{v.lede}</p>
+        <a class="btn vm__btn" href={LINKS.volley} target="_blank" rel="noopener">{v.cta}<Ext /></a>
+      </header>
+
+      <div class="vm__copy">
+        <div class="reel-copy">
+          {
+            v.slides.map((slide, i) => (
+              <div class="reel-copy__item" data-slide={i}>
+                <p class="reel-copy__name">
+                  <b>0{i + 1}</b>
+                  {slide.name}
+                </p>
+                <p class="reel-copy__text">{slide.text}</p>
+                {i === 0 ? (
+                  <ol class="vm__steps">
+                    {v.steps.map((step, n) => <li data-step={n}>{step}</li>)}
+                  </ol>
+                ) : (
+                  <ul class="reel-copy__list">
+                    {slide.points.map((point) => <li>{point}</li>)}
+                  </ul>
+                )}
+              </div>
+            ))
+          }
+        </div>
+        <ul class="vm__stats">
+          {
+            v.stats.map((stat) => (
+              <li>
+                <Num value={stat.n} />
+                <span>{stat.l}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <div class="vm__foot">
+          <p class="vm__role">{v.role}</p>
+        </div>
+      </div>
+
+      <!-- Three screens of the product, one above the other: scroll (or the arrows) moves between them. -->
+      <div class="reel" data-reel>
+        <div class="reel__track">
+      <figure class="reel__slide vm__demo" data-slide="0">
+        <div class="vm__ui">
+          <div class="vm__bar">
+            <span class="vm__set">SET 2</span>
+            <span class="vm__score"><b>CBA</b> <i data-score>14</i><em>:</em><i>9</i> <b class="is-away">{v.away}</b></span>
+            <span class="vm__live">LIVE</span>
+          </div>
+
+          <div class="vm__board">
+            <svg class="vm__court" viewBox="0 0 960 540" role="img" aria-label={v.demoLabel}>
+              <rect width="960" height="540" fill="#94a3b8"></rect>
+              <rect x={C.x} y={C.y} width={C.w} height={C.h} fill="#1d4ed8"></rect>
+
+              <g class="vm__heat">
+                {
+                  awayZones.flatMap((pair, r) =>
+                    pair.map((zone, c) => (
+                      <g data-zone={zone}>
+                        <rect x={netX + col * c} y={C.y + row * r} width={col} height={row} fill="#ef4444" />
+                        <text x={rx(c)} y={cy(r) + 58} text-anchor="middle" class="vm__count">1</text>
+                      </g>
+                    )),
+                  )
+                }
+              </g>
+
+              <g fill="none" stroke="#fff">
+                <path d={`M${netX - half / 3} ${C.y}v${C.h}M${netX + half / 3} ${C.y}v${C.h}`} stroke-width="3" opacity=".5"></path>
+                <path d={`M${C.x} ${C.y + row}h${C.w}M${C.x} ${C.y + row * 2}h${C.w}M${C.x + col} ${C.y}v${C.h}M${netX + col} ${C.y}v${C.h}`} stroke-width="1" opacity=".22"></path>
+                <rect x={C.x} y={C.y} width={C.w} height={C.h} stroke-width="6"></rect>
+                <path d={`M${netX} ${C.y - 14}v${C.h + 28}`} stroke-width="7"></path>
+              </g>
+
+              <g class="vm__zones" text-anchor="middle">
+                {homeZones.flatMap((pair, r) => pair.map((zone, c) => <text x={cx(c)} y={cy(r) + 14}>{zone}</text>))}
+                {awayZones.flatMap((pair, r) => pair.map((zone, c) => <text x={rx(c)} y={cy(r) + 14}>{zone}</text>))}
+              </g>
+
+              <text x={C.x + 10} y={C.y - 16} class="vm__side">{v.home}</text>
+              <text x={C.x + C.w - 10} y={C.y - 16} class="vm__side" text-anchor="end">{v.away}</text>
+
+              <rect class="vm__target" x={netX} y={C.y} width={half} height={C.h} fill="#ef4444" fill-opacity=".12" stroke="#fde047" stroke-width="5" stroke-dasharray="14 10"></rect>
+
+              <g class="vm__shots">
+                {
+                  shots.map((shot, i) => (
+                    <g data-shot={i}>
+                      <path d={shot.d} fill="none" stroke="#fde047" stroke-width="7" stroke-linecap="round" />
+                      <circle class="vm__to" cx={shot.to[0]} cy={shot.to[1]} r="15" fill="#fde047" stroke="#0f172a" stroke-width="4" />
+                    </g>
+                  ))
+                }
+              </g>
+
+              <g class="vm__players" text-anchor="middle">
+                {
+                  players.map((p) => (
+                    <g data-player={p.n} transform={`translate(${p.x} ${p.y})`}>
+                      <circle class="vm__ring" r="38" fill="none" stroke="#fde047" stroke-width="7" />
+                      <circle r="27" fill={p.libero ? '#fff' : '#ef4444'} stroke={p.libero ? '#f87171' : '#fff'} stroke-width="5" />
+                      <text y="9" fill={p.libero ? '#b91c1c' : '#fff'}>{p.n}</text>
+                    </g>
+                  ))
+                }
+              </g>
+            </svg>
+
+            <p class="vm__hint" aria-hidden="true" data-hint data-steps={JSON.stringify([...v.steps, v.stepsDone])}>
+              <b></b><span></span>
+            </p>
+          </div>
+
+          <div class="vm__pad" aria-hidden="true">
+            <p class="vm__pad-title">{v.pad}</p>
+            {
+              v.skills.map((skill, i) => (
+                <div class="vm__skill" data-skill={i}>
+                  <span>{skill}</span>
+                  <div>
+                    {keys.map((key) => (
+                      <b data-key={`${i}${key}`} class:list={{ 'is-err': key === '=' }}>
+                        {key}
+                      </b>
+                    ))}
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+
+          <div class="vm__log" aria-hidden="true">
+            <span class="vm__log-score" data-log-score>14-9</span>
+            <span class="vm__log-text" data-log-text data-lines={JSON.stringify(v.log)} data-meta={JSON.stringify(v.logMeta)}>
+              # {v.log[0]} · #4 ({v.logMeta[0]})
+            </span>
+          </div>
+
+          <i class="vm__touch" aria-hidden="true"></i>
+        </div>
+        <figcaption>{v.demoLabel}</figcaption>
+      </figure>
+          <figure class="reel__slide" data-slide="1">
+            <VmDashboard lang={lang} />
+            <figcaption>{v.slides[1].name} · {t.reel.demo}</figcaption>
+          </figure>
+          <figure class="reel__slide" data-slide="2">
+            <VmVoice lang={lang} />
+            <figcaption>{v.slides[2].name} · {t.reel.demo}</figcaption>
+          </figure>
+        </div>
+        <nav class="reel__nav" aria-label={v.name}>
+          <button type="button" data-reel-prev aria-label={t.reel.prev}>
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 10l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2"></path></svg>
+          </button>
+          {
+            v.slides.map((slide, i) => (
+              <button type="button" data-reel-go={i} aria-label={`0${i + 1} ${slide.name}`} title={slide.name}>
+                0{i + 1}
+              </button>
+            ))
+          }
+          <button type="button" data-reel-next aria-label={t.reel.next}>
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"></path></svg>
+          </button>
+        </nav>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .vm {
+    position: relative;
+    background: var(--vm-navy);
+    color: #fff;
+  }
+
+  /* A faint court grid behind everything, so the navy is never a flat fill. */
+  .vm::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(50rem 30rem at 85% 20%, rgb(29 78 216 / 0.28), transparent 70%),
+      radial-gradient(40rem 26rem at 5% 90%, rgb(156 22 22 / 0.2), transparent 70%),
+      repeating-linear-gradient(90deg, rgb(255 255 255 / 0.035) 0 1px, transparent 1px 9rem),
+      repeating-linear-gradient(0deg, rgb(255 255 255 / 0.035) 0 1px, transparent 1px 9rem);
+    pointer-events: none;
+  }
+
+  .vm__pin {
+    position: relative;
+    display: grid;
+    gap: clamp(2rem, 5vw, 4rem);
+    padding: var(--section-y) var(--gutter);
+  }
+
+  .vm__kicker {
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--vm-sky);
+  }
+
+  .vm__title em,
+  .vm__headline em {
+    font-style: normal;
+    color: var(--vm-sky);
+  }
+
+  .vm__cover .vm__title em {
+    color: var(--emerald-ice);
+  }
+
+  .vm__brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  /* Round with a red ring: that is how the product's own mark is drawn. */
+  .vm__logo {
+    flex: none;
+    width: 4rem;
+    height: 4rem;
+    border: 3px solid var(--vm-red);
+    border-radius: 50%;
+    background: #fff;
+    object-fit: cover;
+  }
+
+  .vm__title {
+    margin-top: 0.75rem;
+    max-width: 14ch;
+    font-size: var(--step-4);
+  }
+
+  /* Without the scene (no JS, reduced motion) the gate is just a heading. */
+  .vm__cover,
+  .vm__ball {
+    display: none;
+  }
+
+  .vm__under {
+    width: min(100%, var(--wrap));
+    margin-inline: auto;
+  }
+
+  .vm__stage {
+    display: grid;
+    gap: clamp(2rem, 4vw, 3.5rem);
+    align-items: center;
+    width: min(100%, var(--wrap));
+    margin-inline: auto;
+  }
+
+  .vm__head {
+    display: grid;
+    gap: 0.75rem 3rem;
+  }
+
+  /* The big title lives in the gate; this smaller echo only shows once the scene is pinned. */
+  .vm__headline {
+    display: none;
+    margin-top: 0.25rem;
+    font-size: clamp(1.5rem, 0.9rem + 1.7vw, 2.6rem);
+  }
+
+  .vm__copy {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .vm__lede {
+    max-width: 34rem;
+    font-size: var(--step-1);
+    line-height: 1.4;
+    color: #cbd5e1;
+  }
+
+  /* The gap between steps is fixed: a step that wraps grows, its neighbours do not drift. */
+  .vm__steps {
+    display: grid;
+    gap: 0.6rem;
+    counter-reset: step;
+    font-size: var(--step-0);
+  }
+
+  .vm__steps li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: start;
+    line-height: 1.75rem;
+    color: #94a3b8;
+    transition: color 0.3s;
+  }
+
+  .vm__steps li::before {
+    content: counter(step);
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid currentColor;
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 700;
+    transition:
+      background-color 0.3s,
+      color 0.3s,
+      border-color 0.3s;
+  }
+
+  .vm__steps li.is-on {
+    color: #fff;
+  }
+
+  .vm__steps li.is-on::before {
+    background: #fde047;
+    border-color: #fde047;
+    color: #0f172a;
+  }
+
+  .vm__stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgb(255 255 255 / 0.16);
+  }
+
+  .vm__stats li {
+    display: grid;
+    gap: 0.2rem;
+    font-size: var(--step--1);
+    line-height: 1.3;
+    color: #cbd5e1;
+  }
+
+  .vm__stats .num i {
+    color: var(--vm-sky);
+  }
+
+  .vm__stats .num {
+    font-size: var(--step-2);
+    line-height: 1;
+    color: #fff;
+  }
+
+  .vm__foot {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .vm__btn {
+    justify-self: start;
+  }
+
+  .vm__btn {
+    background: #fff;
+    border-color: #fff;
+    color: var(--vm-navy);
+  }
+
+  .vm__btn::before {
+    background: var(--vm-red);
+  }
+
+  .vm__btn:hover {
+    border-color: var(--vm-red);
+    color: #fff;
+  }
+
+  .vm__role {
+    font-size: var(--step--1);
+    color: #94a3b8;
+  }
+
+  /* Scout UI: court on the left, keypad docked on the right, like the product. */
+  .vm__demo {
+    min-width: 0;
+  }
+
+  .vm__demo figcaption {
+    margin-top: 0.75rem;
+    font-size: var(--step--1);
+    color: #94a3b8;
+    text-align: center;
+  }
+
+  .vm__ui {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'bar' 'board' 'pad' 'log';
+    overflow: hidden;
+    background: #0b1120;
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.14),
+      0 40px 80px -30px rgb(0 0 0 / 0.8);
+    font-family: var(--font-text);
+    container-type: inline-size;
+  }
+
+  .vm__bar {
+    grid-area: bar;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #94a3b8;
+  }
+
+  .vm__score {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.25rem 0.75rem;
+    background: #1e293b;
+    color: #fff;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .vm__score b {
+    font-weight: 800;
+    color: #6ee7b7;
+  }
+
+  .vm__score b.is-away {
+    color: #fca5a5;
+  }
+
+  .vm__score i,
+  .vm__score em {
+    font-style: normal;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .vm__score i[data-score] {
+    display: inline-block;
+  }
+
+  .vm__live {
+    color: #f87171;
+  }
+
+  .vm__board {
+    grid-area: board;
+    position: relative;
+    min-width: 0;
+  }
+
+  .vm__court {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+
+  .vm__zones text {
+    font-family: var(--font-display);
+    font-size: 46px;
+    font-weight: 800;
+    fill: rgb(255 255 255 / 0.14);
+  }
+
+  .vm__side {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    fill: rgb(15 23 42 / 0.85);
+  }
+
+  .vm__players text {
+    font-size: 24px;
+    font-weight: 800;
+  }
+
+  .vm__count {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 800;
+    fill: #fff;
+  }
+
+  /* Everything the demo draws starts hidden: a still frame never shows a stray play. */
+  .vm__heat rect,
+  .vm__heat text,
+  .vm__target,
+  .vm__shots g,
+  .vm__ring,
+  .vm__hint {
+    opacity: 0;
+  }
+
+  .vm__hint {
+    position: absolute;
+    left: 50%;
+    top: 1.5%;
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    padding: 0.45em 0.8em 0.45em 0.45em;
+    transform: translateX(-50%);
+    background: #0f172a;
+    color: #fff;
+    font-size: clamp(0.7rem, 2.3cqw, 0.95rem);
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: 0 10px 30px -8px rgb(0 0 0 / 0.7);
+  }
+
+  .vm__hint b {
+    display: grid;
+    place-items: center;
+    min-width: 1.7em;
+    height: 1.7em;
+    background: #fde047;
+    color: #0f172a;
+    font-family: var(--font-display);
+    font-weight: 800;
+  }
+
+  .vm__hint.is-done b {
+    background: #34d399;
+  }
+
+  .vm__pad {
+    grid-area: pad;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.4rem;
+    padding: 0.5rem;
+    background: #e2e8f0;
+  }
+
+  .vm__pad-title {
+    display: none;
+  }
+
+  .vm__skill {
+    display: grid;
+    gap: 0.25rem;
+    align-content: start;
+    transition: opacity 0.3s;
+  }
+
+  .vm__skill > span {
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #0f172a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .vm__skill > div {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.2rem;
+  }
+
+  .vm__skill b {
+    display: grid;
+    place-items: center;
+    min-height: 1.5rem;
+    background: var(--vm-key);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .vm__skill b.is-err {
+    background: #e11d48;
+  }
+
+  .vm__skill b.is-hit {
+    background: #fde047;
+    color: #0f172a;
+    box-shadow: 0 0 0 3px #0f172a;
+  }
+
+  .vm__pad.is-armed .vm__skill:not(.is-on) {
+    opacity: 0.35;
+  }
+
+  .vm__log {
+    grid-area: log;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 2.6rem;
+    padding: 0.45rem 0.6rem;
+    background: #fff;
+    color: #0f172a;
+  }
+
+  .vm__log-score {
+    flex: none;
+    display: grid;
+    place-items: center;
+    min-width: 3.2rem;
+    padding: 0.3rem 0.5rem;
+    background: var(--vm-brand);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .vm__log-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: #047857;
+  }
+
+  /* Keypad docked on the right once there is room for it. */
+  @media (min-width: 700px) {
+    .vm__ui {
+      grid-template-columns: minmax(0, 1fr) clamp(9.5rem, 16vw, 13rem);
+      grid-template-areas: 'bar bar' 'board pad' 'log log';
+    }
+
+    .vm__pad {
+      grid-template-columns: minmax(0, 1fr);
+      align-content: space-between;
+      gap: 0.3rem;
+      padding: 0.6rem;
+      border-left: 3px solid #0f172a;
+    }
+
+    .vm__pad-title {
+      display: block;
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+
+    .vm__skill b {
+      min-height: clamp(1.1rem, 3cqw, 1.7rem);
+    }
+  }
+
+  .vm__touch {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin: -0.875rem 0 0 -0.875rem;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.9);
+    box-shadow:
+      0 0 0 6px rgb(255 255 255 / 0.25),
+      0 4px 14px rgb(0 0 0 / 0.5);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Small screens: the demo moves up, right under the pitch line. */
+  @media (max-width: 999.98px) {
+    .vm__stage {
+      gap: 1.5rem;
+    }
+
+    .vm__head {
+      order: 1;
+    }
+
+    .vm__stats {
+      order: 40;
+    }
+
+    .vm__foot {
+      order: 41;
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .vm__stage {
+      grid-template-columns: minmax(0, 0.6fr) minmax(0, 1.6fr);
+    }
+
+    .vm__head {
+      grid-column: 1 / -1;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
+      align-items: end;
+    }
+
+  }
+
+  /* The gate, live (set up by scenes.ts) --------------------------------- */
+  .vm.is-gate .vm__pin,
+  .vm.is-scene .vm__pin {
+    padding-top: 0;
+  }
+
+  .vm.is-gate .vm__gate,
+  .vm.is-scene .vm__gate {
+    margin-inline: calc(var(--gutter) * -1);
+  }
+
+  .vm.is-gate .vm__gate {
+    height: 230svh;
+  }
+
+  .vm.is-gate .vm__gate-pin {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: hidden;
+  }
+
+  .vm.is-gate .vm__under,
+  .vm.is-scene .vm__cover,
+  .vm.is-gate .vm__cover {
+    position: absolute;
+    inset: 0;
+    width: auto;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    padding: var(--bar) var(--gutter) 0;
+    text-align: center;
+  }
+
+  .vm.is-gate .vm__under {
+    background: var(--vm-navy);
+  }
+
+  .vm.is-gate .vm__cover,
+  .vm.is-scene .vm__cover {
+    background: #000;
+    will-change: clip-path;
+  }
+
+  .vm__cover .vm__kicker {
+    color: var(--emerald-ice);
+  }
+
+  .vm.is-gate .vm__ball,
+  .vm.is-scene .vm__ball {
+    --ball: max(104svh, 62vw);
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: var(--ball);
+    height: var(--ball);
+    margin-top: calc(var(--ball) / -2);
+    visibility: hidden;
+    will-change: transform;
+    filter: drop-shadow(0 0 60px rgb(0 0 0 / 0.55));
+  }
+
+  .vm__ball-spin {
+    width: 100%;
+    height: 100%;
+    will-change: transform;
+  }
+
+  /* Light stays put while the ball spins under it. */
+  .vm__ball-light {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 31% 24%, rgb(255 255 255 / 0.75), rgb(255 255 255 / 0.12) 26%, transparent 44%),
+      radial-gradient(circle at 50% 50%, transparent 58%, rgb(2 6 23 / 0.3) 86%, rgb(2 6 23 / 0.72) 100%),
+      radial-gradient(circle at 72% 80%, transparent 22%, rgb(2 6 23 / 0.42) 100%);
+    box-shadow: inset 0 0 0 2px rgb(8 13 28 / 0.6);
+  }
+
+  /* Desktop: the whole section pins; the gate lies over the stage. */
+  .vm.is-scene {
+    height: 640vh;
+  }
+
+  .vm.is-scene .vm__pin {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    padding-block: 0;
+    overflow: hidden;
+    display: block;
+  }
+
+  .vm.is-scene .vm__gate {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    margin: 0;
+    pointer-events: none;
+  }
+
+  .vm.is-scene .vm__gate-pin {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .vm.is-scene .vm__under {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .vm.is-scene .vm__stage {
+    position: absolute;
+    inset: 0;
+    width: auto;
+    padding: calc(var(--bar) + 1.25rem) var(--gutter) 0;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 1.25rem clamp(2rem, 4vw, 3.5rem);
+    align-items: stretch;
+  }
+
+  .vm.is-scene .vm__headline {
+    display: block;
+  }
+
+  /* Pinned, the product's name and pitch sit in a frosted band along the bottom
+     edge: always there, never in the way of the screens above it. */
+  .vm.is-scene .vm__head {
+    grid-row: 2;
+    align-items: center;
+    margin-inline: calc(var(--gutter) * -1);
+    /* Tall, and lifted off the bottom edge: this is the line people should leave with. */
+    padding: 1.5rem var(--gutter) 2.5rem;
+    background: rgb(8 13 28 / 0.66);
+    border-top: 1px solid rgb(255 255 255 / 0.14);
+    -webkit-backdrop-filter: blur(16px) saturate(1.3);
+    backdrop-filter: blur(16px) saturate(1.3);
+  }
+
+  .vm.is-scene .vm__copy,
+  .vm.is-scene .reel {
+    grid-row: 1;
+  }
+
+  .vm.is-scene .vm__copy {
+    align-self: center;
+  }
+
+  .vm.is-scene .vm__kicker--small {
+    display: block;
+  }
+
+  .vm.is-scene .vm__copy {
+    gap: 1.1rem;
+  }
+
+  .vm.is-scene .vm__lede {
+    font-size: var(--step-0);
+  }
+
+  @media (max-height: 940px) {
+    .vm.is-scene .vm__role {
+      display: none;
+    }
+  }
+</style>

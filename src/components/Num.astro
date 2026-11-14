@@ -1,0 +1,14 @@
+---
+/**
+ * A figure such as "~800", "99.9%" or "11 / 300+". Digits and symbols are
+ * split so the symbols can take their own colour and the digits can count
+ * up (page.ts) every time the figure comes on screen.
+ */
+interface Props {
+  value: string;
+}
+
+const parts = Astro.props.value.split(/(\d+(?:[.,]\d+)?)/).filter(Boolean);
+---
+
+<span class="num" data-num>{parts.map((part) => (/^\d/.test(part) ? <b data-to={part}>{part}</b> : /^\s+$/.test(part) ? part : <i>{part}</i>))}</span>

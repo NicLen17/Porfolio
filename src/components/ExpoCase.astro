@@ -1,0 +1,1003 @@
+---
+import { Image } from 'astro:assets';
+import { media } from '../data/media';
+import { LINKS, type Content, type Lang } from '../i18n/content';
+import { mark } from '../i18n/mark';
+import ExpoAdmin from './mocks/ExpoAdmin.astro';
+import ExpoBuilder from './mocks/ExpoBuilder.astro';
+import Ext from './Ext.astro';
+import Num from './Num.astro';
+
+interface Props {
+  t: Content;
+  lang: Lang;
+}
+
+const { t, lang } = Astro.props;
+const e = t.expo;
+
+// A generic fair, laid out like the product's own seeded demo map:
+// rows of stands in the organizer's colours, with the status drawn as
+// a coloured outline plus a hatch (never as the fill).
+const SIZE = 46;
+const STEP = 62;
+const rows = [
+  { id: 'G', y: 188, x: 470, n: 10, fill: '#fdba74' },
+  { id: 'F', y: 250, x: 470, n: 10, fill: '#86efac' },
+  { id: 'E', y: 350, x: 594, n: 8, fill: '#93c5fd' },
+  { id: 'D', y: 450, x: 250, n: 12, fill: '#c4b5fd' },
+  { id: 'C', y: 590, x: 420, n: 10, fill: '#fde047' },
+  { id: 'A', y: 670, x: 420, n: 10, fill: '#fca5a5' },
+];
+
+const taken = new Set(['G2', 'G3', 'G7', 'F1', 'F5', 'F9', 'E4', 'E6', 'D3', 'D4', 'D10', 'C2', 'C8', 'A6']);
+const waiting = new Set(['G9', 'E2', 'D7', 'A3']);
+
+const stands = rows.flatMap((row) =>
+  Array.from({ length: row.n }, (_, i) => {
+    const code = `${row.id}${i + 1}`;
+    const status: 'taken' | 'wait' | 'free' = taken.has(code) ? 'taken' : waiting.has(code) ? 'wait' : 'free';
+    return { code, row: row.id, x: row.x + STEP * i, y: row.y, fill: row.fill, status };
+  }),
+);
+
+// A branch for the corners: a curved stem with leaves alternating along it.
+const twigs = Array.from({ length: 9 }, (_, i) => {
+  const t = (i + 1) / 10;
+  const x = 2 * (1 - t) * t * 90 + t * t * 190;
+  const y = 2 * (1 - t) * t * 10 + t * t * 130;
+  const side = i % 2 ? 1 : -1;
+  return { x: x.toFixed(1), y: y.toFixed(1), turn: Math.round(125 + t * 20 + side * 62), size: (1.7 - t * 0.7).toFixed(2) };
+});
+
+const total = stands.length;
+const free = stands.filter((s) => s.status === 'free').length;
+const stroke = { free: '#16a34a', wait: '#f59e0b', taken: '#ef4444' } as const;
+const legend = ['#3b82f6', '#16a34a', '#f59e0b', '#ef4444'];
+---
+
+<section class="expo seam-flat" id="expologic" data-live data-scene="expo" aria-labelledby="expo-title">
+  <div class="expo__pin">
+    <!-- Leaves drifting down behind everything: an open-air fair, not an office. -->
+    <div class="expo__bg" aria-hidden="true">
+      <svg width="0" height="0">
+        <symbol id="expo-leaf" viewBox="0 0 24 24">
+          <path d="M12 1.5C5.5 6 2.8 11.2 4 17c.9 3.4 4 5.5 8 5.5s7.1-2.1 8-5.5c1.2-5.8-1.5-11-8-15.5z" fill="currentColor"></path>
+          <path d="M12 22V7M12 13.5l-4-3M12 17l4.2-3.2M12 10.5l3.2-2.6" fill="none" stroke="#f5f0dd" stroke-width=".9" stroke-linecap="round"></path>
+        </symbol>
+        <symbol id="expo-branch" viewBox="0 0 200 150">
+          <path d="M0 0Q90 10 190 130" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path>
+          {twigs.map((twig) => <use href="#expo-leaf" width="24" height="24" transform={`translate(${twig.x} ${twig.y}) rotate(${twig.turn}) scale(${twig.size}) translate(-12 -22)`} />)}
+        </symbol>
+      </svg>
+      {['tl', 'ml', 'tr', 'mr', 'bl', 'br'].map((corner) => (
+        <svg class={`expo__branch expo__branch--${corner}`} viewBox="0 0 200 150">
+          <use href="#expo-branch"></use>
+        </svg>
+      ))}
+      <i class="expo__leaf" style="--x:1%;--y:20%;--s:1.1;--d:25s;--delay:-6s;--c:#486749;--o:0.2"><svg viewBox="0 0 24 24"><use href="#expo-leaf"></use></svg></i>
+      <i class="expo__leaf" style="--x:9%;--y:70%;--s:0.9;--d:29s;--delay:-17s;--c:#b36139;--o:0.18"><svg viewBox="0 0 24 24"><use href="#expo-leaf"></use></svg></i>
+      <i class="expo__leaf" style="--x:23%;--y:0%;--s:0.7;--d:22s;--delay:-13s;--c:#486749;--o:0.2"><svg viewBox="0 0 24 24"><use href="#expo-leaf"></use></svg></i>
+      <i class="expo__leaf" style="--x:72%;--y:1%;--s:0.8;--d:27s;--delay:-20s;--c:#1b4132;--o:0.16"><svg viewBox="0 0 24 24"><use href="#expo-leaf"></use></svg></i>
+      <i class="expo__leaf" style="--x:84%;--y:22%;--s:1.2;--d:24s;--delay:-4s;--c:#486749;--o:0.2"><svg viewBox="0 0 24 24"><use href="#expo-leaf"></use></svg></i>
+      <i class="expo__leaf" style="--x:92%;--y:62%;--s:1;--d:30s;--delay:-25s;--c:#b36139;--o:0.18"><svg viewBox="0 0 24 24"><use href="#expo-leaf"></use></svg></i>
+      <i class="expo__leaf" style="--x:4%;--y:2%;--s:1.3;--d:26s;--delay:-3s;--c:#486749;--o:0.2"><svg viewBox="0 0 24 24"><use href="#expo-leaf"></use></svg></i>
+      <i class="expo__leaf" style="--x:17%;--y:38%;--s:0.8;--d:21s;--delay:-11s;--c:#b36139;--o:0.18"><svg viewBox="0 0 24 24"><use href="#expo-leaf"></use></svg></i>
+      <i class="expo__leaf" style="--x:29%;--y:12%;--s:1.0;--d:30s;--delay:-19s;--c:#1b4132;--o:0.14"><svg viewBox="0 0 24 24"><use href="#expo-leaf"></use></svg></i>
+      <i class="expo__leaf" style="--x:43%;--y:60%;--s:1.5;--d:24s;--delay:-7s;--c:#486749;--o:0.16"><svg viewBox="0 0 24 24"><use href="#expo-leaf"></use></svg></i>
+      <i class="expo__leaf" style="--x:56%;--y:24%;--s:0.7;--d:19s;--delay:-14s;--c:#b36139;--o:0.2"><svg viewBox="0 0 24 24"><use href="#expo-leaf"></use></svg></i>
+      <i class="expo__leaf" style="--x:67%;--y:78%;--s:1.1;--d:28s;--delay:-22s;--c:#486749;--o:0.18"><svg viewBox="0 0 24 24"><use href="#expo-leaf"></use></svg></i>
+      <i class="expo__leaf" style="--x:78%;--y:6%;--s:0.9;--d:23s;--delay:-1s;--c:#1b4132;--o:0.14"><svg viewBox="0 0 24 24"><use href="#expo-leaf"></use></svg></i>
+      <i class="expo__leaf" style="--x:88%;--y:46%;--s:1.4;--d:31s;--delay:-16s;--c:#b36139;--o:0.15"><svg viewBox="0 0 24 24"><use href="#expo-leaf"></use></svg></i>
+      <i class="expo__leaf" style="--x:95%;--y:84%;--s:0.8;--d:20s;--delay:-9s;--c:#486749;--o:0.2"><svg viewBox="0 0 24 24"><use href="#expo-leaf"></use></svg></i>
+    </div>
+
+    <header class="expo__head">
+      <div class="expo__brand">
+        <Image class="expo__logo" src={media('logo-expologic.png')} alt="" width={112} height={112} format="avif" quality={70} loading="lazy" decoding="async" />
+        <div>
+          <p class="expo__kicker">{e.name}</p>
+          <h2 class="expo__title display" id="expo-title" set:html={mark(e.title)} />
+        </div>
+      </div>
+      <p class="expo__lede">{e.lede}</p>
+      <a class="btn expo__btn" href={LINKS.expologic} target="_blank" rel="noopener">{e.cta}<Ext /></a>
+    </header>
+
+    <div class="expo__copy">
+      <div class="reel-copy">
+        {
+          e.slides.map((slide, i) => (
+            <div class="reel-copy__item" data-slide={i}>
+              <p class="reel-copy__name">
+                <b>0{i + 1}</b>
+                {slide.name}
+              </p>
+              <p class="reel-copy__text">{slide.text}</p>
+              {i === 0 ? (
+                <ol class="expo__steps">
+                  {e.steps.map((step, n) => (
+                    <li data-step={n}>
+                      <span>
+                        {step}
+                        <small>{e.stepNotes[n]}</small>
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <ul class="reel-copy__list">
+                  {slide.points.map((point) => <li>{point}</li>)}
+                </ul>
+              )}
+            </div>
+          ))
+        }
+      </div>
+      <ul class="expo__stats">
+        {
+          e.stats.map((stat) => (
+            <li>
+              <Num value={stat.n} />
+              <span>{stat.l}</span>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="expo__foot">
+        <p class="expo__role">{e.role}</p>
+      </div>
+    </div>
+
+    <div class="reel" data-reel>
+      <div class="reel__track">
+    <figure class="reel__slide expo__demo" data-slide="0">
+      <div class="expo__ui">
+        <div class="expo__legend">
+          <ul>
+            {
+              e.legend.map((label, i) => (
+                <li>
+                  <i style={`background:${legend[i]}`} />
+                  {label}
+                </li>
+              ))
+            }
+          </ul>
+          <p class="expo__count">
+            <span>{e.available}</span>
+            <b><span data-free>{free}</span> / {total}</b>
+            <i><i data-meter style={`transform:scaleX(${free / total})`}></i></i>
+          </p>
+        </div>
+
+        <div class="expo__map">
+          <svg viewBox="-111 0 1422 800" role="img" aria-label={e.demoLabel}>
+            <defs>
+              {
+                (['wait', 'taken'] as const).map((kind) => (
+                  <pattern id={`expo-hatch-${kind}`} width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                    <rect width="8" height="8" fill={stroke[kind]} opacity=".12" />
+                    <rect width="1.5" height="8" fill={stroke[kind]} opacity=".5" />
+                  </pattern>
+                ))
+              }
+            </defs>
+
+            <rect x="-111" width="1422" height="800" fill="#fff"></rect>
+            <rect class="expo__venue" x="-71" y="40" width="1342" height="720" fill="#486749" fill-opacity=".12" stroke="#486749" stroke-width="2"></rect>
+
+            <g class="expo__zones">
+              <g>
+                <rect x="430" y="64" width="340" height="72" fill="#fecaca" fill-opacity=".55" stroke="#64748b" stroke-width="1.5"></rect>
+                <text x="600" y="106" text-anchor="middle">{e.stage}</text>
+              </g>
+              <g>
+                <rect x="-30" y="560" width="300" height="156" fill="#bbf7d0" fill-opacity=".6" stroke="#64748b" stroke-width="1.5"></rect>
+                <text x="120" y="644" text-anchor="middle">{e.park}</text>
+              </g>
+              <g>
+                <text x="-30" y="172" class="expo__row">{e.food}</text>
+                {[190, 262, 334].map((y, i) => (
+                  <g>
+                    <rect x="-30" y={y} width="150" height="52" fill="#b91c1c" />
+                    <text x="45" y={y + 31} text-anchor="middle" fill="#fff" class="expo__code">FT{i + 1}</text>
+                  </g>
+                ))}
+              </g>
+              <g>
+                <rect x="1130" y="560" width="100" height="156" fill="#bfdbfe" fill-opacity=".7" stroke="#64748b" stroke-width="1.5"></rect>
+                <text x="1180" y="644" text-anchor="middle">Info</text>
+                <rect x="1130" y="188" width="100" height="108" fill="#e9d5ff" fill-opacity=".7" stroke="#64748b" stroke-width="1.5"></rect>
+                <text x="1180" y="248" text-anchor="middle">WC</text>
+              </g>
+              <g>
+                <rect x="470" y="738" width="260" height="34" fill="#1e293b"></rect>
+                <text x="600" y="760" text-anchor="middle" fill="#fff" class="expo__code">↑ {e.entrance}</text>
+              </g>
+            </g>
+
+            <g class="expo__rows">
+              {rows.map((row) => <text x={row.x - 14} y={row.y + 30} text-anchor="end" class="expo__row" fill={row.fill}>{e.sheet.row} {row.id}</text>)}
+            </g>
+
+            <g class="expo__stands">
+              {
+                stands.map((stand) => (
+                  <g class="expo__stand" data-stand={stand.code} data-status={stand.status} transform={`translate(${stand.x} ${stand.y})`}>
+                    <g class="expo__lift">
+                      <rect width={SIZE} height={SIZE} fill={stand.fill} />
+                      <rect class="expo__hatch" width={SIZE} height={SIZE} fill={stand.status === 'free' ? 'none' : `url(#expo-hatch-${stand.status})`} />
+                      <rect class="expo__edge" width={SIZE} height={SIZE} fill="none" stroke={stroke[stand.status]} stroke-width="2" />
+                      <text x={SIZE / 2} y={SIZE / 2 + 4} text-anchor="middle" class="expo__code">{stand.code}</text>
+                    </g>
+                  </g>
+                ))
+              }
+            </g>
+          </svg>
+
+          <aside class="expo__sheet" aria-hidden="true">
+            <p class="expo__sheet-status">{e.sheet.status}</p>
+            <p class="expo__sheet-title">{e.sheet.title} <span data-sheet-code>C5</span></p>
+            <dl>
+              <div><dt>{e.sheet.row}</dt><dd data-sheet-row>C</dd></div>
+              <div><dt>{e.sheet.size}</dt><dd>{e.sheet.sizeValue}</dd></div>
+            </dl>
+            <span class="expo__confirm" data-confirm>{e.sheet.confirm}</span>
+          </aside>
+
+          <i class="expo__pointer" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="26" height="26"><path d="M5 3l14 8.5-6.2 1.4L10 19z" fill="#272017" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+          </i>
+        </div>
+        <div class="expo__done" aria-hidden="true">
+          <div class="expo__done-card">
+            <svg viewBox="0 0 48 48" width="48" height="48"><rect width="48" height="48" fill="#1b4132"></rect><path d="M13 25l8 8 15-17" fill="none" stroke="#fff" stroke-width="4" pathLength="1" stroke-dasharray="1"></path></svg>
+            <p class="expo__done-title">{e.toast}</p>
+            <p class="expo__done-text">{e.done.text}</p>
+            <p class="expo__done-code">{e.done.code} <b>#EXP-0428</b></p>
+            <span class="expo__done-btn">{e.done.back}</span>
+          </div>
+        </div>
+      </div>
+      <figcaption>{e.demoLabel}</figcaption>
+    </figure>
+        <figure class="reel__slide" data-slide="1">
+          <ExpoAdmin lang={lang} />
+          <figcaption>{e.slides[1].name} · {t.reel.demo}</figcaption>
+        </figure>
+        <figure class="reel__slide" data-slide="2">
+          <ExpoBuilder lang={lang} />
+          <figcaption>{e.slides[2].name} · {t.reel.demo}</figcaption>
+        </figure>
+      </div>
+      <nav class="reel__nav" aria-label={e.name}>
+        <button type="button" data-reel-prev aria-label={t.reel.prev}>
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 10l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2"></path></svg>
+        </button>
+        {
+          e.slides.map((slide, i) => (
+            <button type="button" data-reel-go={i} aria-label={`0${i + 1} ${slide.name}`} title={slide.name}>
+              0{i + 1}
+            </button>
+          ))
+        }
+        <button type="button" data-reel-next aria-label={t.reel.next}>
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"></path></svg>
+        </button>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .expo {
+    --expo-ink: #272017;
+    --expo-dim: #685b4b;
+    --expo-green: #1b4132;
+    --expo-sage: #486749;
+    --expo-orange: #b36139;
+    --expo-line: #e3ddd3;
+    position: relative;
+    background: #f5f0dd;
+    color: var(--expo-ink);
+  }
+
+  .expo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(52rem 32rem at 6% 12%, rgb(72 103 73 / 0.32), transparent 70%),
+      radial-gradient(46rem 30rem at 96% 92%, rgb(179 97 57 / 0.26), transparent 70%),
+      radial-gradient(30rem 20rem at 70% 8%, rgb(253 224 71 / 0.14), transparent 70%),
+      repeating-linear-gradient(90deg, rgb(39 32 23 / 0.05) 0 1px, transparent 1px 3rem),
+      repeating-linear-gradient(0deg, rgb(39 32 23 / 0.05) 0 1px, transparent 1px 3rem);
+    pointer-events: none;
+  }
+
+  .expo__pin {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .expo__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  /* Each leaf falls on its own clock while its picture sways, so no two move alike. */
+  .expo__leaf {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: calc(var(--s) * 3rem);
+    aspect-ratio: 1;
+    color: var(--c);
+    opacity: 0;
+    animation: leaf-fall var(--d) linear infinite;
+    animation-delay: var(--delay);
+    will-change: transform;
+  }
+
+  .expo__leaf svg {
+    width: 100%;
+    height: 100%;
+    animation: leaf-sway calc(var(--d) / 5) ease-in-out infinite alternate;
+  }
+
+  /* Corner branches: fixed in place, breathing a little, so the corners are never bare. */
+  .expo__branch {
+    position: absolute;
+    left: -1.5rem;
+    top: calc(var(--bar) - 0.5rem);
+    width: clamp(13rem, 24vw, 24rem);
+    color: var(--expo-sage);
+    opacity: 0.3;
+    transform-origin: 0 0;
+    animation: branch-sway 7s ease-in-out infinite alternate;
+  }
+
+  .expo__branch--tr {
+    left: auto;
+    right: -1.5rem;
+    color: var(--expo-green);
+    opacity: 0.3;
+    scale: -1 1;
+    transform-origin: 100% 0;
+    animation-duration: 8.5s;
+  }
+
+  /* A smaller sprig under each top branch. */
+  .expo__branch--ml,
+  .expo__branch--mr {
+    top: calc(var(--bar) + clamp(9rem, 17vw, 17rem));
+    width: clamp(7.5rem, 12vw, 12rem);
+    color: var(--expo-orange);
+    opacity: 0.24;
+    animation-duration: 10.5s;
+    animation-delay: -4s;
+  }
+
+  .expo__branch--mr {
+    left: auto;
+    right: -1.5rem;
+    color: var(--expo-sage);
+    opacity: 0.28;
+    scale: -1 1;
+    transform-origin: 100% 0;
+    animation-duration: 7.5s;
+  }
+
+  .expo__branch--bl,
+  .expo__branch--br {
+    top: auto;
+    bottom: 7rem;
+    width: clamp(10rem, 17vw, 17rem);
+    color: var(--expo-orange);
+    opacity: 0.2;
+    scale: 1 -1;
+    transform-origin: 0 100%;
+    animation-duration: 9.5s;
+  }
+
+  .expo__branch--br {
+    left: auto;
+    right: -1.5rem;
+    color: var(--expo-sage);
+    opacity: 0.26;
+    scale: -1 -1;
+    transform-origin: 100% 100%;
+    animation-duration: 6.5s;
+  }
+
+  @keyframes branch-sway {
+    from {
+      rotate: -2.5deg;
+    }
+    to {
+      rotate: 3deg;
+    }
+  }
+
+  .expo:not(.is-live) .expo__branch,
+  .expo:not(.is-live) .expo__leaf,
+  .expo:not(.is-live) .expo__leaf svg {
+    animation-play-state: paused;
+  }
+
+  @keyframes leaf-fall {
+    from {
+      opacity: 0;
+      transform: translate3d(0, -18svh, 0);
+    }
+    10%,
+    88% {
+      opacity: var(--o);
+    }
+    to {
+      opacity: 0;
+      transform: translate3d(7vw, 112svh, 0);
+    }
+  }
+
+  @keyframes leaf-sway {
+    from {
+      transform: rotate(-38deg) translateX(-1.4rem);
+    }
+    to {
+      transform: rotate(44deg) translateX(1.4rem);
+    }
+  }
+
+  .expo__head {
+    display: grid;
+    gap: 0.9rem 3rem;
+  }
+
+  .expo__brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .expo__logo {
+    flex: none;
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .expo__title em {
+    font-style: normal;
+    color: var(--expo-orange);
+  }
+
+  .expo ::selection {
+    background: var(--expo-green);
+    color: #fff;
+  }
+
+  .expo :focus-visible {
+    outline-color: var(--expo-green);
+  }
+
+  .expo__pin {
+    display: grid;
+    gap: clamp(2rem, 4vw, 3.5rem);
+    align-items: center;
+    width: min(100%, var(--wrap) + var(--gutter) * 2);
+    margin-inline: auto;
+    padding: var(--section-y) var(--gutter);
+  }
+
+  .expo__copy {
+    display: grid;
+    gap: 1.35rem;
+  }
+
+  .expo__kicker {
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--expo-green);
+  }
+
+  .expo__title {
+    font-size: var(--step-3);
+    color: var(--expo-green);
+  }
+
+  .expo__lede {
+    max-width: 34rem;
+    font-size: var(--step-1);
+    line-height: 1.4;
+    color: var(--expo-dim);
+  }
+
+  .expo__steps {
+    display: grid;
+    gap: 0.6rem;
+    counter-reset: step;
+  }
+
+  .expo__steps li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: start;
+    line-height: 1.75rem;
+    color: var(--expo-dim);
+    transition: color 0.3s;
+  }
+
+  .expo__steps li::before {
+    content: counter(step);
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition:
+      background-color 0.3s,
+      color 0.3s,
+      border-color 0.3s;
+  }
+
+  /* What each click shows: keeps this screen's copy as tall as the other two. */
+  .expo__steps small {
+    display: block;
+    font-size: var(--step--1);
+    line-height: 1.35;
+    opacity: 0.8;
+  }
+
+  .expo__steps li.is-on {
+    color: var(--expo-ink);
+  }
+
+  .expo__steps li.is-on::before {
+    background: var(--expo-orange);
+    border-color: var(--expo-orange);
+    color: #fff;
+  }
+
+  .expo__stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgb(39 32 23 / 0.18);
+  }
+
+  .expo__stats li {
+    display: grid;
+    gap: 0.2rem;
+    font-size: var(--step--1);
+    line-height: 1.3;
+    color: var(--expo-dim);
+  }
+
+  .expo__stats .num i {
+    color: var(--expo-orange);
+  }
+
+  .expo__stats .num {
+    font-size: var(--step-2);
+    line-height: 1;
+    color: var(--expo-green);
+  }
+
+  .expo__foot {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .expo__btn {
+    justify-self: start;
+    background: var(--expo-green);
+    border-color: var(--expo-green);
+    color: #fff;
+  }
+
+  .expo__btn::before {
+    background: var(--expo-orange);
+  }
+
+  .expo__btn:hover {
+    border-color: var(--expo-orange);
+    color: #fff;
+  }
+
+  .expo__role {
+    font-size: var(--step--1);
+    color: var(--expo-dim);
+  }
+
+  /* Map UI ------------------------------------------------------------ */
+  .expo__demo {
+    min-width: 0;
+  }
+
+  .expo__demo figcaption {
+    margin-top: 0.75rem;
+    font-size: var(--step--1);
+    color: var(--expo-dim);
+    text-align: center;
+  }
+
+  .expo__ui {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--expo-line);
+    background: #fdfcf6;
+    box-shadow: 0 40px 70px -40px rgb(39 32 23 / 0.45);
+  }
+
+  .expo__legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1.25rem;
+    padding: 0.65rem 0.9rem;
+    border-bottom: 1px solid var(--expo-line);
+    font-size: 0.75rem;
+    color: var(--expo-dim);
+  }
+
+  .expo__legend ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.9rem;
+  }
+
+  .expo__legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+  }
+
+  .expo__legend li > i {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+  }
+
+  .expo__count {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 0.25rem 0.6rem;
+    align-items: baseline;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .expo__count b {
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--expo-ink);
+    text-align: right;
+  }
+
+  .expo__count > i {
+    grid-column: 1 / -1;
+    height: 4px;
+    background: var(--expo-line);
+    overflow: hidden;
+  }
+
+  .expo__count > i > i {
+    display: block;
+    height: 100%;
+    background: #16a34a;
+    transform-origin: left;
+    transition: transform 0.5s var(--ease-out);
+  }
+
+  .expo__map {
+    position: relative;
+    overflow: hidden;
+    container-type: inline-size;
+  }
+
+  .expo__map svg {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+
+  .expo__zones text,
+  .expo__row {
+    font-size: 15px;
+    font-weight: 600;
+    fill: #1e293b;
+  }
+
+  .expo__rows .expo__row {
+    paint-order: stroke;
+    stroke: #1e293b;
+    stroke-width: 0.6;
+  }
+
+  .expo__code {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12px;
+    font-weight: 600;
+    fill: #1e293b;
+  }
+
+  .expo__zones .expo__code[fill='#fff'] {
+    fill: #fff;
+  }
+
+  .expo__stand[data-status='pick'] .expo__edge {
+    stroke: #3b82f6;
+    stroke-width: 4;
+  }
+
+  .expo__stand[data-status='wait'] .expo__edge {
+    stroke: #f59e0b;
+  }
+
+  .expo__sheet {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: min(46cqw, 15rem);
+    display: grid;
+    align-content: start;
+    gap: 0.6rem;
+    padding: clamp(0.75rem, 3cqw, 1.25rem);
+    background: #fdfcf6;
+    border-left: 1px solid var(--expo-line);
+    box-shadow: -20px 0 40px -20px rgb(39 32 23 / 0.35);
+    transform: translateX(105%);
+    font-size: clamp(0.68rem, 2.4cqw, 0.85rem);
+  }
+
+  .expo__sheet-status {
+    font-size: 0.85em;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #16a34a;
+  }
+
+  .expo__sheet-title {
+    font-family: var(--font-display);
+    font-size: 1.5em;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--expo-green);
+  }
+
+  .expo__sheet dl {
+    display: grid;
+    gap: 0.35rem;
+    padding-block: 0.6rem;
+    border-block: 1px solid var(--expo-line);
+  }
+
+  .expo__sheet dl div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .expo__sheet dt {
+    color: var(--expo-dim);
+  }
+
+  .expo__sheet dd {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .expo__confirm {
+    display: grid;
+    place-items: center;
+    min-height: 2.6em;
+    margin-top: 0.25rem;
+    padding: 0.5em 0.75em;
+    background: var(--expo-sage);
+    color: #fff;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  /* Confirmation: takes over the whole mini browser, so it cannot be missed. */
+  .expo__done {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgb(27 65 50 / 0.82);
+    opacity: 0;
+    visibility: hidden;
+    container-type: inline-size;
+  }
+
+  .expo__done-card {
+    display: grid;
+    justify-items: center;
+    gap: 0.55em;
+    width: min(100%, 24em);
+    padding: 1.6em 1.4em 1.4em;
+    background: #fdfcf6;
+    color: var(--expo-ink);
+    font-size: clamp(0.72rem, 2.5cqw, 1rem);
+    text-align: center;
+    box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.55);
+  }
+
+  .expo__done-card svg {
+    width: 3em;
+    height: 3em;
+  }
+
+  .expo__done-title {
+    margin-top: 0.3em;
+    font-family: var(--font-display);
+    font-size: 1.9em;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--expo-green);
+  }
+
+  .expo__done-text {
+    max-width: 22em;
+    color: var(--expo-dim);
+    line-height: 1.4;
+  }
+
+  .expo__done-code {
+    padding: 0.4em 0.8em;
+    border: 1px dashed var(--expo-sage);
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 0.9em;
+    white-space: nowrap;
+  }
+
+  .expo__done-btn {
+    margin-top: 0.4em;
+    padding: 0.7em 1.2em;
+    background: var(--expo-orange);
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .expo__pointer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    pointer-events: none;
+    filter: drop-shadow(0 3px 4px rgb(0 0 0 / 0.3));
+  }
+
+  @media (max-width: 999.98px) {
+    .expo__pin {
+      gap: 1.5rem;
+    }
+
+    .expo__head {
+      order: 0;
+    }
+
+    .expo__stats {
+      order: 40;
+    }
+
+    .expo__foot {
+      order: 41;
+    }
+  }
+
+  @media (min-width: 1000px) {
+    /* Mirrored against Volley Manager: here the product leads and the copy follows. */
+    .expo__pin {
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.6fr);
+    }
+
+    .expo__head {
+      grid-column: 1 / -1;
+      order: 0;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
+      align-items: end;
+    }
+
+    .expo__copy {
+      order: 2;
+    }
+
+    .expo .reel {
+      order: 1;
+    }
+
+    .expo__demo {
+      width: min(100%, calc((100svh - 13rem) * 1.7));
+    }
+  }
+
+  /* Pinned scene: set up by scenes.ts */
+  .expo.is-scene {
+    height: 560vh;
+  }
+
+  .expo.is-scene .expo__pin {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    /* Full width, with the page margins as padding: the band below reaches both
+       edges of the screen at any size, and the branches sit on the real corners. */
+    --pad: max(var(--gutter), (100% - var(--wrap)) / 2);
+    width: 100%;
+    padding-block: calc(var(--bar) + 1.25rem) 0;
+    padding-inline: var(--pad);
+    grid-template-rows: minmax(0, 1fr) auto;
+    row-gap: 1.25rem;
+    align-content: stretch;
+    align-items: stretch;
+    overflow: hidden;
+  }
+
+  .expo.is-scene .expo__copy {
+    gap: 0.9rem;
+    align-self: center;
+  }
+
+  /* Same frosted band as Volley Manager, in this product's paper tones. */
+  .expo.is-scene .expo__head {
+    grid-row: 2;
+    align-items: center;
+    --edge: max(var(--gutter), (100vw - var(--wrap)) / 2);
+    margin-inline: calc(var(--edge) * -1);
+    padding: 1.5rem var(--edge) 2.5rem;
+    background: rgb(253 252 246 / 0.7);
+    border-top: 1px solid rgb(39 32 23 / 0.16);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    backdrop-filter: blur(16px) saturate(1.2);
+  }
+
+  .expo.is-scene .expo__copy,
+  .expo.is-scene .reel {
+    grid-row: 1;
+  }
+
+  .expo.is-scene .expo__title {
+    font-size: clamp(1.5rem, 0.9rem + 1.7vw, 2.6rem);
+  }
+
+  .expo.is-scene .expo__title {
+    font-size: clamp(1.8rem, 1rem + 2.1vw, 3.1rem);
+  }
+
+  .expo.is-scene .expo__lede {
+    font-size: var(--step-0);
+  }
+
+  @media (max-height: 940px) {
+    .expo.is-scene .expo__role {
+      display: none;
+    }
+  }
+</style>

@@ -1,0 +1,785 @@
+---
+import Ambient from './Ambient.astro';
+import { Image } from 'astro:assets';
+import { media } from '../data/media';
+import { talks } from '../data/projects';
+import { LINKS, type Content } from '../i18n/content';
+import Ext from './Ext.astro';
+
+interface Props {
+  t: Content;
+}
+
+const { t } = Astro.props;
+const k = t.talks;
+// The talk itself, the portrait clip, and the landscape one.
+const [talkClip, tallClip, wideClip] = talks.clips;
+---
+
+<section class="section talks cut-r" id="talks" data-live aria-labelledby="talks-title">
+  <Ambient kind="signal" />
+  <div class="wrap">
+    <header class="section__head" data-rise>
+      <p class="eyebrow">{t.nav.talks}</p>
+      <h2 class="section__title display" id="talks-title">{k.title}</h2>
+      <p class="section__lede">{k.lede}</p>
+    </header>
+
+    <div class="talks__grid">
+      <figure class="talks__cell talks__video">
+        <figcaption class="talks__tag talks__tag--split">
+          <span>{k.featured}</span>
+          <a class="talks__credit" href="https://x.com/agutssj" target="_blank" rel="noopener" data-credit-open>
+            {k.editor.by} <b>@agutssj</b>
+            <Ext />
+          </a>
+        </figcaption>
+        <!-- Credit for the channel's editor: a preview that follows the pointer over the link. -->
+        <span class="credit" data-credit aria-hidden="true">
+          <Image class="credit__banner" src={media('editor-banner.png')} alt="" width={432} height={196} format="avif" quality={60} loading="lazy" decoding="async" />
+          <Image class="credit__avatar" src={media('editor-avatar.png')} alt="" width={252} height={252} format="avif" quality={65} loading="lazy" decoding="async" />
+          <span class="credit__body">
+            <span class="credit__kind">{k.editor.kind}</span>
+            <span class="credit__name display">Agustin</span>
+            <span class="credit__handle">@agutssj · Argentina</span>
+            <span class="credit__text">{k.editor.text}</span>
+            <span class="credit__go">{k.editor.cta} ↗</span>
+          </span>
+        </span>
+        <button class="embed embed--video" type="button" data-embed={`https://www.youtube-nocookie.com/embed/${talks.video.id}?autoplay=1&rel=0`} data-title={talks.video.title}>
+          <Image src={media(talks.video.image)} alt="" widths={[480, 800, 1280]} sizes="(min-width: 1000px) 62vw, 92vw" format="avif" quality={55} loading="lazy" decoding="async" />
+          <span class="embed__play" aria-hidden="true"></span>
+          <span class="embed__title" lang="es">{talks.video.title}</span>
+        </button>
+      </figure>
+
+      <a class="talks__cell talks__yt" href={LINKS.youtube} target="_blank" rel="noopener">
+        <span class="talks__tag">{k.channel}</span>
+        <span class="talks__yt-body">
+          <svg viewBox="0 0 28 20" width="84" height="60" aria-hidden="true"><rect width="28" height="20" fill="#ff0033"></rect><path d="M11 5.5v9l8-4.5z" fill="#fff"></path></svg>
+          <span class="talks__yt-handle display">@fabioramostech</span>
+          <span class="talks__yt-text">{k.youtubeText}</span>
+          <span class="talks__go">{k.youtube}<Ext /></span>
+        </span>
+      </a>
+
+      <figure class="talks__cell talks__clip talks__clip--tall">
+        <figcaption class="talks__tag">{k.clipKind} · LinkedIn</figcaption>
+        <iframe src={tallClip} title={`${k.clipTitles[1]} 1`} loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </figure>
+
+      <!-- One talk, top to bottom: the recording, then the deck that was on screen. -->
+      <div class="talks__pair">
+        <p class="talks__pair-tag"><b>{k.deckTitle}</b><span>{k.deckKind}</span></p>
+        <figure class="talks__cell talks__clip">
+          <figcaption class="talks__tag">{k.talkKind}</figcaption>
+          <iframe src={talkClip} title={k.clipTitles[0]} loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </figure>
+        <p class="talks__flow" aria-hidden="true">
+          <i></i>
+          <span>{k.flow}</span>
+          <svg viewBox="0 0 16 24" width="16" height="24"><path d="M8 0v21M2 15l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2"></path></svg>
+          <i></i>
+        </p>
+        <a class="talks__cell talks__deck" href={talks.deck.href} target="_blank" rel="noopener">
+          <Image src={media(talks.deck.image)} alt="" widths={[360, 640]} sizes="(min-width: 1000px) 26vw, 92vw" format="avif" quality={55} loading="lazy" decoding="async" />
+          <span class="talks__deck-body">
+            <span class="talks__deck-kind">{k.deckTag}</span>
+            <span class="talks__deck-title display">{k.deckTitle}</span>
+            <span class="talks__deck-text">{k.deckText}</span>
+            <span class="talks__go">{k.deckCta}<Ext /></span>
+          </span>
+        </a>
+      </div>
+
+      <figure class="talks__cell talks__clip talks__clip--wide">
+        <figcaption class="talks__tag">{k.clipKind} · LinkedIn</figcaption>
+        <iframe src={wideClip} title={`${k.clipTitles[2]} 2`} loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </figure>
+
+      <div class="talks__cell talks__more">
+        <span class="talks__tag">{k.moreTag}</span>
+        <div class="talks__more-body">
+          <p class="talks__more-title display">{k.moreTitle}</p>
+          <p class="talks__more-text">{k.moreText}</p>
+          <p class="talks__more-cta">
+            <a class="talks__tile talks__tile--solid" href={LINKS.linkedin} target="_blank" rel="noopener">
+              <svg class="talks__logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.125 2.062 2.062 0 0 1 0 4.125zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
+              <span>LinkedIn</span>
+              <Ext />
+            </a>
+            <a class="talks__tile" href={LINKS.youtube} target="_blank" rel="noopener">
+              <svg class="talks__logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
+              <span>YouTube</span>
+              <Ext />
+            </a>
+            <a class="talks__tile" href={LINKS.instagram} target="_blank" rel="noopener">
+              <svg class="talks__logo talks__logo--line" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5.5"></rect>
+                <circle cx="12" cy="12" r="4.6"></circle>
+                <circle class="talks__logo-dot" cx="17.6" cy="6.4" r="1.3"></circle>
+              </svg>
+              <span>Instagram</span>
+              <Ext />
+            </a>
+          </p>
+          <!-- Off the clock: the gaming account, said with a wink. -->
+          <p class="talks__play">
+            <svg viewBox="0 0 24 16" width="24" height="16" aria-hidden="true"><path d="M6 1h12a5 5 0 0 1 5 5v4a5 5 0 0 1-9 3h-4a5 5 0 0 1-9-3V6a5 5 0 0 1 5-5zM5 8h4M7 6v4M16 9.5h.01M19 6.5h.01" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+            <span>
+              {k.play}
+              <a href={LINKS.gaming} target="_blank" rel="noopener">@wako_tv17<Ext /></a>
+              <i>{k.playNote}</i>
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .talks {
+    background:
+      radial-gradient(60rem 36rem at 85% 0%, rgb(6 95 70 / 0.55), transparent 70%),
+      radial-gradient(40rem 30rem at 0% 100%, rgb(16 185 129 / 0.14), transparent 70%), #000;
+  }
+
+  /* Three even rows that mirror each other: wide + narrow, narrow + wide, half + half. */
+  .talks__grid {
+    --gap: clamp(1rem, 1.8vw, 1.75rem);
+    display: grid;
+    gap: var(--gap);
+  }
+
+  .talks__cell {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--coal);
+    border: 1px solid var(--line);
+  }
+
+  .talks__tag {
+    flex: none;
+    padding: 0.8rem 1.1rem;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    white-space: nowrap;
+  }
+
+  .talks__tag--split {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0;
+  }
+
+  .talks__tag--split > span {
+    padding-block: 0.8rem;
+  }
+
+  /* Credit where it is due: opens the editor's card. */
+  .talks__credit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    align-self: stretch;
+    margin-right: -1.1rem;
+    padding-inline: 1.1rem;
+    border-left: 1px solid var(--line);
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    color: var(--ink-dim);
+    transition:
+      background-color 0.25s,
+      color 0.25s;
+  }
+
+  .talks__credit b {
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    text-transform: none;
+    transition: color 0.25s;
+  }
+
+  .talks__credit:hover {
+    background: var(--accent);
+    color: #1a0006;
+  }
+
+  .talks__credit:hover b {
+    color: #1a0006;
+  }
+
+  .talks__credit .ext {
+    width: 0.6rem;
+    height: 0.6rem;
+  }
+
+  /* Positioned inside the video cell (page.ts moves it with the pointer). */
+  .credit {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 5;
+    display: block;
+    width: min(21rem, 100%);
+    background: var(--black);
+    border: 1px solid var(--accent);
+    box-shadow: 7px 7px 0 #7a1027;
+    opacity: 0;
+    transform: translate3d(var(--x, 0), var(--y, 3rem), 0) scale(0.94);
+    transform-origin: 100% 0;
+    transition:
+      opacity 0.25s var(--ease-out),
+      scale 0.3s var(--ease-out);
+    pointer-events: none;
+  }
+
+  .credit.is-open {
+    opacity: 1;
+    transform: translate3d(var(--x, 0), var(--y, 3rem), 0);
+  }
+
+  .credit__banner {
+    display: block;
+    width: 100%;
+    height: 6.5rem;
+    object-fit: cover;
+  }
+
+  .credit__avatar {
+    position: absolute;
+    left: 1rem;
+    top: 4.1rem;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 50%;
+    border: 3px solid var(--black);
+    object-fit: cover;
+  }
+
+  .credit__body {
+    display: grid;
+    gap: 0.25rem;
+    padding: 2.6rem 1rem 1rem;
+    letter-spacing: 0;
+    text-transform: none;
+    white-space: normal;
+  }
+
+  .credit__kind {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .credit__name {
+    font-size: var(--step-1);
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .credit__handle {
+    font-size: var(--step--1);
+    color: var(--ink-dim);
+  }
+
+  .credit__text {
+    margin-top: 0.35rem;
+    font-size: var(--step--1);
+    font-weight: 400;
+    line-height: 1.45;
+    color: var(--ink-dim);
+  }
+
+  .credit__go {
+    margin-top: 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--emerald-ice);
+  }
+
+  .talks__clip {
+    min-height: 30rem;
+  }
+
+  .talks__clip iframe {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    border: 0;
+    background: #fff;
+  }
+
+  /* Click-to-load player: no third-party request until someone asks for it. */
+  .embed {
+    position: relative;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    background: #0b100e;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .embed--video,
+  .embed-frame--video {
+    aspect-ratio: 16 / 9;
+  }
+
+  .embed img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition:
+      transform 0.9s var(--ease-out),
+      opacity 0.4s;
+  }
+
+  .embed:hover img {
+    transform: scale(1.03);
+    opacity: 0.75;
+  }
+
+  .embed__play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: clamp(3.5rem, 7vw, 5.5rem);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    background: var(--emerald);
+    transition:
+      transform 0.4s var(--ease-out),
+      background-color 0.3s;
+  }
+
+  .embed__play::after {
+    content: '';
+    position: absolute;
+    left: 54%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-style: solid;
+    border-width: 0.6em 0 0.6em 1em;
+    border-color: transparent transparent transparent #000;
+    font-size: clamp(0.9rem, 1.6vw, 1.3rem);
+  }
+
+  .embed:hover .embed__play {
+    transform: translate(-50%, -50%) scale(1.1);
+    background: var(--accent);
+  }
+
+  .embed__title {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 3rem 1.25rem 1.1rem;
+    background: linear-gradient(transparent, rgb(0 0 0 / 0.9));
+    font-weight: 600;
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+
+  .embed-frame {
+    position: relative;
+    overflow: hidden;
+    background: #0b100e;
+  }
+
+  .embed-frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  /* Channel card: everything centred, nothing left floating in a corner. */
+  .talks__yt {
+    transition: background-color 0.35s var(--ease-out);
+  }
+
+  .talks__yt-body {
+    flex: 1;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 0.75rem;
+    padding: 2rem 1.25rem;
+    text-align: center;
+  }
+
+  .talks__yt-handle {
+    margin-top: 0.5rem;
+    font-size: clamp(1.05rem, 0.6rem + 1.1vw, 1.6rem);
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+  }
+
+  .talks__yt-text {
+    max-width: 18rem;
+    color: var(--ink-dim);
+  }
+
+  .talks__yt:hover,
+  .talks__deck:hover {
+    background: var(--graphite-2);
+  }
+
+  .talks__go {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.5rem;
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--emerald-ice);
+  }
+
+  /* MVP to Pro: one framed column, talk on top, deck below, joined by an arrow. */
+  .talks__pair {
+    display: grid;
+    align-content: start;
+    padding: 0 var(--gap) var(--gap);
+    background: rgb(16 185 129 / 0.08);
+    border: 1px solid var(--emerald);
+  }
+
+  .talks__pair-tag {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.9rem;
+    margin: 0 calc(var(--gap) * -1) var(--gap);
+    padding: 0.85rem 1.1rem;
+    background: var(--emerald);
+    color: #00130c;
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  .talks__pair-tag b {
+    font-family: var(--font-display);
+    font-size: var(--step-0);
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .talks__pair .talks__clip {
+    min-height: 0;
+    height: clamp(20rem, 34vw, 27rem);
+  }
+
+  .talks__flow {
+    display: grid;
+    grid-template-columns: 1fr auto auto 1fr;
+    align-items: center;
+    gap: 0.9rem;
+    padding-block: 0.9rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--emerald-ice);
+  }
+
+  .talks__flow i {
+    height: 1px;
+    background: var(--emerald);
+    opacity: 0.5;
+  }
+
+  .talks__flow svg {
+    animation: cue-nudge 2.2s var(--ease-in-out) infinite;
+  }
+
+  .talks__deck {
+    transition: background-color 0.35s var(--ease-out);
+  }
+
+  .talks__deck img {
+    width: 100%;
+    height: 100%;
+    min-height: 11rem;
+    object-fit: cover;
+    object-position: top left;
+  }
+
+  .talks__deck-body {
+    display: grid;
+    gap: 0.5rem;
+    align-content: center;
+    padding: 1.4rem 1.5rem;
+  }
+
+  .talks__deck-kind {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+
+  .talks__deck-title {
+    font-size: var(--step-2);
+    text-transform: uppercase;
+  }
+
+  .talks__deck-text {
+    color: var(--ink-dim);
+  }
+
+  @media (min-width: 700px) {
+    .talks__deck {
+      display: grid;
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+    }
+  }
+
+  /* See more: two ways out, side by side. */
+  .talks__more-body {
+    flex: 1;
+    display: grid;
+    align-content: center;
+    gap: 0.9rem;
+    padding: 2rem clamp(1.25rem, 3vw, 2.5rem);
+  }
+
+  .talks__more-title {
+    font-size: var(--step-2);
+  }
+
+  .talks__more-text {
+    max-width: 30rem;
+    color: var(--ink-dim);
+  }
+
+  .talks__more-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-top: 0.5rem;
+    padding-right: 5px;
+  }
+
+  /* Two square keys, the logo in the system's own green instead of brand colours. */
+  .talks__tile {
+    position: relative;
+    display: grid;
+    align-content: space-between;
+    width: clamp(7.5rem, 11vw, 9rem);
+    aspect-ratio: 1;
+    padding: 0.9rem;
+    background: var(--black);
+    border: 1px solid var(--emerald);
+    box-shadow: 5px 5px 0 var(--emerald-deep);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-weight: 700;
+    transition:
+      transform 0.18s var(--ease-out),
+      box-shadow 0.18s var(--ease-out),
+      background-color 0.25s,
+      color 0.25s;
+  }
+
+  .talks__logo {
+    width: 2.6rem;
+    height: 2.6rem;
+    fill: var(--emerald);
+    transition: fill 0.25s;
+  }
+
+  .talks__logo--line {
+    fill: none;
+    stroke: var(--emerald);
+    stroke-width: 2;
+    transition: stroke 0.25s;
+  }
+
+  .talks__logo-dot {
+    fill: var(--emerald);
+    stroke: none;
+    transition: fill 0.25s;
+  }
+
+  .talks__tile:hover svg.talks__logo--line {
+    fill: none;
+    stroke: #00130c;
+  }
+
+  .talks__tile:hover .talks__logo-dot {
+    fill: #00130c;
+  }
+
+  .talks__play {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    margin-top: 0.4rem;
+    padding-top: 0.9rem;
+    border-top: 1px dashed var(--line);
+    font-size: var(--step--1);
+    color: var(--ink-dim);
+  }
+
+  .talks__play svg:not(.ext) {
+    flex: none;
+    margin-top: 0.2rem;
+    color: var(--accent);
+  }
+
+  .talks__play a {
+    display: inline-flex;
+    margin-inline: 0.15em 0.3em;
+    align-items: center;
+    gap: 0.3rem;
+    font-weight: 700;
+    color: var(--accent);
+    border-bottom: 1px solid currentColor;
+  }
+
+  .talks__play a:hover {
+    color: var(--ink);
+  }
+
+  .talks__play i {
+    font-style: normal;
+    color: var(--ink-faint);
+  }
+
+  .talks__tile .ext {
+    position: absolute;
+    right: 0.9rem;
+    top: 0.9rem;
+    width: 0.8rem;
+    height: 0.8rem;
+    color: var(--emerald-ice);
+    transition: color 0.25s;
+  }
+
+  .talks__tile--solid {
+    background: var(--emerald);
+    color: #00130c;
+  }
+
+  .talks__tile--solid .talks__logo,
+  .talks__tile--solid .ext {
+    fill: #00130c;
+    color: #00130c;
+  }
+
+  .talks__tile--solid .ext {
+    fill: none;
+  }
+
+  .talks__tile:hover {
+    transform: translate(3px, 3px);
+    box-shadow: 2px 2px 0 var(--emerald-deep);
+    background: var(--emerald-ice);
+    color: #00130c;
+  }
+
+  .talks__tile:hover .talks__logo {
+    fill: #00130c;
+  }
+
+  .talks__tile:hover .ext {
+    color: #00130c;
+  }
+
+  .talks__tile:active {
+    transform: translate(5px, 5px);
+    box-shadow: none;
+  }
+
+  @media (min-width: 700px) {
+    .talks__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .talks__video,
+    .talks__yt,
+    .talks__pair,
+    .talks__more {
+      grid-column: 1 / -1;
+    }
+
+    .talks__pair {
+      order: 1;
+    }
+
+    .talks__clip--tall,
+    .talks__clip--wide {
+      order: 2;
+    }
+
+    .talks__more {
+      order: 3;
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .talks__grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .talks__video {
+      grid-column: span 9;
+    }
+
+    .talks__yt {
+      grid-column: span 3;
+    }
+
+    /* The portrait clip takes a third of the row; the talk keeps the other two. */
+    .talks__clip--tall {
+      grid-column: span 4;
+    }
+
+    .talks__pair {
+      grid-column: span 8;
+    }
+
+    .talks__clip--wide,
+    .talks__more {
+      grid-column: span 6;
+    }
+
+    .talks__pair,
+    .talks__clip--tall,
+    .talks__clip--wide,
+    .talks__more {
+      order: 0;
+    }
+
+    .talks__clip--tall {
+      min-height: 0;
+    }
+
+    /* The row is as tall as the "more" card needs; the clip beside it follows. */
+    .talks__clip--wide,
+    .talks__more {
+      min-height: 26rem;
+    }
+  }
+</style>

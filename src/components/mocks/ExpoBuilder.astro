@@ -1,0 +1,351 @@
+---
+/**
+ * ExpoLogic, map builder: tools on the left, the venue in the middle, and the
+ * "Generate stands" panel on the right. The loop picks a colour, presses
+ * Generate, and a row of stands drops onto the plan. Simplified from the
+ * real template editor.
+ */
+import type { Lang } from '../../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const L = {
+  en: {
+    tools: ['Select', 'Move map', 'Map zone', 'Add stand', 'Service zone', 'Text', 'Shape'],
+    signs: 'Signage',
+    signList: ['Entrance', 'Exit', 'Flow'],
+    panel: 'Generate stands',
+    layout: 'Layout',
+    size: 'Size (m)',
+    qty: 'Quantity',
+    colour: 'Stand colour',
+    go: 'Generate stands (3)',
+    plaza: 'Main square',
+    stage: 'Stage',
+    street: 'Main avenue',
+  },
+  es: {
+    tools: ['Seleccionar', 'Mover mapa', 'Zona del mapa', 'Agregar stand', 'Zona de servicio', 'Texto', 'Forma'],
+    signs: 'Señalización',
+    signList: ['Entrada', 'Salida', 'Flujo'],
+    panel: 'Generar stands',
+    layout: 'Disposición',
+    size: 'Medida (m)',
+    qty: 'Cantidad',
+    colour: 'Color de stands',
+    go: 'Generar stands (3)',
+    plaza: 'Plaza central',
+    stage: 'Escenario',
+    street: 'Av. principal',
+  },
+}[Astro.props.lang];
+
+const swatches = ['#93c5fd', '#fca5a5', '#86efac', '#fde047', '#c4b5fd', '#fdba74'];
+// Rows already on the plan: [x, y, count, colour, vertical?]
+const rows: [number, number, number, string, boolean][] = [
+  [14, 14, 9, '#60a5fa', true],
+  [62, 20, 4, '#86efac', false],
+  [62, 44, 5, '#fca5a5', true],
+  [150, 30, 6, '#fdba74', true],
+  [40, 132, 4, '#c4b5fd', false],
+];
+const stands = rows.flatMap(([x, y, n, fill, vertical]) => Array.from({ length: n }, (_, i) => ({ x: vertical ? x : x + i * 13, y: vertical ? y + i * 13 : y, fill })));
+---
+
+<div class="mock mock--light" data-demo data-film="0,0.9" aria-hidden="true">
+  <div class="eb">
+    <div class="eb__tools">
+      <ul>
+        {L.tools.map((tool, i) => <li class:list={{ 'is-on': i === 0, 'eb__add': i === 3 }}>{tool}</li>)}
+      </ul>
+      <p>{L.signs}</p>
+      <ul class="eb__signs">
+        {L.signList.map((sign) => <li>{sign}</li>)}
+      </ul>
+    </div>
+
+    <div class="eb__canvas">
+      <svg viewBox="0 0 180 170">
+        <rect x="6" y="6" width="168" height="150" fill="#e8ede4" stroke="#486749" stroke-width="1"></rect>
+        <rect x="84" y="50" width="56" height="70" fill="#cfe3c8" stroke="#8fb58a" stroke-width=".8"></rect>
+        <text x="112" y="87" text-anchor="middle">{L.plaza}</text>
+        <rect x="14" y="140" width="22" height="12" fill="#b8457a"></rect>
+        <text x="25" y="148" text-anchor="middle" fill="#fff">{L.stage}</text>
+        <rect x="6" y="158" width="168" height="8" fill="#272017"></rect>
+        <text x="90" y="164" text-anchor="middle" fill="#fff">{L.street}</text>
+        {stands.map((stand) => <rect x={stand.x} y={stand.y} width="10" height="10" fill={stand.fill} stroke="#272017" stroke-width=".35" />)}
+
+        <!-- The row that gets generated in the loop. -->
+        <g class="eb__new">
+          {[0, 1, 2].map((i) => <rect class="eb__stand" x={92 + i * 14} y={130} width="11" height="11" stroke="#272017" stroke-width=".4" style={`--i:${i}`} />)}
+          <rect class="eb__pick" x="89" y="127" width="45" height="17" fill="none" stroke="#2563eb" stroke-width=".8" stroke-dasharray="2 1.5"></rect>
+        </g>
+      </svg>
+    </div>
+
+    <div class="eb__panel">
+      <h4>{L.panel}</h4>
+      <p class="eb__label">{L.layout}</p>
+      <p class="eb__layouts"><i /><i class="is-on" /><i /><i /><i /></p>
+      <div class="eb__fields">
+        <p><span class="eb__label">{L.size}</span><b>3</b></p>
+        <p><span class="eb__label">{L.qty}</span><b>3</b></p>
+      </div>
+      <p class="eb__label">{L.colour}</p>
+      <p class="eb__swatches">{swatches.map((c, i) => <i style={`background:${c}`} class:list={{ 'eb__chosen': i === 3 }} />)}</p>
+      <span class="eb__go">{L.go}</span>
+    </div>
+
+    <i class="demo__cursor eb__cursor"></i>
+  </div>
+</div>
+
+<style is:global>
+  .eb {
+    position: relative;
+    display: grid;
+    grid-template-columns: 15em 1fr 17em;
+    height: 100%;
+    background: #fdfcf6;
+    color: #272017;
+  }
+
+  .eb__tools {
+    display: grid;
+    align-content: start;
+    gap: 0.4em;
+    padding: 1.2em 1em;
+    border-right: 1px solid #e3ddd3;
+  }
+
+  .eb__tools ul {
+    display: grid;
+    gap: 0.15em;
+  }
+
+  .eb__tools li {
+    padding: 0.5em 0.7em;
+    font-size: 0.9em;
+  }
+
+  .eb__tools li.is-on {
+    background: #486749;
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .eb__tools p,
+  .eb__label {
+    margin-top: 0.8em;
+    font-size: 0.7em;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #685b4b;
+  }
+
+  .eb__signs li:first-child {
+    color: #15803d;
+  }
+
+  .eb__signs li:nth-child(2) {
+    color: #dc2626;
+  }
+
+  .eb__signs li:last-child {
+    color: #2563eb;
+  }
+
+  .eb__canvas {
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    min-height: 0;
+    padding: 1em;
+    background: #f1ecdc;
+  }
+
+  .eb__canvas svg {
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    box-shadow: 0 0 0 1px #cfc7b6;
+  }
+
+  .eb__canvas text {
+    font-size: 4.2px;
+    font-weight: 700;
+    fill: #1e293b;
+  }
+
+  /* Generated stands drop in one after another, then get selected as a row. */
+  .eb__stand {
+    fill: #fde047;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: eb-stand 10s var(--ease-back) infinite;
+    animation-delay: calc(var(--i) * 0.12s);
+  }
+
+  .eb__pick {
+    animation: eb-pick 10s infinite;
+  }
+
+  .eb__panel {
+    display: grid;
+    align-content: start;
+    gap: 0.5em;
+    padding: 1.2em 1em;
+    border-left: 1px solid #e3ddd3;
+  }
+
+  .eb__panel h4 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.15em;
+    color: #1b4132;
+  }
+
+  .eb__layouts,
+  .eb__swatches {
+    display: flex;
+    gap: 0.4em;
+  }
+
+  .eb__layouts i {
+    flex: 1;
+    height: 2em;
+    border: 1px solid #e3ddd3;
+    background: #faf7ec;
+  }
+
+  .eb__layouts i.is-on {
+    background: #486749;
+    border-color: #486749;
+  }
+
+  .eb__fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6em;
+  }
+
+  .eb__fields p {
+    display: grid;
+    gap: 0.3em;
+  }
+
+  .eb__fields b {
+    padding: 0.5em 0.7em;
+    border: 1px solid #e3ddd3;
+    background: #faf7ec;
+  }
+
+  .eb__swatches i {
+    flex: 1;
+    aspect-ratio: 1;
+    border: 1px solid rgb(39 32 23 / 0.2);
+  }
+
+  .eb__chosen {
+    animation: eb-chosen 10s infinite;
+  }
+
+  .eb__go {
+    margin-top: 0.6em;
+    padding: 0.8em 0.5em;
+    background: #486749;
+    color: #fff;
+    font-weight: 700;
+    text-align: center;
+    animation: eb-go 10s infinite;
+  }
+
+  .eb__cursor {
+    animation: eb-cursor 10s var(--ease-in-out) infinite;
+  }
+
+  @keyframes eb-cursor {
+    0%,
+    6% {
+      transform: translate(46cqw, 30cqw);
+    }
+    22%,
+    28% {
+      transform: translate(88.5cqw, 27cqw);
+    }
+    25% {
+      transform: translate(88.5cqw, 27cqw) scale(0.8);
+    }
+    42%,
+    48% {
+      transform: translate(86.5cqw, 33cqw);
+    }
+    45% {
+      transform: translate(86.5cqw, 33cqw) scale(0.8);
+    }
+    68%,
+    100% {
+      transform: translate(56cqw, 46cqw);
+    }
+  }
+
+  @keyframes eb-chosen {
+    0%,
+    24%,
+    96%,
+    100% {
+      box-shadow: none;
+    }
+    26%,
+    94% {
+      box-shadow:
+        0 0 0 0.15em #fdfcf6,
+        0 0 0 0.3em #272017;
+    }
+  }
+
+  @keyframes eb-go {
+    0%,
+    44%,
+    50%,
+    100% {
+      background: #486749;
+    }
+    46% {
+      background: #b36139;
+    }
+  }
+
+  @keyframes eb-stand {
+    0%,
+    47% {
+      opacity: 0;
+      transform: translateY(-10px) scale(0.4);
+    }
+    54%,
+    95% {
+      opacity: 1;
+      transform: none;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes eb-pick {
+    0%,
+    66% {
+      opacity: 0;
+    }
+    70%,
+    95% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+</style>

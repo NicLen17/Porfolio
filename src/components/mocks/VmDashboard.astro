@@ -1,0 +1,434 @@
+---
+/**
+ * Volley Manager, post-match summary: KPI cards, where the points came from,
+ * positivity radar and efficiency bars. A simplified take on the real
+ * "Estadísticas > General" tab, in the product's dark palette.
+ */
+import type { Lang } from '../../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const L = {
+  en: {
+    rival: 'Rival',
+    tabs: ['Statistics', 'AI analysis', 'Play by play'],
+    kpis: ['Points logged', 'Own errors (=)', 'Blocked attacks (/)', 'Direct balance'],
+    src: 'Where the points come from',
+    pts: 'points',
+    srcs: ['Attack', 'Block', 'Ace', 'Other'],
+    pos: 'Positivity by skill',
+    eff: 'Efficiency by skill',
+    skills: ['Srv', 'Rec', 'Set', 'Att', 'Blk', 'Def'],
+  },
+  es: {
+    rival: 'Rival',
+    tabs: ['Estadísticas', 'Análisis con IA', 'Jugada a jugada'],
+    kpis: ['Puntos registrados', 'Errores propios (=)', 'Ataques bloqueados (/)', 'Balance directo'],
+    src: 'De dónde vienen los puntos',
+    pts: 'puntos',
+    srcs: ['Ataque', 'Bloqueo', 'Ace', 'Otros'],
+    pos: 'Positividad por fundamento',
+    eff: 'Eficiencia por fundamento',
+    skills: ['Saq', 'Rec', 'Arm', 'Ata', 'Blo', 'Def'],
+  },
+}[Astro.props.lang];
+
+const kpis = [
+  { n: '78', tone: 'ok' },
+  { n: '14', tone: 'bad' },
+  { n: '6', tone: 'warn' },
+  { n: '+58', tone: 'plain' },
+];
+const shares = [62, 14, 9, 15];
+const tones = ['#8fb4ff', '#c9a8ec', '#facc15', '#64748b'];
+// Donut: each share is one dash on a circle whose length counts as 100.
+const arcs = shares.map((w, i) => ({ w: w - 1.2, from: shares.slice(0, i).reduce((sum, n) => sum + n, 0), tone: tones[i] }));
+
+// Radar: six axes, values 0 to 1.
+const values = [0.58, 0.71, 0.83, 0.66, 0.44, 0.62];
+const at = (i: number, r: number) => {
+  const a = (Math.PI * 2 * i) / 6 - Math.PI / 2;
+  return `${(50 + Math.cos(a) * r).toFixed(1)},${(50 + Math.sin(a) * r).toFixed(1)}`;
+};
+const ring = (r: number) => values.map((_, i) => at(i, r)).join(' ');
+const shape = values.map((v, i) => at(i, v * 40)).join(' ');
+
+// Efficiency: percentage per skill, coloured by band like the product does.
+const eff = [34, 12, 41, 38, -6, 22];
+const band = (v: number) => (v >= 30 ? '#8fb4ff' : v >= 0 ? '#64748b' : '#ff8f8f');
+---
+
+<div class="mock mock--dark" data-demo data-film="0.04,0.31" aria-hidden="true">
+  <div class="vd">
+    <div class="vd__head">
+      <b>CBA <i>3</i></b>
+      <span class="vd__sets"><i>25-20</i><i>23-25</i><i>25-18</i><i>25-21</i></span>
+      <b><i>1</i> {L.rival}</b>
+    </div>
+    <p class="vd__tabs">{L.tabs.map((tab, i) => <span class:list={{ 'is-on': i === 0 }}>{tab}</span>)}</p>
+
+    <ul class="vd__kpis">
+      {
+        kpis.map((kpi, i) => (
+          <li data-tone={kpi.tone}>
+            <span>{L.kpis[i]}</span>
+            <b>{kpi.n}</b>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="vd__row">
+      <section class="vd__card">
+        <h4>{L.src}</h4>
+        <div class="vd__src">
+          <svg class="vd__donut" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="37" fill="none" stroke="#1e293b" stroke-width="15"></circle>
+            {arcs.map((arc, i) => <circle class="vd__arc" cx="50" cy="50" r="37" fill="none" stroke={arc.tone} stroke-width="15" pathLength="100" style={`--w:${arc.w};--o:${arc.from};--i:${i}`} />)}
+            <text class="vd__total" x="50" y="54" text-anchor="middle">78</text>
+            <text class="vd__unit" x="50" y="64" text-anchor="middle">{L.pts}</text>
+          </svg>
+        <ul class="vd__legend">
+          {
+            L.srcs.map((label, i) => (
+              <li>
+                <i style={`background:${tones[i]}`} />
+                {label}
+                <b>{shares[i]}%</b>
+              </li>
+            ))
+          }
+        </ul>
+        </div>
+      </section>
+
+      <section class="vd__card">
+        <h4>{L.pos}</h4>
+        <svg class="vd__radar" viewBox="0 0 100 100">
+          <g fill="none" stroke="#334155" stroke-width=".5">
+            <polygon points={ring(40)}></polygon>
+            <polygon points={ring(27)}></polygon>
+            <polygon points={ring(14)}></polygon>
+          </g>
+          <polygon class="vd__shape" points={shape} fill="#8fb4ff" fill-opacity=".22" stroke="#8fb4ff" stroke-width="1.2"></polygon>
+          {L.skills.map((label, i) => <text x={at(i, 47).split(',')[0]} y={Number(at(i, 47).split(',')[1]) + 1.6} text-anchor="middle">{label}</text>)}
+        </svg>
+      </section>
+
+      <section class="vd__card">
+        <h4>{L.eff}</h4>
+        <ul class="vd__bars">
+          {
+            eff.map((v, i) => (
+              <li style={`--h:${Math.abs(v)};--c:${band(v)};--i:${i}`} class:list={{ 'is-neg': v < 0 }}>
+                <b>{v}%</b>
+                <i />
+                <span>{L.skills[i]}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  .vd {
+    display: grid;
+    grid-template-rows: auto auto auto 1fr;
+    gap: 1.1em;
+    height: 100%;
+    padding: 1.4em;
+    background: #0b1120;
+    color: #e2e8f0;
+  }
+
+  .vd__head {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.4em;
+    font-size: 1.25em;
+    font-weight: 800;
+  }
+
+  .vd__head b i {
+    padding: 0.1em 0.5em;
+    background: #1e293b;
+    font-style: normal;
+    color: #6ee7b7;
+  }
+
+  .vd__head b:last-child i {
+    color: #fca5a5;
+  }
+
+  .vd__sets {
+    display: flex;
+    gap: 0.4em;
+    font-size: 0.6em;
+    font-weight: 700;
+    color: #94a3b8;
+  }
+
+  .vd__sets i {
+    padding: 0.25em 0.55em;
+    border: 1px solid #334155;
+    font-style: normal;
+  }
+
+  .vd__tabs {
+    display: flex;
+    gap: 1.6em;
+    border-bottom: 1px solid #1e293b;
+    font-weight: 700;
+    color: #64748b;
+  }
+
+  .vd__tabs span {
+    padding-bottom: 0.6em;
+  }
+
+  .vd__tabs .is-on {
+    color: #fff;
+    box-shadow: inset 0 -0.18em 0 #8fb4ff;
+  }
+
+  .vd__kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.8em;
+  }
+
+  .vd__kpis li {
+    display: grid;
+    gap: 0.25em;
+    padding: 0.8em 0.9em;
+    background: #111a2e;
+    border: 1px solid #1e293b;
+    border-left: 0.25em solid #64748b;
+    font-size: 0.82em;
+    color: #94a3b8;
+  }
+
+  .vd__kpis b {
+    font-family: var(--font-display);
+    font-size: 2.1em;
+    line-height: 1;
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  .vd__kpis [data-tone='ok'] {
+    border-left-color: #34d399;
+  }
+
+  .vd__kpis [data-tone='bad'] {
+    border-left-color: #ff8f8f;
+  }
+
+  .vd__kpis [data-tone='warn'] {
+    border-left-color: #facc15;
+  }
+
+  .vd__row {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr 1.15fr;
+    gap: 0.8em;
+    min-height: 0;
+  }
+
+  .vd__card {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 0.7em;
+    min-height: 0;
+    padding: 0.9em;
+    background: #111a2e;
+    border: 1px solid #1e293b;
+  }
+
+  .vd__card h4 {
+    margin: 0;
+    font-size: 0.82em;
+    font-weight: 700;
+    color: #cbd5e1;
+  }
+
+  .vd__src {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 0.8em;
+    min-height: 0;
+  }
+
+  .vd__donut {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+  }
+
+  /* Each share draws itself round the ring, one after the other. */
+  .vd__arc {
+    transform: rotate(-90deg);
+    transform-origin: 50px 50px;
+    stroke-dasharray: calc(var(--w) * 1px) 100px;
+    stroke-dashoffset: calc(var(--o) * -1px);
+    animation: vd-arc 9s var(--ease-out) infinite;
+    animation-delay: calc(var(--i) * 0.14s);
+  }
+
+  .vd__total {
+    font-family: var(--font-display);
+    font-size: 21px;
+    font-weight: 800;
+    fill: #fff;
+  }
+
+  .vd__unit {
+    font-size: 6.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    fill: #94a3b8;
+  }
+
+  .vd__legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4em 1em;
+    align-self: end;
+    font-size: 0.8em;
+    color: #94a3b8;
+  }
+
+  .vd__legend li {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+  }
+
+  .vd__legend i {
+    width: 0.7em;
+    height: 0.7em;
+  }
+
+  .vd__legend b {
+    margin-left: auto;
+    color: #fff;
+  }
+
+  .vd__radar {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .vd__radar text {
+    font-size: 5.5px;
+    font-weight: 700;
+    fill: #94a3b8;
+  }
+
+  .vd__shape {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: vd-pop 9s var(--ease-out) infinite;
+  }
+
+  .vd__bars {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0.5em;
+    align-items: end;
+    min-height: 0;
+  }
+
+  .vd__bars li {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    justify-items: center;
+    gap: 0.25em;
+    height: 100%;
+    font-size: 0.72em;
+    color: #94a3b8;
+  }
+
+  .vd__bars b {
+    color: #fff;
+  }
+
+  .vd__bars i {
+    align-self: end;
+    width: 100%;
+    height: calc(var(--h) * 2.1%);
+    min-height: 0.3em;
+    background: var(--c);
+    transform-origin: bottom;
+    animation: vd-grow-y 9s var(--ease-out) infinite;
+    animation-delay: calc(var(--i) * 0.08s + 0.2s);
+  }
+
+  @keyframes vd-grow-x {
+    0%,
+    5% {
+      transform: scaleX(0);
+    }
+    20%,
+    93% {
+      transform: none;
+    }
+    100% {
+      transform: scaleX(0);
+    }
+  }
+
+  @keyframes vd-arc {
+    0%,
+    5% {
+      stroke-dasharray: 0 100px;
+    }
+    24%,
+    93% {
+      stroke-dasharray: calc(var(--w) * 1px) 100px;
+    }
+    100% {
+      stroke-dasharray: 0 100px;
+    }
+  }
+
+  @keyframes vd-grow-y {
+    0%,
+    5% {
+      transform: scaleY(0);
+    }
+    22%,
+    93% {
+      transform: none;
+    }
+    100% {
+      transform: scaleY(0);
+    }
+  }
+
+  @keyframes vd-pop {
+    0%,
+    8% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    26%,
+    93% {
+      transform: none;
+      opacity: 1;
+    }
+    100% {
+      transform: scale(0);
+      opacity: 0;
+    }
+  }
+</style>

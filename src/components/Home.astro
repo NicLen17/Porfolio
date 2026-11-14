@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Hero from './Hero.astro';
+import VolleyCase from './VolleyCase.astro';
+import ExpoCase from './ExpoCase.astro';
+import Tools from './Tools.astro';
+import Projects from './Projects.astro';
+import Talks from './Talks.astro';
+import Credentials from './Credentials.astro';
+import Experience from './Experience.astro';
+import About from './About.astro';
+import Contact from './Contact.astro';
+import { content, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = content[lang];
+---
+
+<Base lang={lang}>
+  <Header t={t} lang={lang} />
+  <main id="main">
+    <Hero t={t} />
+    <VolleyCase t={t} lang={lang} />
+    <ExpoCase t={t} lang={lang} />
+    <Tools t={t} />
+    <Projects t={t} />
+    <Talks t={t} />
+    <Credentials t={t} lang={lang} />
+    <Experience t={t} lang={lang} />
+    <About t={t} />
+  </main>
+  <Contact t={t} />
+</Base>
+
+<script>
+  import '../scripts/intro';
+  import '../scripts/cursor';
+  import '../scripts/page';
+</script>
