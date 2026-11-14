@@ -63,7 +63,7 @@ const geometry = { netX, top: C.y, col, row, away: awayZones, spots };
 ---
 
 <Lab id="vm" product={v.name} title={x.title} kicker={L.demo} note={L.note} close={L.close} reset={L.reset}>
-  <div class="vl" data-vl data-step="player" data-copy={JSON.stringify(x.copy)} data-court={JSON.stringify(geometry)} data-lineup={JSON.stringify(lineup)}>
+  <div class="vl" data-vl data-step="player" data-vl-strings={JSON.stringify(x.copy)} data-court={JSON.stringify(geometry)} data-lineup={JSON.stringify(lineup)}>
     <div class="vl__main">
       <!-- Quick points, either side of the scoreboard: for rallies that end without one of our touches. -->
       <div class="vl__bar">
@@ -180,17 +180,32 @@ const geometry = { netX, top: C.y, col, row, away: awayZones, spots };
     --lab-mark: #ef4444;
   }
 
+  /* The board fills the layer and sits in the middle of whatever is left over.
+     Wide layers put the keypad beside the court; tall ones give the court the
+     full width and line the keypad and the log up underneath. */
   .vl {
     display: grid;
     gap: 1rem;
+    align-content: center;
     min-height: 100%;
     padding: clamp(0.75rem, 2vw, 1.4rem);
   }
 
-  @media (min-width: 1000px) {
+  @container lab (min-width: 60rem) and (min-aspect-ratio: 13/10) {
     .vl {
-      grid-template-columns: minmax(0, 1fr) clamp(17rem, 27vw, 24rem);
+      grid-template-columns: minmax(0, 1fr) clamp(17rem, 27cqw, 26rem);
       align-items: start;
+    }
+  }
+
+  @container lab (min-width: 44rem) and (max-aspect-ratio: 13/10) {
+    .vl__side-col {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .vl__col button {
+      min-height: 3.1rem;
     }
   }
 
@@ -486,22 +501,28 @@ const geometry = { netX, top: C.y, col, row, away: awayZones, spots };
     background: #f87171;
   }
 
-  /* Follow-up question: a row of answers across the bottom of the court. */
+  /* Follow-up question: a row of answers under the court. Its room is always
+     reserved, so the court never jumps when a question comes and goes, and the
+     answers never cover a zone. */
   .vl__ask {
-    position: absolute;
-    inset: auto 0.6rem 0.6rem;
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     justify-content: center;
     gap: 0.4rem;
+    min-height: 3.9rem;
     padding: 0.5rem;
-    background: rgb(2 6 23 / 0.9);
-    border: 1px solid #334155;
-    animation: xl-in 0.3s var(--ease-out);
+    background: #020617;
+    border-top: 1px solid var(--lab-line);
   }
 
   .vl__ask[hidden] {
-    display: none;
+    display: flex;
+    visibility: hidden;
+  }
+
+  .vl__ask:not([hidden]) {
+    animation: xl-in 0.3s var(--ease-out);
   }
 
   .vl__ask button {

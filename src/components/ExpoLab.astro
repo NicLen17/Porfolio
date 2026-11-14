@@ -161,16 +161,27 @@ const words = { free: e.legend[1], wait: e.legend[2], taken: e.legend[3] };
     color: #1b4132;
   }
 
+  /* The plan fills the layer and sits in the middle of whatever is left over.
+     Wide layers put the sheet beside the plan; tall ones give the plan the
+     full width and line the steps and the sheet up underneath. */
   .xl {
     display: grid;
     gap: 1rem;
+    align-content: center;
     min-height: 100%;
     padding: clamp(0.75rem, 2vw, 1.4rem);
   }
 
-  @media (min-width: 900px) {
+  @container lab (min-width: 56rem) and (min-aspect-ratio: 13/10) {
     .xl {
-      grid-template-columns: minmax(0, 1fr) clamp(15rem, 24vw, 21rem);
+      grid-template-columns: minmax(0, 1fr) clamp(15rem, 24cqw, 23rem);
+      align-items: start;
+    }
+  }
+
+  @container lab (min-width: 44rem) and (max-aspect-ratio: 13/10) {
+    .xl__side {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
       align-items: start;
     }
   }

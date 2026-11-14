@@ -47,7 +47,7 @@ const NEXT_ZONE: Record<number, number> = { 2: 1, 1: 6, 6: 5, 5: 4, 4: 3, 3: 2 }
 
 export function initVolleyLab(lab: HTMLElement) {
   const root = lab.querySelector<HTMLElement>('[data-vl]')!;
-  const copy: Copy = JSON.parse(root.dataset.copy!);
+  const copy: Copy = JSON.parse(root.dataset.vlStrings!);
   const court: Court = JSON.parse(root.dataset.court!);
   const seed: { zone: number; n: number }[] = JSON.parse(root.dataset.lineup!);
 

@@ -148,7 +148,9 @@ const { id, product, title, kicker, note, close, reset } = Astro.props;
     color: #fff;
   }
 
+  /* A container, so each demo can lay itself out by the room it really has. */
   .lab__body {
+    container: lab / size;
     min-height: 0;
     overflow: auto;
     overscroll-behavior: contain;
