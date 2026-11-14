@@ -101,7 +101,7 @@ const legend = ['#3b82f6', '#16a34a', '#f59e0b', '#ef4444'];
         </div>
       </div>
       <p class="expo__lede">{e.lede}</p>
-      <a class="btn expo__btn" href={LINKS.expologic} target="_blank" rel="noopener">{e.cta}<Ext /></a>
+      <a class="btn cta-wide expo__btn" href={LINKS.expologic} target="_blank" rel="noopener"><span class="cta-wide__label">{e.cta}</span><i class="cta-wide__rule" aria-hidden="true"></i><Ext /></a>
     </header>
 
     <div class="expo__copy">
@@ -616,7 +616,7 @@ const legend = ['#3b82f6', '#16a34a', '#f59e0b', '#ef4444'];
   }
 
   .expo__btn {
-    justify-self: center;
+    --cta-mark: #f5c9a8;
     background: var(--expo-green);
     border-color: var(--expo-green);
     color: #fff;

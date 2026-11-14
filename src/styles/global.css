@@ -1005,3 +1005,63 @@ html:not(.all-in) .about {
     transform: scale(1.32);
   }
 }
+
+/* A call to action that spans its column: a marker and the label at the start,
+   a rule that draws across the gap, and the way out at the far end. The empty
+   width becomes a line pointing at the arrow instead of blank space. */
+.cta-wide {
+  justify-self: stretch;
+  justify-content: flex-start;
+  gap: 0.9rem;
+  width: 100%;
+  font-size: var(--step--1);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.cta-wide__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.cta-wide__label::before {
+  content: '';
+  border-style: solid;
+  border-width: 0.36em 0 0.36em 0.56em;
+  border-color: transparent transparent transparent var(--cta-mark, var(--accent));
+  transition: transform 0.35s var(--ease-out);
+}
+
+.cta-wide__rule {
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.35;
+  transform: scaleX(0.4);
+  transform-origin: left;
+  transition:
+    transform 0.5s var(--ease-out),
+    opacity 0.3s;
+}
+
+.cta-wide .ext {
+  width: 0.85em;
+  height: 0.85em;
+  transition: transform 0.35s var(--ease-out);
+}
+
+.cta-wide:hover .cta-wide__label::before {
+  border-left-color: currentColor;
+  transform: translateX(0.25em);
+}
+
+.cta-wide:hover .cta-wide__rule {
+  opacity: 0.7;
+  transform: none;
+}
+
+.cta-wide:hover .ext {
+  transform: translate(0.15em, -0.15em);
+}

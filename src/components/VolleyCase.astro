@@ -161,7 +161,7 @@ for (let axis = 0; axis < 3; axis++) {
           </div>
         </div>
         <p class="vm__lede">{v.lede}</p>
-        <a class="btn vm__btn" href={LINKS.volley} target="_blank" rel="noopener">{v.cta}<Ext /></a>
+        <a class="btn cta-wide vm__btn" href={LINKS.volley} target="_blank" rel="noopener"><span class="cta-wide__label">{v.cta}</span><i class="cta-wide__rule" aria-hidden="true"></i><Ext /></a>
       </header>
 
       <div class="vm__copy">
@@ -536,7 +536,7 @@ for (let axis = 0; axis < 3; axis++) {
   }
 
   .vm__btn {
-    justify-self: center;
+    --cta-mark: var(--vm-red);
   }
 
   .vm__btn {
