@@ -32,24 +32,27 @@ const riseLate = () => {
   }
 };
 
-// The animation library and the product scenes stay out of the first paint:
-// they load once the page has finished loading, or sooner if someone scrolls.
+// The animation library and the product scenes stay out of the first paint
+// and out of the intro: they load a moment after the intro has finished, when
+// the browser is idle, or at once if someone starts scrolling first.
 const scenes = document.querySelectorAll<HTMLElement>('[data-scene]');
 if (scenes.length) {
   let loaded = false;
   const load = () => {
     if (loaded) return;
     loaded = true;
-    near.disconnect();
+    removeEventListener('scroll', load);
     import('./scenes').then((mod) => mod.initScenes());
   };
-  const near = new IntersectionObserver((entries) => entries.some((entry) => entry.isIntersecting) && load(), {
-    rootMargin: '40% 0px',
-  });
-  scenes.forEach((el) => near.observe(el));
   const idle = () => (window.requestIdleCallback ?? ((fn: () => void) => setTimeout(fn, 200)))(load);
-  if (document.readyState === 'complete') idle();
-  else addEventListener('load', idle, { once: true });
+  const whenCalm = () => {
+    if (loaded) return;
+    // Not in the same breath as the end of the intro: that moment is busy enough.
+    if (document.documentElement.classList.contains('intro-done') && document.readyState === 'complete') setTimeout(idle, 1200);
+    else setTimeout(whenCalm, 400);
+  };
+  whenCalm();
+  addEventListener('scroll', load, { passive: true });
 }
 
 // Far sections skip rendering until needed (see global.css). An in-page jump

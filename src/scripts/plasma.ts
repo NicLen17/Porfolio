@@ -23,6 +23,7 @@ uniform float uP;
 uniform float uT;
 uniform float uAspect;
 uniform float uLod;
+uniform float uK;
 in vec2 vUv;
 out vec4 o;
 
@@ -39,7 +40,9 @@ float fbm(vec2 p){
 }
 
 void main(){
-  vec2 q = vec2(vUv.x * uAspect, vUv.y);
+  // The canvas is only a band around the name; uK scales the noise back to hero heights,
+  // so the smoke looks the same as it would on a full-screen canvas.
+  vec2 q = vec2(vUv.x * uAspect, vUv.y) * uK;
   // 0 while it is smoke, 1 once the type has set.
   float set = smoothstep(0.08, 0.7, uP);
   float chaos = pow(1.0 - set, 1.35);
@@ -47,7 +50,7 @@ void main(){
   // The tear: a coarse swirl that bends whole letters, and a fine one that frays their edges.
   vec2 bend = vec2(fbm(q * 7.0 + vec2(0.0, uT * 2.4)), fbm(q * 7.0 + vec2(4.7, -uT * 2.1))) - 0.5;
   vec2 fray = vec2(fbm(q * 23.0 - uT * 3.1), fbm(q * 23.0 + 2.3 + uT * 2.8)) - 0.5;
-  vec2 disp = (bend * 0.11 + fray * 0.035) * chaos;
+  vec2 disp = (bend * 0.11 + fray * 0.035) * chaos / uK;
   disp.x /= uAspect;
 
   float a = textureLod(uTex, vUv + disp, uLod * 0.42 * chaos).r;
@@ -76,8 +79,9 @@ void main(){
   o = vec4(col * v + glow, clamp(v + halo * flash, 0.0, 1.0));
 }`;
 
-function drawName(hero: HTMLElement, name: HTMLElement, scale: number): HTMLCanvasElement {
-  const box = hero.getBoundingClientRect();
+type Box = { left: number; top: number; width: number; height: number };
+
+function drawName(box: Box, name: HTMLElement, scale: number): HTMLCanvasElement {
   const tex = document.createElement('canvas');
   tex.width = Math.max(2, Math.round(box.width * scale));
   tex.height = Math.max(2, Math.round(box.height * scale));
@@ -122,10 +126,20 @@ export function plasmaReveal(
   const gl = canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: true, antialias: false, preserveDrawingBuffer: hold > 0 });
   if (!gl) return null;
 
-  const box = hero.getBoundingClientRect();
+  // Only a band around the name is drawn, not the whole hero: a third of the
+  // pixels to shade on every frame, and a third of the texture to upload.
+  const stage = hero.getBoundingClientRect();
+  const type = name.getBoundingClientRect();
+  const pad = Math.max(type.height * 1.2, 70);
+  const top = Math.max(stage.top, type.top - pad);
+  const bottom = Math.min(stage.bottom, type.bottom + pad);
+  const box: Box = { left: stage.left, top, width: stage.width, height: bottom - top };
+  canvas.style.top = `${top - stage.top}px`;
+  canvas.style.bottom = 'auto';
+  canvas.style.height = `${box.height}px`;
   // Sharp enough that the last frames never look upscaled, capped so the shader stays cheap.
   const scale = Math.min(Math.min(window.devicePixelRatio || 1, 2), 1800 / box.width);
-  const tex = drawName(hero, name, scale);
+  const tex = drawName(box, name, scale);
   canvas.width = tex.width;
   canvas.height = tex.height;
 
@@ -160,6 +174,7 @@ export function plasmaReveal(
   const uP = gl.getUniformLocation(prog, 'uP');
   const uT = gl.getUniformLocation(prog, 'uT');
   gl.uniform1f(gl.getUniformLocation(prog, 'uAspect'), tex.width / tex.height);
+  gl.uniform1f(gl.getUniformLocation(prog, 'uK'), box.height / stage.height);
   // Blur radius follows the texture size, so it looks the same at any resolution.
   gl.uniform1f(gl.getUniformLocation(prog, 'uLod'), Math.max(4, Math.log2(tex.width) - 3.4));
   gl.viewport(0, 0, tex.width, tex.height);

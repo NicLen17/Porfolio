@@ -81,8 +81,11 @@ async function reveal() {
   const canvas = freshCanvas();
   root.classList.add('intro--reveal');
   drift(); // the lanes start with the name, before the pictures return
+  // Phones take the CSS version of the same reveal: compiling a shader and
+  // uploading a texture is the single longest task of the intro on a slow CPU.
+  const light = matchMedia('(max-width: 699.98px)').matches;
   try {
-    plasma = plasmaReveal(hero, canvas, nameEl, 820, () => root.classList.add('name-on'));
+    plasma = light ? null : plasmaReveal(hero, canvas, nameEl, 720, () => root.classList.add('name-on'));
   } catch {
     plasma = null;
   }
@@ -95,7 +98,7 @@ async function reveal() {
   // No WebGL, or the context was lost: the same idea in plain CSS.
   canvas.style.display = 'none';
   root.classList.add('intro--css', 'name-on');
-  later(finish, 1350);
+  later(finish, 1000);
 }
 
 function playFull() {
@@ -113,15 +116,17 @@ function playFull() {
     later(() => {
       root.classList.add('intro--dark');
       later(reveal, 140);
-    }, 220);
+    }, 60);
   };
   const onEnd = (event: AnimationEvent) => {
-    if (event.animationName !== 'tile-focus') return;
+    // Phones run the drop without the focus pull, so either one ending counts.
+    if (event.animationName !== 'tile-focus' && event.animationName !== 'tile-drop') return;
+    if (event.animationName === 'tile-drop' && matchMedia('(min-width: 700px)').matches) return;
     last?.removeEventListener('animationend', onEnd);
     darken();
   };
   last?.addEventListener('animationend', onEnd);
-  later(darken, 2900); // in case the animation event never arrives
+  later(darken, 2000); // in case the animation event never arrives
 }
 
 function playShort() {

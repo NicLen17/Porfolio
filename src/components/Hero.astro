@@ -346,9 +346,20 @@ const cta = [
   html.intro .tile {
     /* Both on the key itself: one compositor layer per key, not two. */
     animation:
-      tile-drop 0.6s cubic-bezier(0.3, 1.25, 0.5, 1) both,
-      tile-focus 0.85s var(--ease-out) both;
-    animation-delay: calc(var(--o) * 10ms + 40ms);
+      tile-drop 0.5s cubic-bezier(0.3, 1.25, 0.5, 1) both,
+      tile-focus 0.6s var(--ease-out) both;
+    /* A short stagger: the whole board is down in about a second, so the name
+       (the first thing worth reading) is not kept waiting. */
+    animation-delay: calc(var(--o) * 6ms + 40ms);
+  }
+
+  /* Phones skip the focus pull: blurring every falling key is the most
+     expensive part of the intro, and the least visible on a small screen. */
+  @media (max-width: 699.98px) {
+    html.intro .tile {
+      animation: tile-drop 0.5s cubic-bezier(0.3, 1.25, 0.5, 1) both;
+      animation-delay: calc(var(--o) * 6ms + 40ms);
+    }
   }
 
   /* The keys fall blank: dark caps, no pictures. Those come on after the name. */
